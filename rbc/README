@@ -1,0 +1,70 @@
+This is version 1.0 of the RBC library.  RBC is an extension of the Tcl/Tk
+toolkit and contains refactored components from version 2.4 of the BLT 
+library.  These components were refactored so that they would function 
+with version 8.5 and of Tcl/Tk.
+
+RBC is available from:
+	www.sourceforge.net/projects/rbctoolkit/
+	
+More information on BLT is available from:
+	www.sourceforge.net/projects/blt/files
+	
+RBC is intended to work with the following versions of Tcl/Tk:
+	Tcl 7.5 / Tk 4.1
+    Tcl 7.6 / Tk 4.2
+    Tcl/Tk 8.0
+    Tcl/Tk 8.1
+    Tcl/Tk 8.2
+    Tcl/Tk 8.3 
+    Tcl/Tk 8.4
+	Tcl/Tk 8.5
+	
+What?	
+	Like BLT from which it came, RBC is an extension to Tcl/Tk.  The goal
+	is that one day it will contain every component of BLT.
+	
+	
+	RBC 1.0 contains the following components of BLT:
+	
+		graph, barchart, stripchart -
+			These components use an X-Y coordinate system to plot data and
+			is meant to be used with vector data objects.  The graphs will 
+			automatically be redrawn should the vector data change.
+		
+		vector -
+			This component is used to manage floating point values.  They
+			are meant to be used to handle data for the plotting components.
+		
+		winop -
+			This component provides basic window operations.
+		
+		eps -
+			This component is used to embed an EPS file into the canvas 
+			displaying either an EPS preview image found in the file, or a
+			Tk image that is provided.
+		
+Why?
+	RBC came into existence because of the need for BLT to be compatible 
+	with versions 8.5 and later of Tcl/Tk.
+	
+Who?
+	In order to fulfill degree requirements, the four of us undertook the
+	refactoring of a few commonly used BLT components.  The project was
+	proposed by an alumnus of the students' institute and was accepted by
+	the school's Computer Science and Software Engineering Department. The
+	project began in the Fall of 2008 and culminated on the students'
+	graduation in the Spring of 2009.  In addition to refactoring parts of
+	BLT, we also began developing a graphical data analysis tool that is 
+	designed to work with RBC (and BLT) and be easily extensible.  For
+	more information see the GDAT project available at:
+	www.sourceforge.net/projects/gdat/
+	
+What Now?
+	In keeping with the spirit of BLT, we have released this project to
+	the open source community in hopes that you will continue development
+	and add more components from the BLT library that are compatible with
+	version 8.5 and later of Tcl/Tk.
+	
+Last updated Monday, May 18, 2009.
+
+sjg,njh,sjs,jms
