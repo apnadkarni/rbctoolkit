@@ -36,6 +36,26 @@ static int counter;
 
 #include "rbcGrElem.h"
 
+static CONST84 char *subCmds[] = { "activate", "bind", "cget", "closest", "configure", "create",
+		                           "deactivate", "delete", "exists", "get", "names", "show", "type",
+                                 NULL
+                               };
+enum cmdIdx {
+	activateIdx,
+	bindIdx,
+	cgetIdx,
+	closestIdx,
+	configureIdx,
+	createIdx,
+	deactivateIdx,
+	deleteIdx,
+	existsIdx,
+	getIdx,
+	namesIdx,
+	showIdx,
+	typeIdx
+};
+
 static Rbc_VectorChangedProc VectorChangedProc;
 
 static int GetPenStyle _ANSI_ARGS_((Graph *graphPtr, char *string, Rbc_Uid type, PenStyle *stylePtr));
@@ -45,13 +65,13 @@ static void FreeDataVector _ANSI_ARGS_((ElemVector *vPtr));
 static int EvalExprList _ANSI_ARGS_((Tcl_Interp *interp, char *list, int *nElemPtr, double **arrayPtr));
 static int GetIndex _ANSI_ARGS_((Tcl_Interp *interp, Element *elemPtr, char *string, int *indexPtr));
 static int NameToElement _ANSI_ARGS_((Graph *graphPtr, char *name, Element **elemPtrPtr));
-static int CreateElement _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv, Rbc_Uid classUid));
+static int CreateElement _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv, Rbc_Uid classUid));
 static void DestroyElement _ANSI_ARGS_((Graph *graphPtr, Element *elemPtr));
 static int RebuildDisplayList _ANSI_ARGS_((Graph *graphPtr, char *newList));
 
 static int ActivateOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
 static int BindOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int CreateOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv, Rbc_Uid type));
+static int CreateOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv, Rbc_Uid type));
 static int ConfigureOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char *argv[]));
 static int DeactivateOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
 static int DeleteOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
@@ -1193,7 +1213,8 @@ DestroyElement(graphPtr, elemPtr)
     Rbc_DeleteBindings(graphPtr->bindTable, elemPtr);
     Rbc_LegendRemoveElement(graphPtr->legend, elemPtr);
 
-    Tk_FreeOptions(elemPtr->specsPtr, (char *)elemPtr, graphPtr->display, 0);
+//    TCL_OBJ TODO
+//    Tk_FreeOptions(elemPtr->specsPtr, (char *)elemPtr, graphPtr->display, 0);
     /*
      * Call the element's own destructor to release the memory and
      * resources allocated for it.
@@ -1238,39 +1259,41 @@ DestroyElement(graphPtr, elemPtr)
  *----------------------------------------------------------------------
  */
 static int
-CreateElement(graphPtr, interp, argc, argv, classUid)
+CreateElement(graphPtr, interp, objc, objv, classUid)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc;
-    char **argv;
+    int objc;
+    Tcl_Obj *CONST *objv;
     Rbc_Uid classUid;
 {
     Element *elemPtr;
     Tcl_HashEntry *hPtr;
     int isNew;
+    char *elementName;
 
-    if (argv[3][0] == '-') {
-        Tcl_AppendResult(graphPtr->interp, "name of element \"", argv[3],
+    elementName = Tcl_GetStringFromObj(objv[3], NULL);
+    if (elementName[0] == '-') {
+        Tcl_AppendResult(graphPtr->interp, "name of element \"", elementName,
                          "\" can't start with a '-'", (char *)NULL);
         return TCL_ERROR;
     }
-    hPtr = Tcl_CreateHashEntry(&graphPtr->elements.table, argv[3], &isNew);
+    hPtr = Tcl_CreateHashEntry(&graphPtr->elements.table, elementName, &isNew);
     if (!isNew) {
-        Tcl_AppendResult(interp, "element \"", argv[3],
-                         "\" already exists in \"", argv[0], "\"", (char *)NULL);
+        Tcl_AppendResult(interp, "element \"", elementName,
+                         "\" already exists in \"", Tcl_GetStringFromObj(objv[0], NULL), "\"", (char *)NULL);
         return TCL_ERROR;
     }
     if (classUid == rbcBarElementUid) {
-        elemPtr = Rbc_BarElement(graphPtr, argv[3], classUid);
+        elemPtr = Rbc_BarElement(interp, graphPtr, elementName, classUid);
     } else {
         /* Stripcharts are line graphs with some options enabled. */
-        elemPtr = Rbc_LineElement(graphPtr, argv[3], classUid);
+        elemPtr = Rbc_LineElement(interp, graphPtr, elementName, classUid);
     }
     elemPtr->hashPtr = hPtr;
     Tcl_SetHashValue(hPtr, elemPtr);
 
-    if (Rbc_ConfigureWidgetComponent(interp, graphPtr->tkwin, elemPtr->name,
-                                     "Element", elemPtr->specsPtr, argc - 4, argv + 4,
+    if (Rbc_ConfigureWidgetComponentObj(interp, graphPtr->tkwin, elemPtr->name,
+                                     "Element", elemPtr->optionTable, objc - 4, objv + 4,
                                      (char *)elemPtr, 0) != TCL_OK) {
         DestroyElement(graphPtr, elemPtr);
         return TCL_ERROR;
@@ -1751,14 +1774,14 @@ BindOp(graphPtr, interp, argc, argv)
  *----------------------------------------------------------------------
  */
 static int
-CreateOp(graphPtr, interp, argc, argv, type)
+CreateOp(graphPtr, interp, objc, objv, type)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc;
-    char **argv;
+    int objc;
+    Tcl_Obj *CONST *objv;
     Rbc_Uid type;
 {
-    return CreateElement(graphPtr, interp, argc, argv, type);
+    return CreateElement(graphPtr, interp, objc, objv, type);
 }
 
 /*
@@ -1783,15 +1806,15 @@ CgetOp(graphPtr, interp, argc, argv)
     int argc;
     char *argv[];
 {
-    Element *elemPtr;
-
-    if (NameToElement(graphPtr, argv[3], &elemPtr) != TCL_OK) {
-        return TCL_ERROR;	/* Can't find named element */
-    }
-    if (Tk_ConfigureValue(interp, graphPtr->tkwin, elemPtr->specsPtr,
-                          (char *)elemPtr, argv[4], 0) != TCL_OK) {
-        return TCL_ERROR;
-    }
+//    Element *elemPtr;
+//
+//    if (NameToElement(graphPtr, argv[3], &elemPtr) != TCL_OK) {
+//        return TCL_ERROR;	/* Can't find named element */
+//    }
+//    if (Tk_ConfigureValue(interp, graphPtr->tkwin, elemPtr->specsPtr,
+//                          (char *)elemPtr, argv[4], 0) != TCL_OK) {
+//        return TCL_ERROR;
+//    }
     return TCL_OK;
 }
 
@@ -1997,89 +2020,89 @@ ConfigureOp(graphPtr, interp, argc, argv)
     int argc;
     char *argv[];
 {
-    Element *elemPtr;
-    int flags;
-    int numNames, numOpts;
-    char **options;
-    register int i;
-
-    /* Figure out where the option value pairs begin */
-    argc -= 3;
-    argv += 3;
-    for (i = 0; i < argc; i++) {
-        if (argv[i][0] == '-') {
-            break;
-        }
-        if (NameToElement(graphPtr, argv[i], &elemPtr) != TCL_OK) {
-            return TCL_ERROR;	/* Can't find named element */
-        }
-    }
-    numNames = i;		/* Number of element names specified */
-    numOpts = argc - i;		/* Number of options specified */
-    options = argv + numNames;	/* Start of options in argv  */
-
-    for (i = 0; i < numNames; i++) {
-        NameToElement(graphPtr, argv[i], &elemPtr);
-        flags = TK_CONFIG_ARGV_ONLY;
-        if (numOpts == 0) {
-            return Tk_ConfigureInfo(interp, graphPtr->tkwin,
-                                    elemPtr->specsPtr, (char *)elemPtr, (char *)NULL, flags);
-        } else if (numOpts == 1) {
-            return Tk_ConfigureInfo(interp, graphPtr->tkwin,
-                                    elemPtr->specsPtr, (char *)elemPtr, options[0], flags);
-        }
-        if (Tk_ConfigureWidget(interp, graphPtr->tkwin, elemPtr->specsPtr,
-                               numOpts, options, (char *)elemPtr, flags) != TCL_OK) {
-            return TCL_ERROR;
-        }
-        if ((*elemPtr->procsPtr->configProc) (graphPtr, elemPtr) != TCL_OK) {
-            return TCL_ERROR;	/* Failed to configure element */
-        }
-        if (Rbc_ConfigModified(elemPtr->specsPtr, "-hide", (char *)NULL)) {
-            Rbc_ChainLink *linkPtr;
-
-            for (linkPtr = Rbc_ChainFirstLink(graphPtr->elements.displayList);
-                    linkPtr != NULL; linkPtr = Rbc_ChainNextLink(linkPtr)) {
-                if (elemPtr == Rbc_ChainGetValue(linkPtr)) {
-                    break;
-                }
-            }
-            if ((elemPtr->hidden) != (linkPtr == NULL)) {
-
-                /* The element's "hidden" variable is out of sync with
-                 * the display list. [That's what you get for having
-                 * two ways to do the same thing.]  This affects what
-                 * elements are considered for axis ranges and
-                 * displayed in the legend. Update the display list by
-                 * either by adding or removing the element.  */
-
-                if (linkPtr == NULL) {
-                    Rbc_ChainPrepend(graphPtr->elements.displayList, elemPtr);
-                } else {
-                    Rbc_ChainDeleteLink(graphPtr->elements.displayList,
-                                        linkPtr);
-                }
-            }
-            graphPtr->flags |= RESET_AXES;
-            elemPtr->flags |= MAP_ITEM;
-        }
-        /* If data points or axes have changed, reset the axes (may
-         * affect autoscaling) and recalculate the screen points of
-         * the element. */
-
-        if (Rbc_ConfigModified(elemPtr->specsPtr, "-*data", "-map*", "-x",
-                               "-y", (char *)NULL)) {
-            graphPtr->flags |= RESET_WORLD;
-            elemPtr->flags |= MAP_ITEM;
-        }
-        /* The new label may change the size of the legend */
-        if (Rbc_ConfigModified(elemPtr->specsPtr, "-label", (char *)NULL)) {
-            graphPtr->flags |= (MAP_WORLD | REDRAW_WORLD);
-        }
-    }
-    /* Update the pixmap if any configuration option changed */
-    graphPtr->flags |= (REDRAW_BACKING_STORE | DRAW_MARGINS);
-    Rbc_EventuallyRedrawGraph(graphPtr);
+//    Element *elemPtr;
+//    int flags;
+//    int numNames, numOpts;
+//    char **options;
+//    register int i;
+//
+//    /* Figure out where the option value pairs begin */
+//    argc -= 3;
+//    argv += 3;
+//    for (i = 0; i < argc; i++) {
+//        if (argv[i][0] == '-') {
+//            break;
+//        }
+//        if (NameToElement(graphPtr, argv[i], &elemPtr) != TCL_OK) {
+//            return TCL_ERROR;	/* Can't find named element */
+//        }
+//    }
+//    numNames = i;		/* Number of element names specified */
+//    numOpts = argc - i;		/* Number of options specified */
+//    options = argv + numNames;	/* Start of options in argv  */
+//
+//    for (i = 0; i < numNames; i++) {
+//        NameToElement(graphPtr, argv[i], &elemPtr);
+//        flags = TK_CONFIG_ARGV_ONLY;
+//        if (numOpts == 0) {
+//            return Tk_ConfigureInfo(interp, graphPtr->tkwin,
+//                                    elemPtr->specsPtr, (char *)elemPtr, (char *)NULL, flags);
+//        } else if (numOpts == 1) {
+//            return Tk_ConfigureInfo(interp, graphPtr->tkwin,
+//                                    elemPtr->specsPtr, (char *)elemPtr, options[0], flags);
+//        }
+//        if (Tk_ConfigureWidget(interp, graphPtr->tkwin, elemPtr->specsPtr,
+//                               numOpts, options, (char *)elemPtr, flags) != TCL_OK) {
+//            return TCL_ERROR;
+//        }
+//        if ((*elemPtr->procsPtr->configProc) (graphPtr, elemPtr) != TCL_OK) {
+//            return TCL_ERROR;	/* Failed to configure element */
+//        }
+//        if (Rbc_ConfigModified(elemPtr->specsPtr, "-hide", (char *)NULL)) {
+//            Rbc_ChainLink *linkPtr;
+//
+//            for (linkPtr = Rbc_ChainFirstLink(graphPtr->elements.displayList);
+//                    linkPtr != NULL; linkPtr = Rbc_ChainNextLink(linkPtr)) {
+//                if (elemPtr == Rbc_ChainGetValue(linkPtr)) {
+//                    break;
+//                }
+//            }
+//            if ((elemPtr->hidden) != (linkPtr == NULL)) {
+//
+//                /* The element's "hidden" variable is out of sync with
+//                 * the display list. [That's what you get for having
+//                 * two ways to do the same thing.]  This affects what
+//                 * elements are considered for axis ranges and
+//                 * displayed in the legend. Update the display list by
+//                 * either by adding or removing the element.  */
+//
+//                if (linkPtr == NULL) {
+//                    Rbc_ChainPrepend(graphPtr->elements.displayList, elemPtr);
+//                } else {
+//                    Rbc_ChainDeleteLink(graphPtr->elements.displayList,
+//                                        linkPtr);
+//                }
+//            }
+//            graphPtr->flags |= RESET_AXES;
+//            elemPtr->flags |= MAP_ITEM;
+//        }
+//        /* If data points or axes have changed, reset the axes (may
+//         * affect autoscaling) and recalculate the screen points of
+//         * the element. */
+//
+//        if (Rbc_ConfigModified(elemPtr->specsPtr, "-*data", "-map*", "-x",
+//                               "-y", (char *)NULL)) {
+//            graphPtr->flags |= RESET_WORLD;
+//            elemPtr->flags |= MAP_ITEM;
+//        }
+//        /* The new label may change the size of the legend */
+//        if (Rbc_ConfigModified(elemPtr->specsPtr, "-label", (char *)NULL)) {
+//            graphPtr->flags |= (MAP_WORLD | REDRAW_WORLD);
+//        }
+//    }
+//    /* Update the pixmap if any configuration option changed */
+//    graphPtr->flags |= (REDRAW_BACKING_STORE | DRAW_MARGINS);
+//    Rbc_EventuallyRedrawGraph(graphPtr);
     return TCL_OK;
 }
 
@@ -2352,29 +2375,6 @@ TypeOp(graphPtr, interp, argc, argv)
 }
 
 /*
- * Global routines:
- */
-static Rbc_OpSpec elemOps[] = {
-    {"activate", 1, (Rbc_Op)ActivateOp, 3, 0, "?elemName? ?index...?",},
-    {"bind", 1, (Rbc_Op)BindOp, 3, 6, "elemName sequence command",},
-    {"cget", 2, (Rbc_Op)CgetOp, 5, 5, "elemName option",},
-    {"closest", 2, (Rbc_Op)ClosestOp, 6, 0,
-     "x y varName ?option value?... ?elemName?...",},
-    {"configure", 2, (Rbc_Op)ConfigureOp, 4, 0,
-     "elemName ?elemName?... ?option value?...",},
-    {"create", 2, (Rbc_Op)CreateOp, 4, 0, "elemName ?option value?...",},
-    {"deactivate", 3, (Rbc_Op)DeactivateOp, 3, 0, "?elemName?...",},
-    {"delete", 3, (Rbc_Op)DeleteOp, 3, 0, "?elemName?...",},
-    {"exists", 1, (Rbc_Op)ExistsOp, 4, 4, "elemName",},
-    {"get", 1, (Rbc_Op)GetOp, 4, 4, "name",},
-    {"names", 1, (Rbc_Op)NamesOp, 3, 0, "?pattern?...",},
-    {"show", 1, (Rbc_Op)ShowOp, 3, 4, "?elemList?",},
-    {"type", 1, (Rbc_Op)TypeOp, 4, 4, "elemName",},
-};
-static int numElemOps = sizeof(elemOps) / sizeof(Rbc_OpSpec);
-
-
-/*
  * ----------------------------------------------------------------
  *
  * Rbc_ElementOp --
@@ -2392,24 +2392,165 @@ static int numElemOps = sizeof(elemOps) / sizeof(Rbc_OpSpec);
  * ----------------------------------------------------------------
  */
 int
-Rbc_ElementOp(graphPtr, interp, argc, argv, type)
+Rbc_ElementOp(graphPtr, interp, objc, objv, type)
     Graph *graphPtr; /* Graph widget record */
     Tcl_Interp *interp;
-    int argc; /* # arguments */
-    char **argv; /* Argument list */
+    int objc; /* # arguments */
+    Tcl_Obj *CONST *objv; /* Argument list */
     Rbc_Uid type;
 {
-    Rbc_Op proc;
-    int result;
+    int index;
 
-    proc = Rbc_GetOp(interp, numElemOps, elemOps, RBC_OP_ARG2, argc, argv, 0);
-    if (proc == NULL) {
-        return TCL_ERROR;
-    }
-    if (proc == CreateOp) {
-        result = CreateOp(graphPtr, interp, argc, argv, type);
-    } else {
-        result = (*proc) (graphPtr, interp, argc, argv);
-    }
-    return result;
+    if (objc < 3) {
+		Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+		return TCL_ERROR;
+	}
+
+	if (Tcl_GetIndexFromObj(interp, objv[2], subCmds, "option", 0, &index) != TCL_OK) {
+		return TCL_ERROR;
+	}
+
+	switch(index) {
+		case activateIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 3, objv, "?elemName? ?index...?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //ActivateOp
+			}
+
+			break;
+		}
+		case bindIdx: {
+			if (objc < 3 || objc > 6) {
+				Tcl_WrongNumArgs(interp, 3, objv, "elemName sequence command");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //BindOp
+			}
+
+			break;
+		}
+		case cgetIdx: {
+			if (objc != 5) {
+				Tcl_WrongNumArgs(interp, 3, objv, "elemName option");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //cget
+			}
+
+			break;
+		}
+		case closestIdx: {
+			if (objc < 6) {
+				Tcl_WrongNumArgs(interp, 3, objv, "x y varName ?option value?... ?elemName?...");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //ClosestOp
+			}
+
+			break;
+		}
+		case configureIdx: {
+			if (objc < 4) {
+				Tcl_WrongNumArgs(interp, 3, objv, "elemName ?elemName?... ?option value?...");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //ConfigureOp
+			}
+
+			break;
+		}
+		case createIdx: {
+			if (objc < 4) {
+				Tcl_WrongNumArgs(interp, 3, objv, "elemName ?option value?...");
+				return TCL_ERROR;
+			} else {
+				return CreateOp(graphPtr, interp, objc, objv, type);
+			}
+
+			break;
+		}
+		case deactivateIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 3, objv, "?elemName?...");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //DeactivateOp
+			}
+
+			break;
+		}
+		case deleteIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 3, objv, "?elemName?...");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //DeleteOp
+			}
+
+			break;
+		}
+		case existsIdx: {
+			if (objc != 4) {
+				Tcl_WrongNumArgs(interp, 3, objv, "elemName");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //ExistsOp
+			}
+
+			break;
+		}
+		case getIdx: {
+			if (objc != 4) {
+				Tcl_WrongNumArgs(interp, 3, objv, "name");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //GetOp
+			}
+
+			break;
+		}
+		case namesIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 3, objv, "?pattern?...");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //NamesOp
+			}
+
+			break;
+		}
+		case showIdx: {
+			if (objc < 3 || objc > 4) {
+				Tcl_WrongNumArgs(interp, 3, objv, "?elemList?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //ShowOp
+			}
+
+			break;
+		}
+		case typeIdx: {
+			if (objc != 4) {
+				Tcl_WrongNumArgs(interp, 3, objv, "elemName");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK; //TypeOp
+			}
+			break;
+		}
+	}
+
+    return TCL_OK;
+//    proc = Rbc_GetOp(interp, numElemOps, elemOps, RBC_OP_ARG2, argc, argv, 0);
+//    if (proc == NULL) {
+//        return TCL_ERROR;
+//    }
+//    if (proc == CreateOp) {
+//        result = CreateOp(graphPtr, interp, argc, argv, type);
+//    } else {
+//        result = (*proc) (graphPtr, interp, argc, argv);
+//    }
+//    return result;
 }

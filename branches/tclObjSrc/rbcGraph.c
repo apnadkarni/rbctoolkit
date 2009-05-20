@@ -28,7 +28,6 @@
 #include "rbcSwitch.h"
 #include <X11/Xutil.h>
 
-
 Rbc_Uid rbcXAxisUid;
 Rbc_Uid rbcYAxisUid;
 Rbc_Uid rbcBarElementUid;
@@ -42,13 +41,11 @@ Rbc_Uid rbcTextMarkerUid;
 Rbc_Uid rbcPolygonMarkerUid;
 Rbc_Uid rbcWindowMarkerUid;
 
-Tk_CustomOption rbcLinePenOption;
-Tk_CustomOption rbcBarPenOption;
-Tk_CustomOption rbcDistanceOption;
-Tk_CustomOption rbcBarModeOption;
-Tk_CustomOption rbcPadOption;
-Tk_CustomOption rbcTileOption;
-Tk_CustomOption rbcShadowOption;
+Tk_ObjCustomOption rbcObjDistanceOption;
+Tk_ObjCustomOption rbcObjBarModeOption;
+Tk_ObjCustomOption rbcObjPadOption;
+Tk_ObjCustomOption rbcObjTileOption;
+Tk_ObjCustomOption rbcObjShadowOption;
 
 #define DEF_GRAPH_ASPECT_RATIO		"0.0"
 #define DEF_GRAPH_BAR_BASELINE		"0.0"
@@ -91,61 +88,88 @@ Tk_CustomOption rbcShadowOption;
 #define DEF_GRAPH_DATA			(char *)NULL
 #define DEF_GRAPH_DATA_COMMAND		(char *)NULL
 
-static Tk_ConfigSpec configSpecs[] = {
-    {TK_CONFIG_DOUBLE, "-aspect", "aspect", "Aspect", DEF_GRAPH_ASPECT_RATIO, Tk_Offset(Graph, aspect), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_BORDER, "-background", "background", "Background", DEF_GRAPH_BACKGROUND, Tk_Offset(Graph, border), TK_CONFIG_COLOR_ONLY},
-    {TK_CONFIG_BORDER, "-background", "background", "Background", DEF_GRAPH_BG_MONO, Tk_Offset(Graph, border), TK_CONFIG_MONO_ONLY},
-    {TK_CONFIG_CUSTOM, "-barmode", "barMode", "BarMode", DEF_GRAPH_BAR_MODE, Tk_Offset(Graph, mode), TK_CONFIG_DONT_SET_DEFAULT, &rbcBarModeOption},
-    {TK_CONFIG_DOUBLE, "-barwidth", "barWidth", "BarWidth", DEF_GRAPH_BAR_WIDTH, Tk_Offset(Graph, barWidth), 0},
-    {TK_CONFIG_DOUBLE, "-baseline", "baseline", "Baseline", DEF_GRAPH_BAR_BASELINE, Tk_Offset(Graph, baseline), 0},
-    {TK_CONFIG_SYNONYM, "-bd", "borderWidth", (char *)NULL, (char *)NULL, 0, 0},
-    {TK_CONFIG_SYNONYM, "-bg", "background", (char *)NULL, (char *)NULL, 0, 0},
-    {TK_CONFIG_SYNONYM, "-bm", "bottomMargin", (char *)NULL, (char *)NULL, 0, 0},
-    {TK_CONFIG_CUSTOM, "-borderwidth", "borderWidth", "BorderWidth", DEF_GRAPH_BORDERWIDTH, Tk_Offset(Graph, borderWidth), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-bottommargin", "bottomMargin", "Margin", DEF_GRAPH_MARGIN, Tk_Offset(Graph, bottomMargin.reqSize), 0, &rbcDistanceOption},
-    {TK_CONFIG_STRING, "-bottomvariable", "bottomVariable", "BottomVariable", DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, bottomMargin.varName), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_BOOLEAN, "-bufferelements", "bufferElements", "BufferElements", DEF_GRAPH_BUFFER_ELEMENTS, Tk_Offset(Graph, backingStore), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_BOOLEAN, "-buffergraph", "bufferGraph", "BufferGraph", DEF_GRAPH_BUFFER_GRAPH, Tk_Offset(Graph, doubleBuffer), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor", DEF_GRAPH_CURSOR, Tk_Offset(Graph, cursor), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_STRING, "-data", "data", "Data", (char *)NULL, Tk_Offset(Graph, data), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_STRING, "-datacommand", "dataCommand", "DataCommand", (char *)NULL, Tk_Offset(Graph, dataCmd), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_SYNONYM, "-fg", "foreground", (char *)NULL, (char *)NULL, 0, 0},
-    {TK_CONFIG_FONT, "-font", "font", "Font", DEF_GRAPH_FONT, Tk_Offset(Graph, titleTextStyle.font), 0},
-    {TK_CONFIG_COLOR, "-foreground", "foreground", "Foreground", DEF_GRAPH_TITLE_COLOR, Tk_Offset(Graph, titleTextStyle.color), TK_CONFIG_COLOR_ONLY},
-    {TK_CONFIG_COLOR, "-foreground", "foreground", "Foreground", DEF_GRAPH_TITLE_MONO, Tk_Offset(Graph, titleTextStyle.color), TK_CONFIG_MONO_ONLY},
-    {TK_CONFIG_CUSTOM, "-halo", "halo", "Halo", DEF_GRAPH_HALO, Tk_Offset(Graph, halo), 0, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-height", "height", "Height", DEF_GRAPH_HEIGHT, Tk_Offset(Graph, reqHeight), 0, &rbcDistanceOption},
-    {TK_CONFIG_COLOR, "-highlightbackground", "highlightBackground", "HighlightBackground", DEF_GRAPH_HIGHLIGHT_BACKGROUND, Tk_Offset(Graph, highlightBgColor), TK_CONFIG_COLOR_ONLY},
-    {TK_CONFIG_COLOR, "-highlightbackground", "highlightBackground", "HighlightBackground", DEF_GRAPH_HIGHLIGHT_BG_MONO, Tk_Offset(Graph, highlightBgColor), TK_CONFIG_MONO_ONLY},
-    {TK_CONFIG_COLOR, "-highlightcolor", "highlightColor", "HighlightColor", DEF_GRAPH_HIGHLIGHT_COLOR, Tk_Offset(Graph, highlightColor), 0},
-    {TK_CONFIG_PIXELS, "-highlightthickness", "highlightThickness", "HighlightThickness", DEF_GRAPH_HIGHLIGHT_WIDTH, Tk_Offset(Graph, highlightWidth), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_BOOLEAN, "-invertxy", "invertXY", "InvertXY", DEF_GRAPH_INVERT_XY, Tk_Offset(Graph, inverted), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_JUSTIFY, "-justify", "justify", "Justify", DEF_GRAPH_JUSTIFY, Tk_Offset(Graph, titleTextStyle.justify), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_CUSTOM, "-leftmargin", "leftMargin", "Margin", DEF_GRAPH_MARGIN, Tk_Offset(Graph, leftMargin.reqSize), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_STRING, "-leftvariable", "leftVariable", "LeftVariable", DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, leftMargin.varName), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_SYNONYM, "-lm", "leftMargin", (char *)NULL, (char *)NULL, 0, 0},
-    {TK_CONFIG_COLOR, "-plotbackground", "plotBackground", "Background", DEF_GRAPH_PLOT_BG_MONO, Tk_Offset(Graph, plotBg), TK_CONFIG_MONO_ONLY},
-    {TK_CONFIG_COLOR, "-plotbackground", "plotBackground", "Background", DEF_GRAPH_PLOT_BACKGROUND, Tk_Offset(Graph, plotBg), TK_CONFIG_COLOR_ONLY},
-    {TK_CONFIG_CUSTOM, "-plotborderwidth", "plotBorderWidth", "BorderWidth", DEF_GRAPH_PLOT_BW_COLOR, Tk_Offset(Graph, plotBorderWidth), TK_CONFIG_COLOR_ONLY, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-plotborderwidth", "plotBorderWidth", "BorderWidth", DEF_GRAPH_PLOT_BW_MONO, Tk_Offset(Graph, plotBorderWidth), TK_CONFIG_MONO_ONLY, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-plotpadx", "plotPadX", "PlotPad", DEF_GRAPH_PLOT_PADX, Tk_Offset(Graph, padX), TK_CONFIG_DONT_SET_DEFAULT, &rbcPadOption},
-    {TK_CONFIG_CUSTOM, "-plotpady", "plotPadY", "PlotPad", DEF_GRAPH_PLOT_PADY, Tk_Offset(Graph, padY), TK_CONFIG_DONT_SET_DEFAULT, &rbcPadOption},
-    {TK_CONFIG_RELIEF, "-plotrelief", "plotRelief", "Relief", DEF_GRAPH_PLOT_RELIEF, Tk_Offset(Graph, plotRelief), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_RELIEF, "-relief", "relief", "Relief", DEF_GRAPH_RELIEF, Tk_Offset(Graph, relief), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_CUSTOM, "-rightmargin", "rightMargin", "Margin", DEF_GRAPH_MARGIN, Tk_Offset(Graph, rightMargin.reqSize), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_STRING, "-rightvariable", "rightVariable", "RightVariable", DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, rightMargin.varName), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_SYNONYM, "-rm", "rightMargin", (char *)NULL, (char *)NULL, 0, 0},
-    {TK_CONFIG_CUSTOM, "-shadow", "shadow", "Shadow", DEF_GRAPH_SHADOW_COLOR, Tk_Offset(Graph, titleTextStyle.shadow), TK_CONFIG_COLOR_ONLY, &rbcShadowOption},
-    {TK_CONFIG_CUSTOM, "-shadow", "shadow", "Shadow", DEF_GRAPH_SHADOW_MONO, Tk_Offset(Graph, titleTextStyle.shadow), TK_CONFIG_MONO_ONLY, &rbcShadowOption},
-    {TK_CONFIG_COLOR, "-foreground", "foreground", "Foreground", DEF_GRAPH_TITLE_MONO, Tk_Offset(Graph, titleTextStyle.color), TK_CONFIG_MONO_ONLY},
-    {TK_CONFIG_STRING, "-takefocus", "takeFocus", "TakeFocus", DEF_GRAPH_TAKE_FOCUS, Tk_Offset(Graph, takeFocus), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_CUSTOM, "-tile", "tile", "Tile", (char *)NULL, Tk_Offset(Graph, tile), TK_CONFIG_NULL_OK, &rbcTileOption},
-    {TK_CONFIG_STRING, "-title", "title", "Title", DEF_GRAPH_TITLE, Tk_Offset(Graph, title), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_SYNONYM, "-tm", "topMargin", (char *)NULL, (char *)NULL, 0, 0},
-    {TK_CONFIG_CUSTOM, "-topmargin", "topMargin", "Margin", DEF_GRAPH_MARGIN, Tk_Offset(Graph, topMargin.reqSize), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_STRING, "-topvariable", "topVariable", "TopVariable", DEF_GRAPH_MARGIN_VAR, Tk_Offset(Graph, topMargin.varName), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_CUSTOM, "-width", "width", "Width", DEF_GRAPH_WIDTH, Tk_Offset(Graph, reqWidth), 0, &rbcDistanceOption},
-    {TK_CONFIG_END, NULL, NULL, NULL, NULL, 0, 0}
+#define INVERTXY_MASK             1L << 1
+#define RESET_WORLD_MASK          1L << 2
+#define REDRAW_BACKING_STORE_MASK 1L << 3
+
+static CONST84 char *subCmds[] = { "axis", "bar", "cget", "configure", "crosshairs", "element",
+		                           "extents", "grid", "inside", "invtransform", "legend", "line",
+		                           "marker", "pen", "postscript", "snap", "transform", "x2axis",
+		                           "xaxis", "y2axis", "yaxis",
+                                 NULL
+                               };
+enum cmdIdx {
+	axisIdx,
+	barIdx,
+	cgetIdx,
+	configureIdx,
+	crosshairsIdx,
+	elementIdx,
+	extentsIdx,
+	gridIdx,
+	insideIdx,
+	invtransformIdx,
+	legendIdx,
+	lineIdx,
+	markerIdx,
+	penIdx,
+	postscriptIdx,
+	snapIdx,
+	transformIdx,
+	x2axisIdx,
+	xaxisIdx,
+	y2axisIdx,
+	yaxisIdx
+};
+
+static Tk_OptionSpec optionSpecs[] = {
+    {TK_OPTION_DOUBLE, "-aspect", "aspect", "Aspect", DEF_GRAPH_ASPECT_RATIO, -1, Tk_Offset(Graph, aspect), TK_OPTION_DONT_SET_DEFAULT, 0, RESET_WORLD_MASK},
+    {TK_OPTION_BORDER, "-background", "background", "Background", DEF_GRAPH_BACKGROUND, -1, Tk_Offset(Graph, border), 0, (ClientData)DEF_GRAPH_BG_MONO, 0},
+    {TK_OPTION_CUSTOM, "-barmode", "barMode", "BarMode", DEF_GRAPH_BAR_MODE, -1, Tk_Offset(Graph, mode), TK_OPTION_DONT_SET_DEFAULT, &rbcObjBarModeOption, RESET_WORLD_MASK},
+    {TK_OPTION_DOUBLE, "-barwidth", "barWidth", "BarWidth", DEF_GRAPH_BAR_WIDTH, -1, Tk_Offset(Graph, barWidth), 0, 0, RESET_WORLD_MASK},
+    {TK_OPTION_DOUBLE, "-baseline", "baseline", "Baseline", DEF_GRAPH_BAR_BASELINE, -1, Tk_Offset(Graph, baseline), 0, 0, 0},
+    {TK_OPTION_SYNONYM, "-bd", (char *) NULL, (char *) NULL, (char *) NULL, 0, -1, 0, (ClientData) "-borderwidth", RESET_WORLD_MASK},
+    {TK_OPTION_SYNONYM, "-bg", (char *) NULL, (char *) NULL, (char *) NULL, 0, -1, 0, (ClientData) "-background", 0},
+    {TK_OPTION_SYNONYM, "-bm", (char *) NULL, (char *) NULL, (char *) NULL, 0, -1, 0, (ClientData) "-bottommargin", RESET_WORLD_MASK},
+    {TK_OPTION_CUSTOM, "-borderwidth", "borderWidth", "BorderWidth", DEF_GRAPH_BORDERWIDTH, -1, Tk_Offset(Graph, borderWidth), TK_OPTION_DONT_SET_DEFAULT, &rbcObjDistanceOption, RESET_WORLD_MASK},
+    {TK_OPTION_CUSTOM, "-bottommargin", "bottomMargin", "Margin", DEF_GRAPH_MARGIN, -1, Tk_Offset(Graph, bottomMargin.reqSize), 0, &rbcObjDistanceOption, RESET_WORLD_MASK},
+    {TK_OPTION_STRING, "-bottomvariable", "bottomVariable", "BottomVariable", DEF_GRAPH_MARGIN_VAR, -1, Tk_Offset(Graph, bottomMargin.varName), TK_OPTION_NULL_OK, 0, 0},
+    {TK_OPTION_BOOLEAN, "-bufferelements", "bufferElements", "BufferElements", DEF_GRAPH_BUFFER_ELEMENTS, -1, Tk_Offset(Graph, backingStore), TK_OPTION_DONT_SET_DEFAULT, 0, 0},
+    {TK_OPTION_BOOLEAN, "-buffergraph", "bufferGraph", "BufferGraph", DEF_GRAPH_BUFFER_GRAPH, -1, Tk_Offset(Graph, doubleBuffer), TK_OPTION_DONT_SET_DEFAULT, 0, 0},
+    {TK_OPTION_CURSOR, "-cursor", "cursor", "Cursor", DEF_GRAPH_CURSOR, -1, Tk_Offset(Graph, cursor), TK_OPTION_NULL_OK, 0, 0},
+    {TK_OPTION_STRING, "-data", "data", "Data", (char *)NULL, -1, Tk_Offset(Graph, data), TK_OPTION_DONT_SET_DEFAULT, 0, 0},
+    {TK_OPTION_STRING, "-datacommand", "dataCommand", "DataCommand", (char *)NULL, -1, Tk_Offset(Graph, dataCmd), TK_OPTION_DONT_SET_DEFAULT, 0, 0},
+    {TK_OPTION_SYNONYM, "-fg", (char *) NULL, (char *) NULL, (char *) NULL, 0, -1, 0, (ClientData) "-foreground", 0},
+    {TK_OPTION_FONT, "-font", "font", "Font", DEF_GRAPH_FONT, -1, Tk_Offset(Graph, titleTextStyle.font), 0, 0, 0},
+    {TK_OPTION_COLOR, "-foreground", "foreground", "Foreground", DEF_GRAPH_TITLE_COLOR, -1, Tk_Offset(Graph, titleTextStyle.color), 0, DEF_GRAPH_TITLE_MONO, 0},
+    {TK_OPTION_CUSTOM, "-halo", "halo", "Halo", DEF_GRAPH_HALO, -1, Tk_Offset(Graph, halo), 0, &rbcObjDistanceOption, 0},
+    {TK_OPTION_CUSTOM, "-height", "height", "Height", DEF_GRAPH_HEIGHT, -1, Tk_Offset(Graph, reqHeight), 0, &rbcObjDistanceOption, RESET_WORLD_MASK},
+    {TK_OPTION_COLOR, "-highlightbackground", "highlightBackground", "HighlightBackground", DEF_GRAPH_HIGHLIGHT_BACKGROUND, -1, Tk_Offset(Graph, highlightBgColor), 0, DEF_GRAPH_HIGHLIGHT_BG_MONO, 0},
+    {TK_OPTION_COLOR, "-highlightcolor", "highlightColor", "HighlightColor", DEF_GRAPH_HIGHLIGHT_COLOR, -1, Tk_Offset(Graph, highlightColor), 0, 0, 0},
+    {TK_OPTION_PIXELS, "-highlightthickness", "highlightThickness", "HighlightThickness", DEF_GRAPH_HIGHLIGHT_WIDTH, -1, Tk_Offset(Graph, highlightWidth), TK_OPTION_DONT_SET_DEFAULT, 0, 0},
+    {TK_OPTION_BOOLEAN, "-invertxy", "invertXY", "InvertXY", DEF_GRAPH_INVERT_XY, -1, Tk_Offset(Graph, inverted), TK_OPTION_DONT_SET_DEFAULT, 0, (INVERTXY_MASK|RESET_WORLD_MASK)},
+    {TK_OPTION_JUSTIFY, "-justify", "justify", "Justify", DEF_GRAPH_JUSTIFY, -1, Tk_Offset(Graph, titleTextStyle.justify), TK_OPTION_DONT_SET_DEFAULT, 0, 0},
+    {TK_OPTION_CUSTOM, "-leftmargin", "leftMargin", "Margin", DEF_GRAPH_MARGIN, -1, Tk_Offset(Graph, leftMargin.reqSize), TK_OPTION_DONT_SET_DEFAULT, &rbcObjDistanceOption, RESET_WORLD_MASK},
+    {TK_OPTION_STRING, "-leftvariable", "leftVariable", "LeftVariable", DEF_GRAPH_MARGIN_VAR, -1, Tk_Offset(Graph, leftMargin.varName), TK_OPTION_NULL_OK, 0, 0},
+    {TK_OPTION_SYNONYM, "-lm", (char *) NULL, (char *) NULL, (char *) NULL, 0, -1, 0, (ClientData) "-leftmargin", RESET_WORLD_MASK},
+    {TK_OPTION_COLOR, "-plotbackground", "plotBackground", "Background", DEF_GRAPH_PLOT_BG_MONO, -1, Tk_Offset(Graph, plotBg), 0, DEF_GRAPH_HIGHLIGHT_BG_MONO, REDRAW_BACKING_STORE_MASK},
+    {TK_OPTION_CUSTOM, "-plotborderwidth", "plotBorderWidth", "BorderWidth", DEF_GRAPH_PLOT_BW_COLOR, -1, Tk_Offset(Graph, plotBorderWidth), 0, &rbcObjDistanceOption, RESET_WORLD_MASK},
+    {TK_OPTION_CUSTOM, "-plotpadx", "plotPadX", "PlotPad", DEF_GRAPH_PLOT_PADX, -1, Tk_Offset(Graph, padX), TK_OPTION_DONT_SET_DEFAULT, &rbcObjPadOption, RESET_WORLD_MASK},
+	{TK_OPTION_CUSTOM, "-plotpady", "plotPadY", "PlotPad", DEF_GRAPH_PLOT_PADY, -1, Tk_Offset(Graph, padY), TK_OPTION_DONT_SET_DEFAULT, &rbcObjPadOption, RESET_WORLD_MASK},
+	{TK_OPTION_RELIEF, "-plotrelief", "plotRelief", "Relief", DEF_GRAPH_PLOT_RELIEF, -1, Tk_Offset(Graph, plotRelief), TK_OPTION_DONT_SET_DEFAULT, 0, 0},
+	{TK_OPTION_RELIEF, "-relief", "relief", "Relief", DEF_GRAPH_RELIEF, -1, Tk_Offset(Graph, relief), TK_OPTION_DONT_SET_DEFAULT, 0, 0},
+	{TK_OPTION_CUSTOM, "-rightmargin", "rightMargin", "Margin", DEF_GRAPH_MARGIN, -1, Tk_Offset(Graph, rightMargin.reqSize), TK_OPTION_DONT_SET_DEFAULT, &rbcObjDistanceOption, RESET_WORLD_MASK},
+	{TK_OPTION_STRING, "-rightvariable", "rightVariable", "RightVariable", DEF_GRAPH_MARGIN_VAR, -1, Tk_Offset(Graph, rightMargin.varName), TK_OPTION_NULL_OK, 0, 0},
+	{TK_OPTION_SYNONYM, "-rm", (char *) NULL, (char *) NULL, (char *) NULL, 0, -1, 0, (ClientData) "-rightmargin", RESET_WORLD_MASK},
+	{TK_OPTION_CUSTOM, "-shadow", "shadow", "Shadow", DEF_GRAPH_SHADOW_COLOR, -1, Tk_Offset(Graph, titleTextStyle.shadow), 0, &rbcObjShadowOption, 0},
+	{TK_OPTION_STRING, "-takefocus", "takeFocus", "TakeFocus", DEF_GRAPH_TAKE_FOCUS, -1, Tk_Offset(Graph, takeFocus), TK_OPTION_NULL_OK, 0, 0},
+	{TK_OPTION_CUSTOM, "-tile", "tile", "Tile", (char *)NULL, -1, Tk_Offset(Graph, tile), TK_OPTION_NULL_OK, &rbcObjTileOption, 0},
+	{TK_OPTION_STRING, "-title", "title", "Title", DEF_GRAPH_TITLE, -1, Tk_Offset(Graph, title), TK_OPTION_NULL_OK, 0, RESET_WORLD_MASK},
+	{TK_OPTION_SYNONYM, "-tm", (char *) NULL, (char *) NULL, (char *) NULL, 0, -1, 0, (ClientData) "-topmargin", RESET_WORLD_MASK},
+	{TK_OPTION_CUSTOM, "-topmargin", "topMargin", "Margin", DEF_GRAPH_MARGIN, -1, Tk_Offset(Graph, topMargin.reqSize), TK_OPTION_DONT_SET_DEFAULT, &rbcObjDistanceOption, RESET_WORLD_MASK},
+	{TK_OPTION_STRING, "-topvariable", "topVariable", "TopVariable", DEF_GRAPH_MARGIN_VAR, -1, Tk_Offset(Graph, topMargin.varName), TK_OPTION_NULL_OK, 0, 0},
+	{TK_OPTION_CUSTOM, "-width", "width", "Width", DEF_GRAPH_WIDTH, -1, Tk_Offset(Graph, reqWidth), 0, &rbcObjDistanceOption, RESET_WORLD_MASK},
+	{TK_OPTION_END, NULL, NULL, NULL, NULL, -1, 0, 0, 0, 0}
 };
 
 static Rbc_SwitchParseProc StringToFormat;
@@ -173,35 +197,36 @@ static Tcl_FreeProc DestroyGraph;
 static Tk_EventProc GraphEventProc;
 
 static Rbc_BindPickProc PickEntry;
-static Tcl_CmdProc StripchartCmd;
-static Tcl_CmdProc BarchartCmd;
-static Tcl_CmdProc GraphCmd;
+static Tcl_ObjCmdProc StripchartObjCmd;
+static Tcl_ObjCmdProc BarchartObjCmd;
+static Tcl_ObjCmdProc GraphObjCmd;
 static Tcl_CmdDeleteProc GraphInstCmdDeleteProc;
 static Rbc_TileChangedProc TileChangedProc;
 
 static void AdjustAxisPointers _ANSI_ARGS_((Graph *graphPtr));
 static int InitPens _ANSI_ARGS_((Graph *graphPtr));
-static Graph *CreateGraph _ANSI_ARGS_((Tcl_Interp *interp, int argc, CONST84 char **argv, Rbc_Uid classUid));
-static void ConfigureGraph _ANSI_ARGS_((Graph *graphPtr));
-static int NewGraph _ANSI_ARGS_((Tcl_Interp *interp, int argc, char **argv, Rbc_Uid classUid));
+static Graph *CreateGraph _ANSI_ARGS_((Tcl_Interp *interp, ClientData clientData, int objc, Tcl_Obj *CONST *objv, Rbc_Uid classUid));
+static void ConfigureGraph _ANSI_ARGS_((Graph *graphPtr, int mask));
+static int GraphObjConfigure _ANSI_ARGS_((Tcl_Interp *interp, Graph *graphPtr, int objc, Tcl_Obj *CONST *objv));
+static int NewGraph _ANSI_ARGS_((Tcl_Interp *interp, ClientData clientData, int objc, Tcl_Obj *CONST *objv, Rbc_Uid classUid));
 static void DrawMargins _ANSI_ARGS_((Graph *graphPtr, Drawable drawable));
 static void DrawPlotRegion _ANSI_ARGS_((Graph *graphPtr, Drawable drawable));
 static void UpdateMarginTraces _ANSI_ARGS_((Graph *graphPtr));
 
 static int XAxisOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
 static int X2AxisOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int YAxisOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
+static int YAxisOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj * const objv[]));
 static int Y2AxisOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int BarOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int LineOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int ElementOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int ConfigureOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, CONST84 char **argv));
-static int CgetOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int ExtentsOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int InsideOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int InvtransformOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int TransformOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
-static int SnapOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int argc, char **argv));
+static int BarOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int LineOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int ElementOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int ConfigureOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int CgetOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int ExtentsOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int InsideOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int InvtransformOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int TransformOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
+static int SnapOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int objc, Tcl_Obj *CONST *objv));
 
 #ifdef WIN32
 static int InitMetaFileHeader _ANSI_ARGS_((Tk_Window tkwin, int width, int height, APMHEADER *mfhPtr));
@@ -606,8 +631,9 @@ PickEntry(clientData, x, y, contextPtr)
  *----------------------------------------------------------------------
  */
 static void
-ConfigureGraph(graphPtr)
+ConfigureGraph(graphPtr, mask)
     Graph *graphPtr; /* Graph widget record */
+	int mask;
 {
     XColor *colorPtr;
     GC newGC;
@@ -675,7 +701,7 @@ ConfigureGraph(graphPtr)
 
     Rbc_ResetTextStyle(graphPtr->tkwin, &graphPtr->titleTextStyle);
 
-    if (Rbc_ConfigModified(configSpecs, "-invertxy", (char *)NULL)) {
+    if (mask & INVERTXY_MASK) {
 
         /*
          * If the -inverted option changed, we need to readjust the pointers
@@ -699,7 +725,9 @@ ConfigureGraph(graphPtr)
      * Reconfigure the crosshairs, just in case the background color of
      * the plotarea has been changed.
      */
-    Rbc_ConfigureCrosshairs(graphPtr);
+    if (graphPtr->crosshairs != NULL) {
+        Rbc_ConfigureCrosshairs(graphPtr);
+    }
 
     /*
      *  Update the layout of the graph (and redraw the elements) if
@@ -714,15 +742,65 @@ ConfigureGraph(graphPtr)
      *	    -bottommargin, -leftmargin, -rightmargin, -topmargin,
      *	    -barmode, -barwidth
      */
-    if (Rbc_ConfigModified(configSpecs, "-invertxy", "-title", "-font",
-            "-*margin", "-*width", "-height", "-barmode", "-*pad*", "-aspect", (char *)NULL)) {
+    if (mask & RESET_WORLD_MASK) {
         graphPtr->flags |= RESET_WORLD;
     }
-    if (Rbc_ConfigModified(configSpecs, "-plotbackground", (char *)NULL)) {
+    if (mask & REDRAW_BACKING_STORE_MASK) {
         graphPtr->flags |= REDRAW_BACKING_STORE;
     }
     graphPtr->flags |= REDRAW_WORLD;
-    Rbc_EventuallyRedrawGraph(graphPtr);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * GraphObjConfigure --
+ *
+ *      Allocates resources for the graph.
+ *
+ * Results:
+ *      None.
+ *
+ * Side effects:
+ *      Configuration information, such as text string, colors, font,
+ *      etc. get set for graphPtr;  old resources get freed, if there
+ *      were any.  The graph is redisplayed.
+ *
+ *----------------------------------------------------------------------
+ */
+static int
+GraphObjConfigure(interp, graphPtr, objc, objv)
+	Tcl_Interp *interp; /* For return values and errors */
+	Graph *graphPtr; /* The per-instance data structure */
+	int objc; /* Number of valid entries in argv */
+	Tcl_Obj *CONST *objv; /* The command line arguments */
+{
+    Tk_SavedOptions savedOptions;
+    int mask, error;
+    Tcl_Obj *errorResult;
+
+    for (error = 0; error <= 1; error++) {
+        if (!error) {
+            if (Tk_SetOptions(interp, (char *) graphPtr, graphPtr->optionTable, objc, objv, graphPtr->tkwin, &savedOptions, &mask) != TCL_OK) {
+                continue;
+            }
+        } else {
+            errorResult = Tcl_GetObjResult(interp);
+            Tcl_IncrRefCount(errorResult);
+            Tk_RestoreSavedOptions(&savedOptions);
+        }
+        ConfigureGraph(graphPtr, mask);
+        break;
+    }
+    if (!error) {
+    	Rbc_EventuallyRedrawGraph(graphPtr);
+        Tk_FreeSavedOptions(&savedOptions);
+        return TCL_OK;
+    } else {
+        Tcl_SetObjResult(interp, errorResult);
+        Tcl_DecrRefCount(errorResult);
+        return TCL_ERROR;
+    }
 }
 
 /*
@@ -748,7 +826,10 @@ DestroyGraph(dataPtr)
 {
     Graph *graphPtr = (Graph *)dataPtr;
 
-    Tk_FreeOptions(configSpecs, (char *)graphPtr, graphPtr->display, 0);
+    /* We used to free the config specs...Do we need to do that with Option Specs?
+     * Tk_FreeConfigOptions((char *) graphPtr, graphPtr->optionTable, graphPtr->tkwin);
+     */
+
     /*
      * Destroy the individual components of the graph: elements, markers,
      * X and Y axes, legend, display lists etc.
@@ -819,27 +900,45 @@ DestroyGraph(dataPtr)
  *----------------------------------------------------------------------
  */
 static Graph *
-CreateGraph(interp, argc, argv, classUid)
+CreateGraph(interp, clientData, objc, objv, classUid)
     Tcl_Interp *interp;
-    int argc;
-    CONST84 char **argv;
+	ClientData clientData;
+    int objc;
+    Tcl_Obj *CONST *objv;
     Rbc_Uid classUid;
 {
     Graph *graphPtr;
     Tk_Window tkwin;
+    Tk_OptionTable optionTable;
 
-    tkwin = Tk_CreateWindowFromPath(interp, Tk_MainWindow(interp), argv[1],
-                                    (char *)NULL);
+    optionTable = Tk_CreateOptionTable(interp, optionSpecs);
+
+    /*
+     * This is supposed to be a mechanism for caching the option table, but it errors.
+     *
+     * optionTable = (Tk_OptionTable) clientData;
+     * if (optionTable == NULL) {
+     *      Tcl_CmdInfo info;
+     *      char *name;
+     *
+     *      optionTable = Tk_CreateOptionTable(interp, optionSpecs);
+     *      name = Tcl_GetString(objv[0]);
+     *      Tcl_GetCommandInfo(interp, name, &info);
+     *      info.objClientData = (ClientData) optionTable;
+     *      Tcl_SetCommandInfo(interp, name, &info);
+     * }
+     */
+    tkwin = Tk_CreateWindowFromPath(interp, Tk_MainWindow(interp), Tcl_GetString(objv[1]), (char *) NULL);
     if (tkwin == NULL) {
         return NULL;
     }
     graphPtr = RbcCalloc(1, sizeof(Graph));
     assert(graphPtr);
     /* Initialize the graph data structure. */
-
     graphPtr->tkwin = tkwin;
     graphPtr->display = Tk_Display(tkwin);
     graphPtr->interp = interp;
+    graphPtr->optionTable = optionTable;
     graphPtr->classUid = classUid;
     graphPtr->backingStore = TRUE;
     graphPtr->doubleBuffer = TRUE;
@@ -878,8 +977,10 @@ CreateGraph(interp, argc, argv, classUid)
     if (InitPens(graphPtr) != TCL_OK) {
         goto error;
     }
-    if (Tk_ConfigureWidget(interp, tkwin, configSpecs, argc - 2, argv + 2, (char *)graphPtr, 0) != TCL_OK) {
-        goto error;
+
+    if ((Tk_InitOptions(interp, (char *) graphPtr, optionTable, tkwin) != TCL_OK)
+            || (GraphObjConfigure(interp, graphPtr, objc - 2, objv + 2) != TCL_OK)) {
+    	goto error;
     }
     if (Rbc_DefaultAxes(graphPtr) != TCL_OK) {
         goto error;
@@ -902,11 +1003,14 @@ CreateGraph(interp, argc, argv, classUid)
                           ExposureMask | StructureNotifyMask | FocusChangeMask, GraphEventProc,
                           graphPtr);
 
-    graphPtr->cmdToken = Tcl_CreateCommand(interp, argv[1], Rbc_GraphInstCmdProc, graphPtr, GraphInstCmdDeleteProc);
+    /* Tk_PathName might be argv[1] but instead Tcl_GetString(objv[1]) */
+    graphPtr->cmdToken = Tcl_CreateObjCommand(interp, Tk_PathName(graphPtr->tkwin), Rbc_GraphInstObjCmdProc, (ClientData) graphPtr, GraphInstCmdDeleteProc);
+/**
+ * TODO Not Implemented yet
 #ifdef ITCL_NAMESPACES
     Itk_SetWidgetCommand(graphPtr->tkwin, graphPtr->cmdToken);
 #endif
-    ConfigureGraph(graphPtr);
+*/
     graphPtr->bindTable = Rbc_CreateBindingTable(interp, tkwin, graphPtr, PickEntry, Rbc_GraphTags);
     return graphPtr;
 
@@ -941,7 +1045,7 @@ XAxisOp(graphPtr, interp, argc, argv)
     int margin;
 
     margin = (graphPtr->inverted) ? MARGIN_LEFT : MARGIN_BOTTOM;
-    return Rbc_AxisOp(graphPtr, margin, argc, argv);
+    return Rbc_AxisOp(graphPtr, interp, margin, argc, argv);
 }
 
 /*
@@ -969,7 +1073,7 @@ X2AxisOp(graphPtr, interp, argc, argv)
     int margin;
 
     margin = (graphPtr->inverted) ? MARGIN_RIGHT : MARGIN_TOP;
-    return Rbc_AxisOp(graphPtr, margin, argc, argv);
+    return Rbc_AxisOp(graphPtr, interp, margin, argc, argv);
 }
 
 /*
@@ -988,16 +1092,16 @@ X2AxisOp(graphPtr, interp, argc, argv)
  *----------------------------------------------------------------------
  */
 static int
-YAxisOp(graphPtr, interp, argc, argv)
+YAxisOp(graphPtr, interp, objc, objv)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc;
-    char **argv;
+    int objc;
+    Tcl_Obj * const objv[];
 {
     int margin;
 
     margin = (graphPtr->inverted) ? MARGIN_BOTTOM : MARGIN_LEFT;
-    return Rbc_AxisOp(graphPtr, margin, argc, argv);
+    return Rbc_AxisOp(graphPtr, interp, margin, objc, objv);
 }
 
 /*
@@ -1025,7 +1129,7 @@ Y2AxisOp(graphPtr, interp, argc, argv)
     int margin;
 
     margin = (graphPtr->inverted) ? MARGIN_TOP : MARGIN_RIGHT;
-    return Rbc_AxisOp(graphPtr, margin, argc, argv);
+    return Rbc_AxisOp(graphPtr, interp, margin, argc, argv);
 }
 
 /*
@@ -1044,13 +1148,13 @@ Y2AxisOp(graphPtr, interp, argc, argv)
  *----------------------------------------------------------------------
  */
 static int
-BarOp(graphPtr, interp, argc, argv)
+BarOp(graphPtr, interp, objc, objv)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc;
-    char **argv;
+    int objc;
+    Tcl_Obj *CONST *objv;
 {
-    return Rbc_ElementOp(graphPtr, interp, argc, argv, rbcBarElementUid);
+    return Rbc_ElementOp(graphPtr, interp, objc, objv, rbcBarElementUid);
 }
 
 /*
@@ -1069,13 +1173,13 @@ BarOp(graphPtr, interp, argc, argv)
  *----------------------------------------------------------------------
  */
 static int
-LineOp(graphPtr, interp, argc, argv)
+LineOp(graphPtr, interp, objc, objv)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc;
-    char **argv;
+    int objc;
+    Tcl_Obj *CONST *objv;
 {
-    return Rbc_ElementOp(graphPtr, interp, argc, argv, rbcLineElementUid);
+    return Rbc_ElementOp(graphPtr, interp, objc, objv, rbcLineElementUid);
 }
 
 /*
@@ -1094,13 +1198,13 @@ LineOp(graphPtr, interp, argc, argv)
  *----------------------------------------------------------------------
  */
 static int
-ElementOp(graphPtr, interp, argc, argv)
+ElementOp(graphPtr, interp, objc, objv)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc;
-    char **argv;
+    int objc;
+    Tcl_Obj *CONST *objv;
 {
-    return Rbc_ElementOp(graphPtr, interp, argc, argv, graphPtr->classUid);
+    return Rbc_ElementOp(graphPtr, interp, objc, objv, graphPtr->classUid);
 }
 
 /*
@@ -1119,29 +1223,25 @@ ElementOp(graphPtr, interp, argc, argv)
  *----------------------------------------------------------------------
  */
 static int
-ConfigureOp(graphPtr, interp, argc, argv)
+ConfigureOp(graphPtr, interp, objc, objv)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc;
-    CONST84 char **argv;
+    int objc;
+    Tcl_Obj *CONST *objv;
 {
-    int flags;
+	Tcl_Obj *objPtr;
 
-    flags = TK_CONFIG_ARGV_ONLY;
-    if (argc == 2) {
-        return Tk_ConfigureInfo(interp, graphPtr->tkwin, configSpecs,
-                                (char *)graphPtr, (char *)NULL, flags);
-    } else if (argc == 3) {
-        return Tk_ConfigureInfo(interp, graphPtr->tkwin, configSpecs,
-                                (char *)graphPtr, argv[2], flags);
-    } else {
-        if (Tk_ConfigureWidget(interp, graphPtr->tkwin, configSpecs, argc - 2,
-                               argv + 2, (char *)graphPtr, flags) != TCL_OK) {
-            return TCL_ERROR;
-        }
-        ConfigureGraph(graphPtr);
-        return TCL_OK;
-    }
+	if (objc <= 3) {
+		objPtr = Tk_GetOptionInfo(interp, (char *) graphPtr, graphPtr->optionTable, (objc == 3) ? objv[2] : NULL, graphPtr->tkwin);
+		if (objPtr == NULL) {
+			return TCL_ERROR;
+		} else {
+			Tcl_SetObjResult(interp, objPtr);
+		}
+	} else {
+		return GraphObjConfigure(interp, graphPtr, objc - 2, objv + 2);
+	}
+    return TCL_OK;
 }
 
 /*
@@ -1160,14 +1260,21 @@ ConfigureOp(graphPtr, interp, argc, argv)
  *----------------------------------------------------------------------
  */
 static int
-CgetOp(graphPtr, interp, argc, argv)
+CgetOp(graphPtr, interp, objc, objv)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc; /* Not used. */
-    char **argv;
+    int objc;
+    Tcl_Obj *CONST *objv;
 {
-    return Tk_ConfigureValue(interp, graphPtr->tkwin, configSpecs,
-                             (char *)graphPtr, argv[2], 0);
+	Tcl_Obj *objPtr;
+
+	objPtr = Tk_GetOptionValue(interp, (char *) graphPtr, graphPtr->optionTable, objv[2], graphPtr->tkwin);
+	if (objPtr == NULL) {
+		return TCL_ERROR;
+	} else {
+		Tcl_SetObjResult(interp, objPtr);
+	}
+	return TCL_OK;
 }
 
 /*
@@ -1196,58 +1303,56 @@ CgetOp(graphPtr, interp, argc, argv)
  *--------------------------------------------------------------
  */
 static int
-ExtentsOp(graphPtr, interp, argc, argv)
+ExtentsOp(graphPtr, interp, objc, objv)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc; /* Not used. */
-    char **argv;
+    int objc; /* Not used. */
+    Tcl_Obj *CONST *objv;
 {
-    char c;
+	Tcl_Obj *resultPtr;
+    char *optionArg;
+	char c;
     unsigned int length;
     char string[200];
 
-    c = argv[2][0];
-    length = strlen(argv[2]);
-    if ((c == 'p') && (length > 4) &&
-            (strncmp("plotheight", argv[2], length) == 0)) {
-        Tcl_SetResult(interp, (char *)Rbc_Itoa(graphPtr->bottom - graphPtr->top + 1), TCL_VOLATILE);
-    } else if ((c == 'p') && (length > 4) &&
-               (strncmp("plotwidth", argv[2], length) == 0)) {
-        Tcl_SetResult(interp, (char *)Rbc_Itoa(graphPtr->right - graphPtr->left + 1), TCL_VOLATILE);
-    } else if ((c == 'p') && (length > 4) &&
-               (strncmp("plotarea", argv[2], length) == 0)) {
+    resultPtr = Tcl_NewStringObj("", -1);
+    optionArg = Tcl_GetStringFromObj(objv[2], &length);
+    c = optionArg[0];
+    if ((c == 'p') && (length > 4) && (strncmp("plotheight", optionArg, length) == 0)) {
+    	Tcl_AppendStringsToObj(resultPtr, Rbc_Itoa(graphPtr->bottom - graphPtr->top + 1), NULL);
+    } else if ((c == 'p') && (length > 4) && (strncmp("plotwidth", optionArg, length) == 0)) {
+        Tcl_AppendStringsToObj(resultPtr, Rbc_Itoa(graphPtr->right - graphPtr->left + 1), NULL);
+    } else if ((c == 'p') && (length > 4) && (strncmp("plotarea", optionArg, length) == 0)) {
         sprintf(string, "%d %d %d %d", graphPtr->left, graphPtr->top,
                 graphPtr->right - graphPtr->left + 1,
                 graphPtr->bottom - graphPtr->top + 1);
-        Tcl_SetResult(interp, string, TCL_VOLATILE);
-    } else if ((c == 'l') && (length > 2) &&
-               (strncmp("legend", argv[2], length) == 0)) {
+        Tcl_AppendStringsToObj(resultPtr, string, NULL);
+    } else if ((c == 'l') && (length > 2) && (strncmp("legend", optionArg, length) == 0)) {
         sprintf(string, "%d %d %d %d", Rbc_LegendX(graphPtr->legend),
                 Rbc_LegendY(graphPtr->legend),
                 Rbc_LegendWidth(graphPtr->legend),
                 Rbc_LegendHeight(graphPtr->legend));
-        Tcl_SetResult(interp, string, TCL_VOLATILE);
-    } else if ((c == 'l') && (length > 2) &&
-               (strncmp("leftmargin", argv[2], length) == 0)) {
-        Tcl_SetResult(interp, Rbc_Itoa(graphPtr->leftMargin.width),
-                      TCL_VOLATILE);
-    } else if ((c == 'r') && (length > 1) &&
-               (strncmp("rightmargin", argv[2], length) == 0)) {
-        Tcl_SetResult(interp, Rbc_Itoa(graphPtr->rightMargin.width),
-                      TCL_VOLATILE);
-    } else if ((c == 't') && (length > 1) &&
-               (strncmp("topmargin", argv[2], length) == 0)) {
-        Tcl_SetResult(interp, Rbc_Itoa(graphPtr->topMargin.height), TCL_VOLATILE);
-    } else if ((c == 'b') && (length > 1) &&
-               (strncmp("bottommargin", argv[2], length) == 0)) {
-        Tcl_SetResult(interp, Rbc_Itoa(graphPtr->bottomMargin.height),
-                      TCL_VOLATILE);
+        Tcl_AppendStringsToObj(resultPtr, string, NULL);
+    } else if ((c == 'l') && (length > 2) && (strncmp("leftmargin", optionArg, length) == 0)) {
+        Tcl_AppendStringsToObj(resultPtr, Rbc_Itoa(graphPtr->leftMargin.width), NULL);
+    } else if ((c == 'r') && (length > 1) && (strncmp("rightmargin", optionArg, length) == 0)) {
+        Tcl_AppendStringsToObj(resultPtr, Rbc_Itoa(graphPtr->rightMargin.width), NULL);
+    } else if ((c == 't') && (length > 1) && (strncmp("topmargin", optionArg, length) == 0)) {
+    	Tcl_AppendStringsToObj(resultPtr, Rbc_Itoa(graphPtr->topMargin.height), NULL);
+    } else if ((c == 'b') && (length > 1) && (strncmp("bottommargin", optionArg, length) == 0)) {
+        Tcl_AppendStringsToObj(resultPtr, Rbc_Itoa(graphPtr->bottomMargin.height), NULL);
     } else {
-        Tcl_AppendResult(interp, "bad extent item \"", argv[2],
-                         "\": should be plotheight, plotwidth, leftmargin, rightmargin, \
-topmargin, bottommargin, plotarea, or legend", (char *)NULL);
+        Tcl_AppendStringsToObj(
+            resultPtr,
+            "bad extent item \"",
+            optionArg,
+            "\": should be plotheight, plotwidth, leftmargin, rightmargin, topmargin, bottommargin, plotarea, or legend",
+            NULL);
+        Tcl_SetObjResult(interp, resultPtr);
         return TCL_ERROR;
     }
+
+    Tcl_SetObjResult(interp, resultPtr);
     return TCL_OK;
 }
 
@@ -1269,20 +1374,20 @@ topmargin, bottommargin, plotarea, or legend", (char *)NULL);
  *--------------------------------------------------------------
  */
 static int
-InsideOp(graphPtr, interp, argc, argv)
+InsideOp(graphPtr, interp, objc, objv)
     Graph *graphPtr;
     Tcl_Interp *interp;
-    int argc; /* Not used. */
-    char **argv;
+    int objc; /* Not used. */
+    Tcl_Obj *CONST *objv;
 {
     int x, y;
     Extents2D exts;
     int result;
 
-    if (Tk_GetPixels(interp, graphPtr->tkwin, argv[2], &x) != TCL_OK) {
+    if (Tk_GetPixels(interp, graphPtr->tkwin, Tcl_GetStringFromObj(objv[2], NULL), &x) != TCL_OK) {
         return TCL_ERROR;
     }
-    if (Tk_GetPixels(interp, graphPtr->tkwin, argv[3], &y) != TCL_OK) {
+    if (Tk_GetPixels(interp, graphPtr->tkwin, Tcl_GetStringFromObj(objv[3], NULL), &y) != TCL_OK) {
         return TCL_ERROR;
     }
     Rbc_GraphExtents(graphPtr, &exts);
@@ -1313,18 +1418,18 @@ InsideOp(graphPtr, interp, argc, argv)
  * ------------------------------------------------------------------------
  */
 static int
-InvtransformOp(graphPtr, interp, argc, argv)
+InvtransformOp(graphPtr, interp, objc, objv)
     Graph *graphPtr; /* Graph widget record */
     Tcl_Interp *interp;
-    int argc; /* Not used. */
-    char **argv;
+    int objc; /* Not used. */
+    Tcl_Obj *CONST *objv;
 {
     double x, y;
     Point2D point;
     Axis2D axes;
 
-    if (Tcl_ExprDouble(interp, argv[2], &x) != TCL_OK ||
-            Tcl_ExprDouble(interp, argv[3], &y) != TCL_OK) {
+    if (Tcl_ExprDoubleObj(interp, objv[2], &x) != TCL_OK ||
+            Tcl_ExprDoubleObj(interp, objv[3], &y) != TCL_OK) {
         return TCL_ERROR;
     }
     if (graphPtr->flags & RESET_AXES) {
@@ -1365,18 +1470,18 @@ InvtransformOp(graphPtr, interp, argc, argv)
  * -------------------------------------------------------------------------
  */
 static int
-TransformOp(graphPtr, interp, argc, argv)
+TransformOp(graphPtr, interp, objc, objv)
     Graph *graphPtr; /* Graph widget record */
     Tcl_Interp *interp;
-    int argc; /* Not used. */
-    char **argv;
+    int objc; /* Not used. */
+    Tcl_Obj *CONST *objv;
 {
     double x, y;
     Point2D point;
     Axis2D axes;
 
-    if ((Tcl_ExprDouble(interp, argv[2], &x) != TCL_OK) ||
-            (Tcl_ExprDouble(interp, argv[3], &y) != TCL_OK)) {
+    if ((Tcl_ExprDoubleObj(interp, objv[2], &x) != TCL_OK) ||
+            (Tcl_ExprDoubleObj(interp, objv[3], &y) != TCL_OK)) {
         return TCL_ERROR;
     }
     if (graphPtr->flags & RESET_AXES) {
@@ -1597,11 +1702,11 @@ error:
  * -------------------------------------------------------------------------
  */
 static int
-SnapOp(graphPtr, interp, argc, argv)
+SnapOp(graphPtr, interp, objc, objv)
     Graph *graphPtr; /* Graph widget record */
     Tcl_Interp *interp;
-    int argc; /* Not used. */
-    char **argv;
+    int objc; /* Not used. */
+    Tcl_Obj *CONST *objv;
 {
     int result;
     Pixmap drawable;
@@ -1614,18 +1719,17 @@ SnapOp(graphPtr, interp, argc, argv)
     data.width = Tk_Width(graphPtr->tkwin);
     data.format = FORMAT_PHOTO;
     /* Process switches  */
-    i = Rbc_ProcessSwitches(interp, snapSwitches, argc - 2, argv + 2,
-                            (char *)&data, RBC_SWITCH_OBJV_PARTIAL);
+    i = Rbc_ProcessSwitches(interp, snapSwitches, objc - 2, objv + 2, (char *)&data, RBC_SWITCH_OBJV_PARTIAL);
     if (i < 0) {
         return TCL_ERROR;
     }
     i += 2;
-    if (i >= argc) {
+    if (i >= objc) {
         Tcl_AppendResult(interp, "missing name argument: should be \"",
-                         argv[0], "snap ?switches? name\"", (char *)NULL);
+                         objv[0], "snap ?switches? name\"", (char *)NULL);
         return TCL_ERROR;
     }
-    data.name = argv[i];
+    data.name = Tcl_GetStringFromObj(objv[i], NULL);
     if (data.width < 2) {
         data.width = 400;
     }
@@ -1787,6 +1891,259 @@ Rbc_GraphInstCmdProc(clientData, interp, argc, argv)
 }
 
 /*
+ *----------------------------------------------------------------------
+ *
+ * Rbc_GraphInstObjCmdProc --
+ *
+ *      TODO: Description
+ *
+ * Results:
+ *      TODO: Results
+ *
+ * Side Effects:
+ *      TODO: Side Effects
+ *
+ *----------------------------------------------------------------------
+ */
+int
+Rbc_GraphInstObjCmdProc (clientData, interp, objc, objv)
+    ClientData clientData;
+	Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST *objv;
+{
+	int index;
+	Graph *graphPtr = clientData;
+
+	if (objc < 2) {
+		Tcl_WrongNumArgs(interp, 1, objv, "option ?args?");
+		return TCL_ERROR;
+	}
+
+	if (Tcl_GetIndexFromObj(interp, objv[1], subCmds, "option", 0, &index) != TCL_OK) {
+		return TCL_ERROR;
+	}
+
+	switch(index) {
+		case axisIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case barIdx: {
+			if (objc < 4) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return BarOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case cgetIdx:{
+			if (objc != 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "option");
+				return TCL_ERROR;
+			} else {
+				return CgetOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case configureIdx: {
+			return ConfigureOp(graphPtr, interp, objc, objv);
+			break;
+		}
+		case crosshairsIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case elementIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return ElementOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case extentsIdx: {
+			if (objc != 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "item");
+				return TCL_ERROR;
+			} else {
+				return ExtentsOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case gridIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case insideIdx: {
+			if (objc != 4) {
+				Tcl_WrongNumArgs(interp, 2, objv, "winX winY");
+				return TCL_ERROR;
+			} else {
+				return InsideOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case invtransformIdx: {
+			if (objc != 4) {
+				Tcl_WrongNumArgs(interp, 2, objv, "winX winY");
+				return TCL_ERROR;
+			} else {
+				return InvtransformOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case legendIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case lineIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return LineOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case markerIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case penIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case postscriptIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case snapIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "?switches? name");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case transformIdx: {
+			if (objc != 4) {
+				Tcl_WrongNumArgs(interp, 2, objv, "x y");
+				return TCL_ERROR;
+			} else {
+				return TransformOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case x2axisIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case xaxisIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return TCL_OK;
+			}
+
+			break;
+		}
+		case y2axisIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return Y2AxisOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+		case yaxisIdx: {
+			if (objc < 3) {
+				Tcl_WrongNumArgs(interp, 2, objv, "oper ?args?");
+				return TCL_ERROR;
+			} else {
+				return YAxisOp(graphPtr, interp, objc, objv);
+			}
+
+			break;
+		}
+	}
+
+//	proc = Rbc_GetOp(interp, nGraphOps, graphOps, RBC_OP_ARG1, argc, argv, 0);
+//
+//	if (proc == NULL) {
+//		return TCL_ERROR;
+//	}
+//	Tcl_Preserve(graphPtr);
+//	result = (*proc) (graphPtr, interp, argc, argv);
+//	Tcl_Release(graphPtr);
+//	return result;
+	return TCL_OK;
+}
+
+/*
  * --------------------------------------------------------------------------
  *
  * NewGraph --
@@ -1803,30 +2160,31 @@ Rbc_GraphInstCmdProc(clientData, interp, argc, argv)
  * --------------------------------------------------------------------------
  */
 static int
-NewGraph(interp, argc, argv, classUid)
+NewGraph(interp, clientData, objc, objv, classUid)
     Tcl_Interp *interp;
-    int argc;
-    char **argv;
+	ClientData clientData;
+    int objc;
+    Tcl_Obj *CONST *objv;
     Rbc_Uid classUid;
 {
     Graph *graphPtr;
-    if (argc < 2) {
-        Tcl_AppendResult(interp, "wrong # args: should be \"", argv[0],
-                         " pathName ?option value?...\"", (char *)NULL);
+    if (objc < 2) {
+    	Tcl_WrongNumArgs(interp, 1, objv, "pathName ?option value?...");
         return TCL_ERROR;
     }
-    graphPtr = CreateGraph(interp, argc, argv, classUid);
+
+    graphPtr = CreateGraph(interp, clientData, objc, objv, classUid);
     if (graphPtr == NULL) {
         return TCL_ERROR;
     }
-    Tcl_SetResult(interp, Tk_PathName(graphPtr->tkwin), TCL_VOLATILE);
+    Tcl_SetStringObj(Tcl_GetObjResult(interp), Tk_PathName(graphPtr->tkwin), -1);
     return TCL_OK;
 }
 
 /*
  * --------------------------------------------------------------------------
  *
- * GraphCmd --
+ * GraphObjCmd --
  *
  *      Creates a new window and Tcl command representing an
  *      instance of a graph widget.
@@ -1839,20 +2197,20 @@ NewGraph(interp, argc, argv, classUid)
  *
  * --------------------------------------------------------------------------
  */
-static int
-GraphCmd(clientData, interp, argc, argv)
-    ClientData clientData; /* Not used. */
-    Tcl_Interp *interp;
-    int argc;
-    CONST84 char *argv[];
+int
+GraphObjCmd(clientData, interp, objc, objv)
+    ClientData clientData;
+	Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST *objv;
 {
-    return NewGraph(interp, argc, argv, rbcLineElementUid);
+	return NewGraph(interp, clientData, objc, objv, rbcLineElementUid);
 }
 
 /*
  *--------------------------------------------------------------
  *
- * BarchartCmd --
+ * BarchartObjCmd --
  *
  *      Creates a new window and Tcl command representing an
  *      instance of a barchart widget.
@@ -1866,19 +2224,19 @@ GraphCmd(clientData, interp, argc, argv)
  *--------------------------------------------------------------
  */
 static int
-BarchartCmd(clientData, interp, argc, argv)
-    ClientData clientData; /* Not used. */
-    Tcl_Interp *interp;
-    int argc;
-    CONST84 char *argv[];
+BarchartObjCmd(clientData, interp, objc, objv)
+    ClientData clientData;
+	Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST *objv;
 {
-    return NewGraph(interp, argc, argv, rbcBarElementUid);
+    return NewGraph(interp, clientData, objc, objv, rbcBarElementUid);
 }
 
 /*
  *--------------------------------------------------------------
  *
- * StripchartCmd --
+ * StripchartObjCmd --
  *
  *      Creates a new window and Tcl command representing an
  *      instance of a barchart widget.
@@ -1892,13 +2250,13 @@ BarchartCmd(clientData, interp, argc, argv)
  *--------------------------------------------------------------
  */
 static int
-StripchartCmd(clientData, interp, argc, argv)
-    ClientData clientData; /* Not used. */
-    Tcl_Interp *interp;
-    int argc;
-    CONST84 char *argv[];
+StripchartObjCmd(clientData, interp, objc, objv)
+    ClientData clientData;
+	Tcl_Interp *interp;
+    int objc;
+    Tcl_Obj *CONST *objv;
 {
-    return NewGraph(interp, argc, argv, rbcStripElementUid);
+    return NewGraph(interp, clientData, objc, objv, rbcStripElementUid);
 }
 
 /*
@@ -2326,9 +2684,11 @@ Rbc_GraphInit(interp)
     rbcXAxisUid = (Rbc_Uid)Tk_GetUid("X");
     rbcYAxisUid = (Rbc_Uid)Tk_GetUid("Y");
 
-    Tcl_CreateCommand(interp, "rbc::graph", GraphCmd, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-    Tcl_CreateCommand(interp, "rbc::barchart", BarchartCmd, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
-    Tcl_CreateCommand(interp, "rbc::stripchart", StripchartCmd, (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+
+    Tcl_CreateObjCommand(interp, "rbc::graph", GraphObjCmd, (ClientData)NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "rbc::barchart", BarchartObjCmd, (ClientData)NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "rbc::stripchart", StripchartObjCmd, (ClientData)NULL, (Tcl_CmdDeleteProc *) NULL);
+
     return TCL_OK;
 }
 

@@ -4,7 +4,7 @@
  *      This file constructs the basic functionality of the
  *      rbc commands.
  *
- * Copyright (c) 2009 Samuel Green, Nicholas Hudson, Stanton Sievers, Jarrod Stormo
+ * Copyright (c) 2009 Samuel Green, Nick Hudson, Stanton Sievers, Jarrod Stormo
  * All rights reserved.
  *
  * See "license.terms" for details.
@@ -25,8 +25,6 @@
 #define USE_NON_CONST
 #include <tcl.h>
 
-/* Backwards Compatiablitity with previous Tk versions */
-#define USE_OLD_CANVAS
 #define USE_COMPOSITELESS_PHOTO_PUT_BLOCK
 
 #include <tk.h>
@@ -38,10 +36,11 @@
 #include <stdio.h>
 #include <assert.h>
 
-#if defined(WIN32)
+#if defined(WIN32) && !defined(__GNUC__)
 #include "rbcWinConfig.h"
-#else
-#include "rbcConfig.h"
+// TODO rbcConfig.h doesn't exist
+//#else
+//#include "rbcConfig.h"
 #endif
 
 #ifdef WIN32
@@ -577,6 +576,9 @@ Point2D Rbc_TranslatePoint _ANSI_ARGS_((Point2D *pointPtr, int width,
 int Rbc_ConfigureWidgetComponent _ANSI_ARGS_((Tcl_Interp *interp,
         Tk_Window tkwin, char *name, char *class, Tk_ConfigSpec *specs,
         int argc, char **argv, char *widgRec, int flags));
+int Rbc_ConfigureWidgetComponentObj _ANSI_ARGS_((Tcl_Interp *interp,
+        Tk_Window tkwin, char *name, char *class, Tk_OptionTable optionTable,
+        int objc, Tcl_Obj *CONST *objv, char *widgRec, int flags));
 
 int Rbc_MaxRequestSize _ANSI_ARGS_((Display *display,
                                     unsigned int elemSize));

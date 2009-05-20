@@ -26,6 +26,19 @@ Tk_CustomOption rbcFillOption = {
     StringToFill, FillToString, (ClientData)0
 };
 
+static Tk_CustomOptionSetProc ObjStringToPad;
+static Tk_CustomOptionGetProc ObjPadToString;
+
+Tk_ObjCustomOption rbcObjPadOption = {
+	"objPad",
+    (Tk_CustomOptionSetProc *) ObjStringToPad,
+    (Tk_CustomOptionGetProc *) ObjPadToString,
+    (Tk_CustomOptionRestoreProc *) NULL,
+    (Tk_CustomOptionFreeProc *) NULL,
+    (ClientData)0
+};
+
+
 static int StringToPad _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, Tk_Window tkwin, char *string, char *widgRec, int offset));
 static char *PadToString _ANSI_ARGS_((ClientData clientData, Tk_Window tkwin, char *widgRec, int offset, Tcl_FreeProc **freeProcPtr));
 
@@ -33,19 +46,38 @@ Tk_CustomOption rbcPadOption = {
     StringToPad, PadToString, (ClientData)0
 };
 
-static int StringToDistance _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, Tk_Window tkwin, char *string, char *widgRec, int flags));
-static char *DistanceToString _ANSI_ARGS_((ClientData clientData, Tk_Window tkwin, char *widgRec, int offset, Tcl_FreeProc **freeProcPtr));
+static Tk_CustomOptionSetProc ObjStringToDistance;
+static Tk_CustomOptionGetProc ObjDistanceToString;
+static Tk_CustomOptionFreeProc ObjStringDistanceFree;
+
+Tk_ObjCustomOption rbcObjDistanceOption = {
+	"objDistance",
+    (Tk_CustomOptionSetProc *) ObjStringToDistance,
+    (Tk_CustomOptionGetProc *) ObjDistanceToString,
+    (Tk_CustomOptionRestoreProc *) NULL,
+    (Tk_CustomOptionFreeProc *) ObjStringDistanceFree,
+    (ClientData)PIXELS_NONNEGATIVE
+};
+
+static Tk_OptionParseProc StringToDistance;
+static Tk_OptionPrintProc DistanceToString;
 
 Tk_CustomOption rbcDistanceOption = {
-    StringToDistance, DistanceToString, (ClientData)PIXELS_NONNEGATIVE
+    (Tk_OptionParseProc *) StringToDistance,
+    (Tk_OptionPrintProc *) DistanceToString,
+    (ClientData)PIXELS_NONNEGATIVE
 };
 
 Tk_CustomOption rbcPositiveDistanceOption = {
-    StringToDistance, DistanceToString, (ClientData)PIXELS_POSITIVE
+    (Tk_OptionParseProc *) StringToDistance,
+    (Tk_OptionPrintProc *) DistanceToString,
+    (ClientData)PIXELS_POSITIVE
 };
 
 Tk_CustomOption rbcAnyDistanceOption = {
-    StringToDistance, DistanceToString, (ClientData)PIXELS_ANY
+	(Tk_OptionParseProc *) StringToDistance,
+	(Tk_OptionPrintProc *) DistanceToString,
+    (ClientData)PIXELS_ANY
 };
 
 static int StringToCount _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, Tk_Window tkwin, char *string, char *widgRec, int flags));
@@ -64,6 +96,18 @@ static char *DashesToString _ANSI_ARGS_((ClientData clientData, Tk_Window tkwin,
 
 Tk_CustomOption rbcDashesOption = {
     StringToDashes, DashesToString, (ClientData)0
+};
+
+static Tk_CustomOptionSetProc ObjStringToShadow;
+static Tk_CustomOptionGetProc ObjShadowToString;
+
+Tk_ObjCustomOption rbcObjShadowOption = {
+	"objShadow",
+    (Tk_CustomOptionSetProc *) ObjStringToShadow,
+    (Tk_CustomOptionGetProc *) ObjShadowToString,
+    (Tk_CustomOptionRestoreProc *) NULL,
+    (Tk_CustomOptionFreeProc *) NULL,
+    (ClientData) 0
 };
 
 static int StringToShadow _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, Tk_Window tkwin, char *string, char *widgRec, int flags));
@@ -92,6 +136,18 @@ static char *ListToString _ANSI_ARGS_((ClientData clientData, Tk_Window tkwin, c
 
 Tk_CustomOption rbcListOption = {
     StringToList, ListToString, (ClientData)0
+};
+
+static Tk_CustomOptionSetProc ObjStringToTile;
+static Tk_CustomOptionGetProc ObjTileToString;
+
+Tk_ObjCustomOption rbcObjTileOption = {
+	"objTile",
+    (Tk_CustomOptionSetProc *) ObjStringToTile,
+    (Tk_CustomOptionGetProc *) ObjTileToString,
+    (Tk_CustomOptionRestoreProc *) NULL,
+    (Tk_CustomOptionFreeProc *) NULL,
+    (ClientData) 0
 };
 
 static int StringToTile _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp, Tk_Window tkwin, char *value, char *widgRec, int flags));
@@ -372,6 +428,23 @@ StringToDistance(clientData, interp, tkwin, string, widgRec, offset)
     return Rbc_GetPixels(interp, tkwin, string, (int)clientData, valuePtr);
 }
 
+static int
+ObjStringToDistance(clientData, interp, tkwin, value, widgRec, offset, saveInternalPtr, flags)
+    ClientData clientData; /* Indicated how to check distance */
+    Tcl_Interp *interp; /* Interpreter to send results back to */
+    Tk_Window tkwin; /* Window */
+    Tcl_Obj **value; /* Pixel value string */
+    char *widgRec; /* Widget record */
+    int offset; /* Offset of pixel size in record */
+    char *saveInternalPtr;
+    int flags;
+{
+    int *valuePtr = (int *)(widgRec + offset);
+    char *string = Tcl_GetString(*value);
+
+    return Rbc_GetPixels(interp, tkwin, string, (int)clientData, valuePtr);
+}
+
 /*
  *----------------------------------------------------------------------
  *
@@ -402,6 +475,46 @@ DistanceToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     assert(result);
     *freeProcPtr = (Tcl_FreeProc *)Tcl_Free;
     return result;
+}
+
+static Tcl_Obj *
+ObjDistanceToString(clientData, tkwin, widgRec, offset)
+    ClientData clientData; /* Not used. */
+    Tk_Window tkwin; /* Not used. */
+    char *widgRec; /* Widget structure record */
+    int offset; /* Offset in widget record */
+{
+    int value = *(int *)(widgRec + offset);
+    char *result;
+
+    result = RbcStrdup(Rbc_Itoa(value));
+    assert(result);
+    return Tcl_NewStringObj(result, -1);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * DistanceFree --
+ *
+ *      TODO: Description
+ *
+ * Results:
+ *      TODO: Results
+ *
+ * Side Effects:
+ *      TODO: Side Effects
+ *
+ *----------------------------------------------------------------------
+ */
+static void
+ObjStringDistanceFree (clientData, tkwin, internalPtr)
+    ClientData clientData;
+    Tk_Window tkwin;
+    char *internalPtr;
+{
+//	int value = *(int *) internalPtr;
+	//Tcl_Free(internalPtr);
 }
 
 /*
@@ -575,6 +688,46 @@ StringToPad(clientData, interp, tkwin, string, widgRec, offset)
     return result;
 }
 
+static int
+ObjStringToPad(clientData, interp, tkwin, value, widgRec, offset, saveInternalPtr, flags)
+    ClientData clientData; /* Not Used */
+    Tcl_Interp *interp; /* Interpreter to send results back to */
+    Tk_Window tkwin; /* Window */
+    Tcl_Obj **value; /* Pad value string */
+    char *widgRec; /* Widget record */
+    int offset; /* Offset of pad in widget */
+    char *saveInternalPtr;
+    int flags;
+{
+	Rbc_Pad *padPtr = (Rbc_Pad *)(widgRec + offset);
+    char *string = Tcl_GetString(*value);
+    int nElem;
+	int pad, result;
+	char **padArr;
+
+	if (Tcl_SplitList(interp, string, &nElem, &padArr) != TCL_OK) {
+		return TCL_ERROR;
+	}
+	result = TCL_ERROR;
+	if ((nElem < 1) || (nElem > 2)) {
+		Tcl_AppendResult(interp, "wrong # elements in padding list", (char *)NULL);
+		goto error;
+	}
+	if (Rbc_GetPixels(interp, tkwin, padArr[0], PIXELS_NONNEGATIVE, &pad) != TCL_OK) {
+		goto error;
+	}
+	padPtr->side1 = pad;
+	if ((nElem > 1) && (Rbc_GetPixels(interp, tkwin, padArr[1], PIXELS_NONNEGATIVE, &pad) != TCL_OK)) {
+		goto error;
+	}
+	padPtr->side2 = pad;
+	result = TCL_OK;
+
+	error:
+	ckfree((char *)padArr);
+	return result;
+}
+
 /*
  *----------------------------------------------------------------------
  *
@@ -614,6 +767,25 @@ PadToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     return result;
 }
 
+static Tcl_Obj *
+ObjPadToString(clientData, tkwin, widgRec, offset)
+    ClientData clientData; /* Not used. */
+    Tk_Window tkwin; /* Not used. */
+    char *widgRec; /* Widget structure record */
+    int offset; /* Offset in widget record */
+{
+	Rbc_Pad *padPtr = (Rbc_Pad *)(widgRec + offset);
+	char *result;
+	char string[200];
+
+	sprintf(string, "%d %d", padPtr->side1, padPtr->side2);
+	result = RbcStrdup(string);
+	if (result == NULL) {
+		return Tcl_NewStringObj("out of memory", -1);
+	}
+    return Tcl_NewStringObj(result, -1);
+}
+
 /*
  *----------------------------------------------------------------------
  *
@@ -647,6 +819,59 @@ StringToShadow(clientData, interp, tkwin, string, widgRec, offset)
     int offset; /* Offset of pad in widget */
 {
     Shadow *shadowPtr = (Shadow *) (widgRec + offset);
+    XColor *colorPtr;
+    int dropOffset;
+
+    colorPtr = NULL;
+    dropOffset = 0;
+    if ((string != NULL) && (string[0] != '\0')) {
+        int nElem;
+        char **elemArr;
+
+        if (Tcl_SplitList(interp, string, &nElem, &elemArr) != TCL_OK) {
+            return TCL_ERROR;
+        }
+        if ((nElem < 1) || (nElem > 2)) {
+            Tcl_AppendResult(interp, "wrong # elements in drop shadow value", (char *)NULL);
+            ckfree((char *)elemArr);
+            return TCL_ERROR;
+        }
+        colorPtr = Tk_GetColor(interp, tkwin, Tk_GetUid(elemArr[0]));
+        if (colorPtr == NULL) {
+            ckfree((char *)elemArr);
+            return TCL_ERROR;
+        }
+        dropOffset = 1;
+        if (nElem == 2) {
+            if (Rbc_GetPixels(interp, tkwin, elemArr[1], PIXELS_NONNEGATIVE, &dropOffset) != TCL_OK) {
+                Tk_FreeColor(colorPtr);
+                ckfree((char *)elemArr);
+                return TCL_ERROR;
+            }
+        }
+        ckfree((char *)elemArr);
+    }
+    if (shadowPtr->color != NULL) {
+        Tk_FreeColor(shadowPtr->color);
+    }
+    shadowPtr->color = colorPtr;
+    shadowPtr->offset = dropOffset;
+    return TCL_OK;
+}
+
+static int
+ObjStringToShadow(clientData, interp, tkwin, value, widgRec, offset, saveInternalPtr, flags)
+    ClientData clientData; /* Not used */
+    Tcl_Interp *interp; /* Interpreter to send results back to */
+    Tk_Window tkwin; /* Window */
+    Tcl_Obj **value; /* Shadow value string */
+    char *widgRec; /* Widget record */
+    int offset; /* Offset of shadow in record */
+    char *saveInternalPtr;
+    int flags;
+{
+	Shadow *shadowPtr = (Shadow *) (widgRec + offset);
+    char *string = Tcl_GetString(*value);
     XColor *colorPtr;
     int dropOffset;
 
@@ -725,6 +950,27 @@ ShadowToString(clientData, tkwin, widgRec, offset, freeProcPtr)
         *freeProcPtr = (Tcl_FreeProc *)Tcl_Free;
     }
     return result;
+}
+
+static Tcl_Obj *
+ObjShadowToString(clientData, tkwin, widgRec, offset)
+    ClientData clientData; /* Not used. */
+    Tk_Window tkwin; /* Not used. */
+    char *widgRec; /* Widget structure record */
+    int offset; /* Offset in widget record */
+{
+    Shadow *shadowPtr = (Shadow *) (widgRec + offset);
+    char *result;
+
+    result = "";
+    if (shadowPtr->color != NULL) {
+        char string[200];
+
+        sprintf(string, "%s %d", Tk_NameOfColor(shadowPtr->color), shadowPtr->offset);
+        result = RbcStrdup(string);
+    }
+
+    return Tcl_NewStringObj(result, -1);
 }
 
 /*
@@ -1166,6 +1412,37 @@ StringToTile(clientData, interp, tkwin, string, widgRec, offset)
     return TCL_OK;
 }
 
+static int
+ObjStringToTile(clientData, interp, tkwin, value, widgRec, offset, saveInternalPtr, flags)
+    ClientData clientData; /* Indicated how to check distance */
+    Tcl_Interp *interp; /* Interpreter to send results back to */
+    Tk_Window tkwin; /* Window */
+    Tcl_Obj **value; /* Pixel value string */
+    char *widgRec; /* Widget record */
+    int offset; /* Offset of pixel size in record */
+    char *saveInternalPtr;
+    int flags;
+{
+	Rbc_Tile *tilePtr = (Rbc_Tile *)(widgRec + offset);
+    char *string = Tcl_GetString(*value);
+    Rbc_Tile tile, oldTile;
+
+    oldTile = *tilePtr;
+	tile = NULL;
+	if ((string != NULL) && (*string != '\0')) {
+		if (Rbc_GetTile(interp, tkwin, string, &tile) != TCL_OK) {
+			return TCL_ERROR;
+		}
+	}
+	/* Don't delete the information for the old tile, until we know
+	 * that we successfully allocated a new one. */
+	if (oldTile != NULL) {
+		Rbc_FreeTile(oldTile);
+	}
+	*tilePtr = tile;
+	return TCL_OK;
+}
+
 /*
  *----------------------------------------------------------------------
  *
@@ -1192,6 +1469,18 @@ TileToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     Rbc_Tile tile = *(Rbc_Tile *)(widgRec + offset);
 
     return Rbc_NameOfTile(tile);
+}
+
+static Tcl_Obj *
+ObjTileToString(clientData, tkwin, widgRec, offset)
+    ClientData clientData; /* Not used. */
+    Tk_Window tkwin; /* Not used. */
+    char *widgRec; /* Widget structure record */
+    int offset; /* Offset in widget record */
+{
+	Rbc_Tile tile = *(Rbc_Tile *)(widgRec + offset);
+
+    return Tcl_NewStringObj(Rbc_NameOfTile(tile), -1);
 }
 
 /*
@@ -1302,6 +1591,79 @@ Rbc_ConfigureWidgetComponent(interp, parent, resName, className, specsPtr, argc,
 
     Tk_SetClass(tkwin, className);
     result = Tk_ConfigureWidget(interp, tkwin, specsPtr, argc, argv, widgRec, flags);
+    if (isTemporary) {
+        Tk_DestroyWindow(tkwin);
+    }
+    return result;
+}
+
+int
+Rbc_ConfigureWidgetComponentObj(interp, parent, resName, className, optionTable, objc, objv, widgRec, flags)
+    Tcl_Interp *interp;
+    Tk_Window parent; /* Window to associate with component */
+    char resName[]; /* Name of component */
+    char className[];
+    Tk_OptionTable optionTable;
+    int objc;
+    Tcl_Obj *CONST *objv;
+    char *widgRec;
+    int flags;
+{
+    Tk_Window tkwin;
+    int error;
+    Tk_SavedOptions savedOptions;
+    Tcl_Obj *errorResult;
+    int mask;
+    int result;
+    char *tempName;
+    int isTemporary = FALSE;
+
+    tempName = RbcStrdup(resName);
+
+    /* Window name can't start with an upper case letter */
+    tempName[0] = tolower(resName[0]);
+
+    /*
+     * Create component if a child window by the component's name
+     * doesn't already exist.
+     */
+    tkwin = Rbc_FindChild(parent, tempName);
+    if (tkwin == NULL) {
+        tkwin = Tk_CreateWindow(interp, parent, tempName, (char *)NULL);
+        isTemporary = TRUE;
+    }
+    if (tkwin == NULL) {
+        Tcl_AppendResult(interp, "can't find window in \"", Tk_PathName(parent), "\"", (char *)NULL);
+        return TCL_ERROR;
+    }
+    assert(Tk_Depth(tkwin) == Tk_Depth(parent));
+    ckfree((char *)tempName);
+
+    Tk_SetClass(tkwin, className);
+    if (Tk_InitOptions(interp, widgRec, optionTable, tkwin) != TCL_OK) {
+    	return TCL_ERROR;
+    }
+
+    for (error = 0; error <= 1; error++) {
+    	if (!error) {
+    		if (Tk_SetOptions(interp, widgRec, optionTable, objc, objv, tkwin, &savedOptions, &mask) != TCL_OK) {
+    			continue;
+    		}
+    	} else {
+    		errorResult = Tcl_GetObjResult(interp);
+    		Tcl_IncrRefCount(errorResult);
+    		Tk_RestoreSavedOptions(&savedOptions);
+    	}
+    	break;
+    }
+    if (!error) {
+    	Tk_FreeSavedOptions(&savedOptions);
+    	result = TCL_OK;
+    } else {
+    	Tcl_SetObjResult(interp, errorResult);
+    	Tcl_DecrRefCount(errorResult);
+    	result = TCL_ERROR;
+    }
     if (isTemporary) {
         Tk_DestroyWindow(tkwin);
     }

@@ -202,7 +202,7 @@ typedef struct {
     char *name;			/* Identifier used to refer the
 				 * element. Used in the "insert",
 				 * "delete", or "show", operations. */
-
+    Tk_OptionTable optionTable; /* Used to parse options */
     Rbc_Uid classUid;		/* Type of element */
 
     Graph *graphPtr;		/* Graph widget of element*/
@@ -242,8 +242,6 @@ typedef struct {
 				 * points are drawn active. */
 
     ElementProcs *procsPtr;
-    Tk_ConfigSpec *configSpecs;	/* Configuration specifications */
-
     Segment2D *xErrorBars;	/* Point to start of this pen's X-error bar
 				 * segments in the element's array. */
     Segment2D *yErrorBars;	/* Point to start of this pen's Y-error bar
@@ -459,154 +457,72 @@ extern Tk_CustomOption rbcStateOption;
 #define	DEF_PEN_VALUE_SHADOW		(char *)NULL
 #define DEF_PEN_SHOW_VALUES		"no"
 
+static Tk_OptionSpec lineElemOptionSpecs[] = {
+    {TK_OPTION_END, NULL, NULL, NULL, NULL, -1, 0, 0, 0, 0}
+};
+
 static Tk_ConfigSpec lineElemConfigSpecs[] = {
     {TK_CONFIG_CUSTOM, "-activepen", "activePen", "ActivePen", DEF_LINE_ACTIVE_PEN, Tk_Offset(Line, activePenPtr), TK_CONFIG_NULL_OK, &rbcLinePenOption},
-    {TK_CONFIG_CUSTOM, "-areapattern", "areaPattern", "AreaPattern",
-     DEF_LINE_PATTERN, Tk_Offset(Line, fillStipple),
-     TK_CONFIG_NULL_OK, &patternOption},
-    {TK_CONFIG_COLOR, "-areaforeground", "areaForeground", "areaForeground",
-     DEF_LINE_PATTERN_FG, Tk_Offset(Line, fillFgColor), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_COLOR, "-areabackground", "areaBackground", "areaBackground",
-     DEF_LINE_PATTERN_BG, Tk_Offset(Line, fillBgColor), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_CUSTOM, "-areatile", "areaTile", "AreaTile",
-     DEF_LINE_PATTERN_TILE, Tk_Offset(Line, fillTile),
-     TK_CONFIG_NULL_OK, &rbcTileOption},
-    {TK_CONFIG_CUSTOM, "-bindtags", "bindTags", "BindTags",
-     DEF_LINE_TAGS, Tk_Offset(Line, tags),
-     TK_CONFIG_NULL_OK, &rbcListOption},
-    {TK_CONFIG_COLOR, "-color", "color", "Color",
-     DEF_LINE_PEN_COLOR, Tk_Offset(Line, builtinPen.traceColor),
-     TK_CONFIG_COLOR_ONLY},
-    {TK_CONFIG_COLOR, "-color", "color", "Color",
-     DEF_LINE_PEN_MONO, Tk_Offset(Line, builtinPen.traceColor),
-     TK_CONFIG_MONO_ONLY},
-    {TK_CONFIG_CUSTOM, "-dashes", "dashes", "Dashes",
-     DEF_LINE_DASHES, Tk_Offset(Line, builtinPen.traceDashes),
-     TK_CONFIG_NULL_OK, &rbcDashesOption},
-    {TK_CONFIG_CUSTOM, "-data", "data", "Data",
-     DEF_LINE_DATA, 0, 0, &rbcDataPairsOption},
-    {TK_CONFIG_CUSTOM, "-errorbarcolor", "errorBarColor", "ErrorBarColor",
-     DEF_LINE_ERRORBAR_COLOR, Tk_Offset(Line, builtinPen.errorBarColor),
-     0, &rbcColorOption},
-    {TK_CONFIG_CUSTOM, "-errorbarwidth", "errorBarWidth", "ErrorBarWidth",
-     DEF_LINE_ERRORBAR_LINE_WIDTH,
-     Tk_Offset(Line, builtinPen.errorBarLineWidth),
-     TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-errorbarcap", "errorBarCap", "ErrorBarCap",
-     DEF_LINE_ERRORBAR_CAP_WIDTH,
-     Tk_Offset(Line, builtinPen.errorBarCapWidth),
-     TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-fill", "fill", "Fill",
-     DEF_LINE_FILL_COLOR, Tk_Offset(Line, builtinPen.symbol.fillColor),
-     TK_CONFIG_NULL_OK | TK_CONFIG_COLOR_ONLY, &rbcColorOption},
-    {TK_CONFIG_CUSTOM, "-fill", "fill", "Fill",
-     DEF_LINE_FILL_MONO, Tk_Offset(Line, builtinPen.symbol.fillColor),
-     TK_CONFIG_NULL_OK | TK_CONFIG_MONO_ONLY, &rbcColorOption},
-    {TK_CONFIG_BOOLEAN, "-hide", "hide", "Hide",
-     DEF_LINE_HIDE, Tk_Offset(Line, hidden), TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_STRING, "-label", "label", "Label",
-     (char *)NULL, Tk_Offset(Line, label), TK_CONFIG_NULL_OK},
-    {TK_CONFIG_RELIEF, "-labelrelief", "labelRelief", "LabelRelief",
-     DEF_LINE_LABEL_RELIEF, Tk_Offset(Line, labelRelief),
-     TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_CUSTOM, "-linewidth", "lineWidth", "LineWidth",
-     DEF_LINE_PEN_WIDTH, Tk_Offset(Line, builtinPen.traceWidth),
-     TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-mapx", "mapX", "MapX",
-     DEF_LINE_AXIS_X, Tk_Offset(Line, axes.x), 0, &rbcXAxisOption},
-    {TK_CONFIG_CUSTOM, "-mapy", "mapY", "MapY",
-     DEF_LINE_AXIS_Y, Tk_Offset(Line, axes.y), 0, &rbcYAxisOption},
-    {TK_CONFIG_CUSTOM, "-maxsymbols", "maxSymbols", "MaxSymbols",
-     DEF_LINE_MAX_SYMBOLS, Tk_Offset(Line, reqMaxSymbols),
-     TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-offdash", "offDash", "OffDash",
-     DEF_LINE_OFFDASH_COLOR, Tk_Offset(Line, builtinPen.traceOffColor),
-     TK_CONFIG_NULL_OK | TK_CONFIG_COLOR_ONLY, &rbcColorOption},
-    {TK_CONFIG_CUSTOM, "-offdash", "offDash", "OffDash",
-     DEF_LINE_OFFDASH_MONO, Tk_Offset(Line, builtinPen.traceOffColor),
-     TK_CONFIG_NULL_OK | TK_CONFIG_MONO_ONLY, &rbcColorOption},
-    {TK_CONFIG_CUSTOM, "-outline", "outline", "Outline",
-     DEF_LINE_OUTLINE_COLOR, Tk_Offset(Line, builtinPen.symbol.outlineColor),
-     TK_CONFIG_COLOR_ONLY, &rbcColorOption},
-    {TK_CONFIG_CUSTOM, "-outline", "outline", "Outline",
-     DEF_LINE_OUTLINE_MONO, Tk_Offset(Line, builtinPen.symbol.outlineColor),
-     TK_CONFIG_MONO_ONLY, &rbcColorOption},
-    {TK_CONFIG_CUSTOM, "-outlinewidth", "outlineWidth", "OutlineWidth",
-     DEF_LINE_OUTLINE_WIDTH, Tk_Offset(Line, builtinPen.symbol.outlineWidth),
-     TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
-    {TK_CONFIG_CUSTOM, "-pen", "pen", "Pen",
-     (char *)NULL, Tk_Offset(Line, normalPenPtr),
-     TK_CONFIG_NULL_OK, &rbcLinePenOption},
-    {TK_CONFIG_CUSTOM, "-pixels", "pixels", "Pixels",
-     DEF_LINE_PIXELS, Tk_Offset(Line, builtinPen.symbol.size),
-     GRAPH | STRIPCHART, &rbcDistanceOption},
-    {TK_CONFIG_DOUBLE, "-reduce", "reduce", "Reduce",
-     DEF_LINE_REDUCE, Tk_Offset(Line, rTolerance),
-     GRAPH | STRIPCHART | TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_BOOLEAN, "-scalesymbols", "scaleSymbols", "ScaleSymbols",
-     DEF_LINE_SCALE_SYMBOLS, Tk_Offset(Line, scaleSymbols),
-     TK_CONFIG_DONT_SET_DEFAULT},
-    {TK_CONFIG_CUSTOM, "-showerrorbars", "showErrorBars", "ShowErrorBars",
-     DEF_LINE_SHOW_ERRORBARS, Tk_Offset(Line, builtinPen.errorBarShow),
-     TK_CONFIG_DONT_SET_DEFAULT, &rbcFillOption},
-    {TK_CONFIG_CUSTOM, "-showvalues", "showValues", "ShowValues",
-     DEF_PEN_SHOW_VALUES, Tk_Offset(Line, builtinPen.valueShow),
-     TK_CONFIG_DONT_SET_DEFAULT, &rbcFillOption},
-    {TK_CONFIG_CUSTOM, "-smooth", "smooth", "Smooth",
-     DEF_LINE_SMOOTH, Tk_Offset(Line, reqSmooth),
-     TK_CONFIG_DONT_SET_DEFAULT, &smoothOption},
-    {TK_CONFIG_CUSTOM, "-state", "state", "State",
-     DEF_LINE_STATE, Tk_Offset(Line, state),
-     TK_CONFIG_DONT_SET_DEFAULT, &rbcStateOption},
-    {TK_CONFIG_CUSTOM, "-styles", "styles", "Styles",
-     DEF_LINE_STYLES, Tk_Offset(Line, palette),
-     TK_CONFIG_NULL_OK, &stylesOption},
-    {TK_CONFIG_CUSTOM, "-symbol", "symbol", "Symbol",
-     DEF_LINE_SYMBOL, Tk_Offset(Line, builtinPen.symbol),
-     TK_CONFIG_DONT_SET_DEFAULT, &symbolOption},
-    {TK_CONFIG_CUSTOM, "-trace", "trace", "Trace",
-     DEF_LINE_PEN_DIRECTION, Tk_Offset(Line, penDir),
-     TK_CONFIG_DONT_SET_DEFAULT, &penDirOption},
-    {TK_CONFIG_ANCHOR, "-valueanchor", "valueAnchor", "ValueAnchor",
-     DEF_PEN_VALUE_ANCHOR,
-     Tk_Offset(Line, builtinPen.valueStyle.anchor), 0},
-    {TK_CONFIG_COLOR, "-valuecolor", "valueColor", "ValueColor",
-     DEF_PEN_VALUE_COLOR, Tk_Offset(Line, builtinPen.valueStyle.color), 0},
-    {TK_CONFIG_FONT, "-valuefont", "valueFont", "ValueFont",
-     DEF_PEN_VALUE_FONT, Tk_Offset(Line, builtinPen.valueStyle.font), 0},
-    {TK_CONFIG_STRING, "-valueformat", "valueFormat", "ValueFormat",
-     DEF_PEN_VALUE_FORMAT, Tk_Offset(Line, builtinPen.valueFormat),
-     TK_CONFIG_NULL_OK},
-    {TK_CONFIG_DOUBLE, "-valuerotate", "valueRotate", "ValueRotate",
-     DEF_PEN_VALUE_ROTATE, Tk_Offset(Line, builtinPen.valueStyle.theta), 0},
-    {TK_CONFIG_CUSTOM, "-valueshadow", "valueShadow", "ValueShadow",
-     DEF_PEN_VALUE_SHADOW, Tk_Offset(Line, builtinPen.valueStyle.shadow),
-     0, &rbcShadowOption},
-    {TK_CONFIG_CUSTOM, "-weights", "weights", "Weights",
-     (char *)NULL, Tk_Offset(Line, w), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-x", "xData", "XData",
-     (char *)NULL, Tk_Offset(Line, x), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-xdata", "xData", "XData",
-     (char *)NULL, Tk_Offset(Line, x), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-xerror", "xError", "XError",
-     (char *)NULL, Tk_Offset(Line, xError), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-xhigh", "xHigh", "XHigh",
-     (char *)NULL, Tk_Offset(Line, xHigh), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-xlow", "xLow", "XLow",
-     (char *)NULL, Tk_Offset(Line, xLow), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-y", "yData", "YData",
-     (char *)NULL, Tk_Offset(Line, y), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-ydata", "yData", "YData",
-     (char *)NULL, Tk_Offset(Line, y), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-yerror", "yError", "YError",
-     (char *)NULL, Tk_Offset(Line, yError), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-yhigh", "yHigh", "YHigh",
-     (char *)NULL, Tk_Offset(Line, yHigh), 0, &rbcDataOption},
-    {TK_CONFIG_CUSTOM, "-ylow", "yLow", "YLow",
-     (char *)NULL, Tk_Offset(Line, yLow), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-areapattern", "areaPattern", "AreaPattern", DEF_LINE_PATTERN, Tk_Offset(Line, fillStipple), TK_CONFIG_NULL_OK, &patternOption},
+    {TK_CONFIG_COLOR, "-areaforeground", "areaForeground", "areaForeground", DEF_LINE_PATTERN_FG, Tk_Offset(Line, fillFgColor), TK_CONFIG_NULL_OK},
+    {TK_CONFIG_COLOR, "-areabackground", "areaBackground", "areaBackground", DEF_LINE_PATTERN_BG, Tk_Offset(Line, fillBgColor), TK_CONFIG_NULL_OK},
+    {TK_CONFIG_CUSTOM, "-areatile", "areaTile", "AreaTile", DEF_LINE_PATTERN_TILE, Tk_Offset(Line, fillTile), TK_CONFIG_NULL_OK, &rbcTileOption},
+    {TK_CONFIG_CUSTOM, "-bindtags", "bindTags", "BindTags", DEF_LINE_TAGS, Tk_Offset(Line, tags), TK_CONFIG_NULL_OK, &rbcListOption},
+    {TK_CONFIG_COLOR, "-color", "color", "Color", DEF_LINE_PEN_COLOR, Tk_Offset(Line, builtinPen.traceColor), TK_CONFIG_COLOR_ONLY},
+    {TK_CONFIG_COLOR, "-color", "color", "Color", DEF_LINE_PEN_MONO, Tk_Offset(Line, builtinPen.traceColor), TK_CONFIG_MONO_ONLY},
+    {TK_CONFIG_CUSTOM, "-dashes", "dashes", "Dashes", DEF_LINE_DASHES, Tk_Offset(Line, builtinPen.traceDashes), TK_CONFIG_NULL_OK, &rbcDashesOption},
+    {TK_CONFIG_CUSTOM, "-data", "data", "Data", DEF_LINE_DATA, 0, 0, &rbcDataPairsOption},
+    {TK_CONFIG_CUSTOM, "-errorbarcolor", "errorBarColor", "ErrorBarColor", DEF_LINE_ERRORBAR_COLOR, Tk_Offset(Line, builtinPen.errorBarColor), 0, &rbcColorOption},
+    {TK_CONFIG_CUSTOM, "-errorbarwidth", "errorBarWidth", "ErrorBarWidth", DEF_LINE_ERRORBAR_LINE_WIDTH, Tk_Offset(Line, builtinPen.errorBarLineWidth), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
+    {TK_CONFIG_CUSTOM, "-errorbarcap", "errorBarCap", "ErrorBarCap", DEF_LINE_ERRORBAR_CAP_WIDTH, Tk_Offset(Line, builtinPen.errorBarCapWidth), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
+    {TK_CONFIG_CUSTOM, "-fill", "fill", "Fill", DEF_LINE_FILL_COLOR, Tk_Offset(Line, builtinPen.symbol.fillColor), TK_CONFIG_NULL_OK | TK_CONFIG_COLOR_ONLY, &rbcColorOption},
+    {TK_CONFIG_CUSTOM, "-fill", "fill", "Fill", DEF_LINE_FILL_MONO, Tk_Offset(Line, builtinPen.symbol.fillColor), TK_CONFIG_NULL_OK | TK_CONFIG_MONO_ONLY, &rbcColorOption},
+    {TK_CONFIG_BOOLEAN, "-hide", "hide", "Hide", DEF_LINE_HIDE, Tk_Offset(Line, hidden), TK_CONFIG_DONT_SET_DEFAULT},
+    {TK_CONFIG_STRING, "-label", "label", "Label", (char *)NULL, Tk_Offset(Line, label), TK_CONFIG_NULL_OK},
+    {TK_CONFIG_RELIEF, "-labelrelief", "labelRelief", "LabelRelief", DEF_LINE_LABEL_RELIEF, Tk_Offset(Line, labelRelief), TK_CONFIG_DONT_SET_DEFAULT},
+    {TK_CONFIG_CUSTOM, "-linewidth", "lineWidth", "LineWidth", DEF_LINE_PEN_WIDTH, Tk_Offset(Line, builtinPen.traceWidth), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
+    {TK_CONFIG_CUSTOM, "-mapx", "mapX", "MapX", DEF_LINE_AXIS_X, Tk_Offset(Line, axes.x), 0, &rbcXAxisOption},
+    {TK_CONFIG_CUSTOM, "-mapy", "mapY", "MapY", DEF_LINE_AXIS_Y, Tk_Offset(Line, axes.y), 0, &rbcYAxisOption},
+    {TK_CONFIG_CUSTOM, "-maxsymbols", "maxSymbols", "MaxSymbols", DEF_LINE_MAX_SYMBOLS, Tk_Offset(Line, reqMaxSymbols), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
+    {TK_CONFIG_CUSTOM, "-offdash", "offDash", "OffDash", DEF_LINE_OFFDASH_COLOR, Tk_Offset(Line, builtinPen.traceOffColor), TK_CONFIG_NULL_OK | TK_CONFIG_COLOR_ONLY, &rbcColorOption},
+    {TK_CONFIG_CUSTOM, "-offdash", "offDash", "OffDash", DEF_LINE_OFFDASH_MONO, Tk_Offset(Line, builtinPen.traceOffColor), TK_CONFIG_NULL_OK | TK_CONFIG_MONO_ONLY, &rbcColorOption},
+    {TK_CONFIG_CUSTOM, "-outline", "outline", "Outline", DEF_LINE_OUTLINE_COLOR, Tk_Offset(Line, builtinPen.symbol.outlineColor), TK_CONFIG_COLOR_ONLY, &rbcColorOption},
+    {TK_CONFIG_CUSTOM, "-outline", "outline", "Outline", DEF_LINE_OUTLINE_MONO, Tk_Offset(Line, builtinPen.symbol.outlineColor), TK_CONFIG_MONO_ONLY, &rbcColorOption},
+    {TK_CONFIG_CUSTOM, "-outlinewidth", "outlineWidth", "OutlineWidth", DEF_LINE_OUTLINE_WIDTH, Tk_Offset(Line, builtinPen.symbol.outlineWidth), TK_CONFIG_DONT_SET_DEFAULT, &rbcDistanceOption},
+    {TK_CONFIG_CUSTOM, "-pen", "pen", "Pen", (char *)NULL, Tk_Offset(Line, normalPenPtr), TK_CONFIG_NULL_OK, &rbcLinePenOption},
+    {TK_CONFIG_CUSTOM, "-pixels", "pixels", "Pixels", DEF_LINE_PIXELS, Tk_Offset(Line, builtinPen.symbol.size), GRAPH | STRIPCHART, &rbcDistanceOption},
+    {TK_CONFIG_DOUBLE, "-reduce", "reduce", "Reduce", DEF_LINE_REDUCE, Tk_Offset(Line, rTolerance), GRAPH | STRIPCHART | TK_CONFIG_DONT_SET_DEFAULT},
+    {TK_CONFIG_BOOLEAN, "-scalesymbols", "scaleSymbols", "ScaleSymbols", DEF_LINE_SCALE_SYMBOLS, Tk_Offset(Line, scaleSymbols), TK_CONFIG_DONT_SET_DEFAULT},
+    {TK_CONFIG_CUSTOM, "-showerrorbars", "showErrorBars", "ShowErrorBars", DEF_LINE_SHOW_ERRORBARS, Tk_Offset(Line, builtinPen.errorBarShow), TK_CONFIG_DONT_SET_DEFAULT, &rbcFillOption},
+    {TK_CONFIG_CUSTOM, "-showvalues", "showValues", "ShowValues", DEF_PEN_SHOW_VALUES, Tk_Offset(Line, builtinPen.valueShow), TK_CONFIG_DONT_SET_DEFAULT, &rbcFillOption},
+    {TK_CONFIG_CUSTOM, "-smooth", "smooth", "Smooth", DEF_LINE_SMOOTH, Tk_Offset(Line, reqSmooth), TK_CONFIG_DONT_SET_DEFAULT, &smoothOption},
+    {TK_CONFIG_CUSTOM, "-state", "state", "State", DEF_LINE_STATE, Tk_Offset(Line, state), TK_CONFIG_DONT_SET_DEFAULT, &rbcStateOption},
+    {TK_CONFIG_CUSTOM, "-styles", "styles", "Styles", DEF_LINE_STYLES, Tk_Offset(Line, palette), TK_CONFIG_NULL_OK, &stylesOption},
+    {TK_CONFIG_CUSTOM, "-symbol", "symbol", "Symbol", DEF_LINE_SYMBOL, Tk_Offset(Line, builtinPen.symbol), TK_CONFIG_DONT_SET_DEFAULT, &symbolOption},
+    {TK_CONFIG_CUSTOM, "-trace", "trace", "Trace", DEF_LINE_PEN_DIRECTION, Tk_Offset(Line, penDir), TK_CONFIG_DONT_SET_DEFAULT, &penDirOption},
+    {TK_CONFIG_ANCHOR, "-valueanchor", "valueAnchor", "ValueAnchor", DEF_PEN_VALUE_ANCHOR, Tk_Offset(Line, builtinPen.valueStyle.anchor), 0},
+    {TK_CONFIG_COLOR, "-valuecolor", "valueColor", "ValueColor", DEF_PEN_VALUE_COLOR, Tk_Offset(Line, builtinPen.valueStyle.color), 0},
+    {TK_CONFIG_FONT, "-valuefont", "valueFont", "ValueFont", DEF_PEN_VALUE_FONT, Tk_Offset(Line, builtinPen.valueStyle.font), 0},
+    {TK_CONFIG_STRING, "-valueformat", "valueFormat", "ValueFormat", DEF_PEN_VALUE_FORMAT, Tk_Offset(Line, builtinPen.valueFormat), TK_CONFIG_NULL_OK},
+    {TK_CONFIG_DOUBLE, "-valuerotate", "valueRotate", "ValueRotate", DEF_PEN_VALUE_ROTATE, Tk_Offset(Line, builtinPen.valueStyle.theta), 0},
+    {TK_CONFIG_CUSTOM, "-valueshadow", "valueShadow", "ValueShadow", DEF_PEN_VALUE_SHADOW, Tk_Offset(Line, builtinPen.valueStyle.shadow), 0, &rbcShadowOption},
+    {TK_CONFIG_CUSTOM, "-weights", "weights", "Weights", (char *)NULL, Tk_Offset(Line, w), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-x", "xData", "XData", (char *)NULL, Tk_Offset(Line, x), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-xdata", "xData", "XData", (char *)NULL, Tk_Offset(Line, x), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-xerror", "xError", "XError", (char *)NULL, Tk_Offset(Line, xError), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-xhigh", "xHigh", "XHigh", (char *)NULL, Tk_Offset(Line, xHigh), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-xlow", "xLow", "XLow", (char *)NULL, Tk_Offset(Line, xLow), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-y", "yData", "YData", (char *)NULL, Tk_Offset(Line, y), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-ydata", "yData", "YData", (char *)NULL, Tk_Offset(Line, y), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-yerror", "yError", "YError", (char *)NULL, Tk_Offset(Line, yError), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-yhigh", "yHigh", "YHigh", (char *)NULL, Tk_Offset(Line, yHigh), 0, &rbcDataOption},
+    {TK_CONFIG_CUSTOM, "-ylow", "yLow", "YLow", (char *)NULL, Tk_Offset(Line, yLow), 0, &rbcDataOption},
     {TK_CONFIG_END, NULL, NULL, NULL, NULL, 0, 0}
 };
 
+static Tk_OptionSpec stripElemOptionSpecs[] = {
+    {TK_OPTION_END, NULL, NULL, NULL, NULL, -1, 0, 0, 0, 0}
+};
 
 static Tk_ConfigSpec stripElemConfigSpecs[] = {
     {TK_CONFIG_CUSTOM, "-activepen", "activePen", "ActivePen",
@@ -3663,15 +3579,15 @@ ConfigureLine(graphPtr, elemPtr)
     }
     linePtr->fillGC = newGC;
 
-    if (Rbc_ConfigModified(linePtr->configSpecs, "-scalesymbols",
-                           (char *)NULL)) {
+//    if (Rbc_ConfigModified(linePtr->configSpecs, "-scalesymbols",
+//                           (char *)NULL)) {
         linePtr->flags |= (MAP_ITEM | SCALE_SYMBOL);
-    }
-    if (Rbc_ConfigModified(linePtr->configSpecs, "-pixels", "-trace", "-*data",
-                           "-smooth", "-map*", "-label", "-hide", "-x", "-y", "-areapattern",
-                           (char *)NULL)) {
+//    }
+//    if (Rbc_ConfigModified(linePtr->configSpecs, "-pixels", "-trace", "-*data",
+//                           "-smooth", "-map*", "-label", "-hide", "-x", "-y", "-areapattern",
+//                           (char *)NULL)) {
         linePtr->flags |= MAP_ITEM;
-    }
+//    }
     return TCL_OK;
 }
 
@@ -5540,7 +5456,8 @@ static ElementProcs lineProcs = {
  *----------------------------------------------------------------------
  */
 Element *
-Rbc_LineElement(graphPtr, name, classUid)
+Rbc_LineElement(interp, graphPtr, name, classUid)
+	Tcl_Interp *interp;
     Graph *graphPtr;
     char *name;
     Rbc_Uid classUid;
@@ -5551,9 +5468,9 @@ Rbc_LineElement(graphPtr, name, classUid)
     assert(linePtr);
     linePtr->procsPtr = &lineProcs;
     if (classUid == rbcLineElementUid) {
-        linePtr->configSpecs = lineElemConfigSpecs;
+    	linePtr->optionTable = Tk_CreateOptionTable(interp, lineElemOptionSpecs);
     } else {
-        linePtr->configSpecs = stripElemConfigSpecs;
+    	linePtr->optionTable = Tk_CreateOptionTable(interp, stripElemOptionSpecs);
     }
 
     /* By default an element's name and label are the same. */

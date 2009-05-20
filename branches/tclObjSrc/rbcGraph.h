@@ -313,107 +313,94 @@ typedef struct {
  * -------------------------------------------------------------------
  */
 struct GraphStruct {
-    unsigned int flags;		/* Flags;  see below for definitions. */
-    Tcl_Interp *interp;		/* Interpreter associated with graph */
-    Tk_Window tkwin;		/* Window that embodies the graph.  NULL
-				 * means that the window has been
-				 * destroyed but the data structures
-				 * haven't yet been cleaned up. */
-    Display *display;		/* Display containing widget; needed,
-				 * among other things, to release
-				 * resources after tkwin has already gone
-				 * away. */
-    Tcl_Command cmdToken;	/* Token for graph's widget command. */
+    unsigned int flags; /* Flags;  see below for definitions. */
+    Tcl_Interp *interp; /* Interpreter associated with graph */
+    Tk_Window tkwin; /* Window that embodies the graph.  NULL
+                      * means that the window has been
+                      * destroyed but the data structures
+                      * haven't yet been cleaned up. */
+    Display *display; /* Display containing widget; needed,
+                       * among other things, to release
+                       * resources after tkwin has already gone
+                       * away. */
+    Tcl_Command cmdToken; /* Token for graph's widget command. */
+    Tk_OptionTable optionTable; /* Used to parse options */
 
-    char *data;			/* This value isn't used in C code.
-				 * It may be used in Tcl bindings to
-				 * associate extra data. */
-
+    char *data; /* This value isn't used in C code.
+                 * It may be used in Tcl bindings to
+                 * associate extra data. */
     Tk_Cursor cursor;
-
-    int inset;			/* Sum of focus highlight and 3-D
-				 * border.  Indicates how far to
-				 * offset the graph from outside
-				 * edge of the window. */
-
-    int borderWidth;		/* Width of the exterior border */
-    int relief;			/* Relief of the exterior border */
-    Tk_3DBorder border;		/* 3-D border used to delineate the plot
-				 * surface and outer edge of window */
-
-    int highlightWidth;		/* Width in pixels of highlight to draw
-				 * around widget when it has the focus.
-				 * <= 0 means don't draw a highlight. */
-    XColor *highlightBgColor;	/* Color for drawing traversal highlight
-				 * area when highlight is off. */
-    XColor *highlightColor;	/* Color for drawing traversal highlight. */
-
+    int inset; /* Sum of focus highlight and 3-D
+                * border.  Indicates how far to
+                * offset the graph from outside
+                * edge of the window. */
+    int borderWidth; /* Width of the exterior border */
+    int relief; /* Relief of the exterior border */
+    Tk_3DBorder border; /* 3-D border used to delineate the plot
+                         * surface and outer edge of window */
+    int highlightWidth; /* Width in pixels of highlight to draw
+                         * around widget when it has the focus.
+                         * <= 0 means don't draw a highlight. */
+    XColor *highlightBgColor; /* Color for drawing traversal highlight
+                               * area when highlight is off. */
+    XColor *highlightColor; /* Color for drawing traversal highlight. */
     char *title;
     short int titleX, titleY;
-    TextStyle titleTextStyle;	/* Graph title */
-
+    TextStyle titleTextStyle; /* Graph title */
     char *takeFocus;
-
-    int reqWidth, reqHeight;	/* Requested size of graph window */
-    int width, height;		/* Size of graph window or PostScript
-				 * page */
-
+    int reqWidth, reqHeight; /* Requested size of graph window */
+    int width, height; /* Size of graph window or PostScript
+                        * page */
     Tcl_HashTable penTable;	/* Table of pens */
 
     struct Component {
-        Tcl_HashTable table;	/* Hash table of ids. */
-        Rbc_Chain *displayList;	/* Display list. */
-        Tcl_HashTable tagTable;	/* Table of bind tags. */
+        Tcl_HashTable table; /* Hash table of ids. */
+        Rbc_Chain *displayList; /* Display list. */
+        Tcl_HashTable tagTable; /* Table of bind tags. */
     } elements, markers, axes;
 
-    Rbc_Uid classUid;		/* Default element type */
-
+    Rbc_Uid classUid; /* Default element type */
     Rbc_BindTable bindTable;
-    int nextMarkerId;		/* Tracks next marker identifier available */
-
-    Rbc_Chain *axisChain[4];	/* Chain of axes for each of the
-				 * margins.  They're separate from the
-				 * margin structures to make it easier
-				 * to invert the X-Y axes by simply
-				 * switching chain pointers.
-				 */
+    int nextMarkerId; /* Tracks next marker identifier available */
+    Rbc_Chain *axisChain[4]; /* Chain of axes for each of the
+                              * margins.  They're separate from the
+                              * margin structures to make it easier
+                              * to invert the X-Y axes by simply
+                              * switching chain pointers.
+                              */
     Margin margins[4];
-
-    PostScript *postscript;	/* PostScript options: see rbcGrPS.c */
-    Legend *legend;		/* Legend information: see rbcGrLegd.c */
-    Crosshairs *crosshairs;	/* Crosshairs information: see rbcGrHairs.c */
-    Grid *gridPtr;		/* Grid attribute information */
-
-    int halo;			/* Maximum distance allowed between points
-				 * when searching for a point */
-    int inverted;		/* If non-zero, indicates the x and y axis
-				 * positions should be inverted. */
+    PostScript *postscript; /* PostScript options: see rbcGrPS.c */
+    Legend *legend; /* Legend information: see rbcGrLegd.c */
+    Crosshairs *crosshairs; /* Crosshairs information: see rbcGrHairs.c */
+    Grid *gridPtr; /* Grid attribute information */
+    int halo; /* Maximum distance allowed between points
+               * when searching for a point */
+    int inverted; /* If non-zero, indicates the x and y axis
+                   * positions should be inverted. */
     Rbc_Tile tile;
-    GC drawGC;			/* Used for drawing on the margins. This
-				 * includes the axis lines */
-    GC fillGC;			/* Used to fill the background of the
-				 * margins. The fill is governed by
-				 * the background color or the tiled
-				 * pixmap. */
-    int plotBorderWidth;	/* Width of interior 3-D border. */
-    int plotRelief;		/* 3-d effect: TK_RELIEF_RAISED etc. */
-    XColor *plotBg;		/* Color of plotting surface */
-
-    GC plotFillGC;		/* Used to fill the plotting area with a
-				 * solid background color. The fill color
-				 * is stored in "plotBg". */
+    GC drawGC; /* Used for drawing on the margins. This
+                * includes the axis lines */
+    GC fillGC; /* Used to fill the background of the
+                * margins. The fill is governed by
+                * the background color or the tiled
+                * pixmap. */
+    int plotBorderWidth; /* Width of interior 3-D border. */
+    int plotRelief; /* 3-d effect: TK_RELIEF_RAISED etc. */
+    XColor *plotBg; /* Color of plotting surface */
+    GC plotFillGC; /* Used to fill the plotting area with a
+                    * solid background color. The fill color
+                    * is stored in "plotBg". */
 
     /* If non-zero, force plot to conform to aspect ratio W/H */
     double aspect;
-
-    short int left, right;	/* Coordinates of plot bbox */
+    short int left, right; /* Coordinates of plot bbox */
     short int top, bottom;
 
-    Rbc_Pad padX;		/* Vertical padding for plotarea */
-    int vRange, vOffset;	/* Vertical axis range and offset from the
-				 * left side of the graph window. Used to
-				 * transform coordinates to vertical
-				 * axes. */
+    Rbc_Pad padX; /* Vertical padding for plotarea */
+    int vRange, vOffset; /* Vertical axis range and offset from the
+                          * left side of the graph window. Used to
+                          * transform coordinates to vertical
+                          * axes. */
     Rbc_Pad padY;		/* Horizontal padding for plotarea */
     int hRange, hOffset;	/* Horizontal axis range and offset from
 				 * the top of the graph window. Used to
@@ -543,7 +530,7 @@ struct GraphStruct {
  * ---------------------- Forward declarations ------------------------
  */
 
-Tcl_CmdProc Rbc_GraphInstCmdProc;
+Tcl_ObjCmdProc Rbc_GraphInstObjCmdProc;
 int Rbc_CreatePostScript _ANSI_ARGS_((Graph *graphPtr));
 int Rbc_CreateCrosshairs _ANSI_ARGS_((Graph *graphPtr));
 int Rbc_CreateGrid _ANSI_ARGS_((Graph *graphPtr));
@@ -608,10 +595,10 @@ void Rbc_FreePen _ANSI_ARGS_((Graph *graphPtr, Pen *penPtr));
 
 int Rbc_VirtualAxisOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp,
                                    int argc, char **argv));
-int Rbc_AxisOp _ANSI_ARGS_((Graph *graphPtr, int margin, int argc,
-                            char **argv));
+int Rbc_AxisOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp, int margin, int objc,
+                            Tcl_Obj * const objv[]));
 int Rbc_ElementOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp,
-                               int argc, char **argv, Rbc_Uid classUid));
+                               int objc, Tcl_Obj *CONST *objv, Rbc_Uid classUid));
 int Rbc_GridOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp,
                             int argc, char **argv));
 int Rbc_CrosshairsOp _ANSI_ARGS_((Graph *graphPtr, Tcl_Interp *interp,
