@@ -1,4 +1,0 @@
-2009-03-26  Jarrod Stormo <stormojm@users.sf.net>
-
-	* Created initial version of rbc Tcl/Tk extension based on BLT
-	* The current components that are refactored are: vector, graph, barchart, stripchart, winop, eps
