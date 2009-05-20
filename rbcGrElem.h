@@ -190,6 +190,7 @@ struct ElementStruct {
     char *name;			/* Identifier to refer the element.
 				 * Used in the "insert", "delete", or
 				 * "show", commands. */
+    Tk_OptionTable optionTable; /* Used to parse options */
 
     Rbc_Uid classUid;		/* Type of element */
 
@@ -236,8 +237,6 @@ struct ElementStruct {
 
     ElementProcs *procsPtr;
 
-    Tk_ConfigSpec *specsPtr;	/* Configuration specifications. */
-
     Segment2D *xErrorBars;	/* Point to start of this pen's X-error bar
 				 * segments in the element's array. */
     Segment2D *yErrorBars;	/* Point to start of this pen's Y-error bar
@@ -268,8 +267,8 @@ struct ElementStruct {
     int state;
 };
 
-Element *Rbc_BarElement _ANSI_ARGS_(());
-Element *Rbc_LineElement _ANSI_ARGS_(());
+Element *Rbc_BarElement _ANSI_ARGS_((Tcl_Interp *interp, Graph *graphPtr, char *name, Rbc_Uid type));
+Element *Rbc_LineElement _ANSI_ARGS_((Tcl_Interp *interp, Graph *graphPtr, char *name, Rbc_Uid classUid));
 
 extern Tk_OptionParseProc Rbc_StringToStyles;
 extern Tk_OptionPrintProc Rbc_StylesToString;

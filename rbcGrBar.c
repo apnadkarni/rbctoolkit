@@ -88,6 +88,7 @@ typedef struct {
     char *name;			/* Identifier to refer the
 				 * element. Used in the "insert",
 				 * "delete", or "show", commands. */
+    Tk_OptionTable optionTable; /* Used to parse options */
 
     Rbc_Uid classUid;		/* Type of element; either
 				 * rbcBarElementUid, rbcLineElementUid, or
@@ -125,7 +126,6 @@ typedef struct {
 				 * data points are drawn active. */
 
     ElementProcs *procsPtr;	/* Class information for bar elements */
-    Tk_ConfigSpec *specsPtr;	/* Configuration specifications */
 
     Segment2D *xErrorBars;	/* Point to start of this pen's X-error bar
 				 * segments in the element's array. */
@@ -188,12 +188,24 @@ extern Tk_CustomOption rbcStateOption;
 static Tk_OptionParseProc StringToBarMode;
 static Tk_OptionPrintProc BarModeToString;
 
+static Tk_CustomOptionSetProc ObjStringToBarMode;
+static Tk_CustomOptionGetProc ObjBarModeToString;
+
 static Tk_CustomOption stylesOption = {
     Rbc_StringToStyles, Rbc_StylesToString, (ClientData)sizeof(BarPenStyle)
 };
 
 Tk_CustomOption rbcBarModeOption = {
     StringToBarMode, BarModeToString, (ClientData)0
+};
+
+Tk_ObjCustomOption rbcObjBarModeOption = {
+    "objBarMode",
+    (Tk_CustomOptionSetProc *) ObjStringToBarMode,
+    (Tk_CustomOptionGetProc *) ObjBarModeToString,
+    (Tk_CustomOptionRestoreProc *) NULL,
+    (Tk_CustomOptionFreeProc *) NULL,
+    (ClientData) 0
 };
 
 #define DEF_BAR_ACTIVE_PEN		"activeBar"
@@ -277,6 +289,10 @@ static Tk_ConfigSpec barPenConfigSpecs[] = {
     {TK_CONFIG_END, NULL, NULL, NULL, NULL, 0, 0}
 };
 
+
+static Tk_OptionSpec barElemOptionSpecs[] = {
+    {TK_OPTION_END, NULL, NULL, NULL, NULL, -1, 0, 0, 0, 0}
+};
 
 static Tk_ConfigSpec barElemConfigSpecs[] = {
     {TK_CONFIG_CUSTOM, "-activepen", "activePen", "ActivePen", DEF_BAR_ACTIVE_PEN, Tk_Offset(Bar, activePenPtr), TK_CONFIG_NULL_OK, &rbcBarPenOption},
@@ -477,6 +493,44 @@ StringToBarMode(clientData, interp, tkwin, string, widgRec, offset)
     return TCL_OK;
 }
 
+static int
+ObjStringToBarMode (clientData, interp, tkwin, value, widgRec, offset, saveInternalPtr, flags)
+    ClientData clientData;
+    Tcl_Interp *interp;
+    Tk_Window tkwin;
+    Tcl_Obj **value;
+    char *widgRec;
+    int offset;
+    char *saveInternalPtr;
+    int flags;
+{
+    BarMode *modePtr = (BarMode *)(widgRec + offset);
+    char *string = Tcl_GetString(*value);
+    unsigned int length;
+    char c;
+
+    c = string[0];
+    length = strlen(string);
+
+    if ((c == 'n') && (strncmp(string, "normal", length) == 0)) {
+        *modePtr = MODE_INFRONT;
+	} else if ((c == 'i') && (strncmp(string, "infront", length) == 0)) {
+        *modePtr = MODE_INFRONT;
+	} else if ((c == 's') && (strncmp(string, "stacked", length) == 0)) {
+        *modePtr = MODE_STACKED;
+	} else if ((c == 'a') && (strncmp(string, "aligned", length) == 0)) {
+        *modePtr = MODE_ALIGNED;
+	} else if ((c == 'o') && (strncmp(string, "overlap", length) == 0)) {
+        *modePtr = MODE_OVERLAP;
+	} else {
+		Tcl_AppendResult(interp, "bad mode argument \"", string,
+						 "\": should be \"infront\", \"stacked\", \"overlap\", or \"aligned\"",
+						 (char *)NULL);
+		return TCL_ERROR;
+	}
+	return TCL_OK;
+}
+
 /*
  * ----------------------------------------------------------------------
  *
@@ -503,6 +557,17 @@ BarModeToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     BarMode mode = *(BarMode *)(widgRec + offset);
 
     return NameOfBarMode(mode);
+}
+
+static Tcl_Obj *
+ObjBarModeToString (clientData, tkwin, widgRec, offset)
+    ClientData clientData;
+    Tk_Window tkwin;
+    char *widgRec;
+    int offset;
+{
+	BarMode mode = *(BarMode *)(widgRec + offset);
+	return Tcl_NewStringObj(NameOfBarMode(mode), -1);
 }
 
 
@@ -797,10 +862,10 @@ ConfigureBar(graphPtr, elemPtr)
         stylePtr = Rbc_ChainGetValue(linkPtr);
         stylePtr->penPtr = barPtr->normalPenPtr;
     }
-    if (Rbc_ConfigModified(barPtr->specsPtr, "-barwidth", "-*data",
-                           "-map*", "-label", "-hide", "-x", "-y", (char *)NULL)) {
+//    if (Rbc_ConfigModified(barPtr->specsPtr, "-barwidth", "-*data",
+//                           "-map*", "-label", "-hide", "-x", "-y", (char *)NULL)) {
         barPtr->flags |= MAP_ITEM;
-    }
+//    }
     return TCL_OK;
 }
 
@@ -2139,7 +2204,8 @@ static ElementProcs barProcs = {
  * ----------------------------------------------------------------------
  */
 Element *
-Rbc_BarElement(graphPtr, name, type)
+Rbc_BarElement(interp, graphPtr, name, type)
+	Tcl_Interp *interp;
     Graph *graphPtr;
     char *name;
     Rbc_Uid type;
@@ -2148,9 +2214,9 @@ Rbc_BarElement(graphPtr, name, type)
 
     barPtr = RbcCalloc(1, sizeof(Bar));
     assert(barPtr);
+    barPtr->optionTable = Tk_CreateOptionTable(interp, barElemOptionSpecs);
     barPtr->normalPenPtr = &(barPtr->builtinPen);
     barPtr->procsPtr = &barProcs;
-    barPtr->specsPtr = barElemConfigSpecs;
     barPtr->labelRelief = TK_RELIEF_FLAT;
     barPtr->classUid = type;
     /* By default, an element's name and label are the same. */
