@@ -144,7 +144,7 @@ namespace eval graph.configure {
 		.graph1 cget -background
 	} -cleanup {
 		destroy .graph1
-	} -result {SystemButtonFace}
+	} -constraints {win} -result {SystemButtonFace}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -barmode command works correctly when given 'normal'
@@ -1200,7 +1200,7 @@ namespace eval graph.configure {
 		.graph1 cget -foreground
 	} -cleanup {
 		destroy .graph1
-	} -result {SystemButtonText}
+	} -constraints {win} -result {SystemButtonText}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -halo command works correctly when given a positive
@@ -1509,7 +1509,7 @@ namespace eval graph.configure {
 		.graph1 cget -highlightbackground
 	} -cleanup {
 		destroy .graph1
-	} -result {SystemButtonFace}
+	} -constraints {win} -result {SystemButtonFace}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -highlightcolor command works correctly when given a
