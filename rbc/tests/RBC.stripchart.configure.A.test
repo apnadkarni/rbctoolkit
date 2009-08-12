@@ -2861,8 +2861,8 @@ namespace eval stripchart.configure {
 	} -setup {
 		stripchart .stripchart1
 		
-		# the following should set Image1 to 'image1'
-		set Image1 [image create photo -data {
+		# the following should set Image1 to the designated name
+		set Image1 [image create photo image.a.35.1 -data {
 						R0lGODlhEAAQAIYAAPwCBHSi1Iyy5Hym3Hym1GSWxJS65Lza/OT2/Pz+/PT+
 						/KTK5DxmlJS67PT6/Pz6/Lzm/BRGhHSe1MTe/OTy/Oz2/Mzm/NTq/FSKtJS2
 						7PT2/MTi/LTa/AQyVOTu/Lze/LTS/JTC9MTq/Mzi/KzK/KTC/KS+/BQuRJzG
@@ -2884,9 +2884,9 @@ namespace eval stripchart.configure {
 		.stripchart1 configure -tile $Image1
 		.stripchart1 cget -tile
 	} -cleanup {
-		destroy Image1
+		image delete $Image1
 		destroy .stripchart1
-	} -result {image1}
+	} -result {image.a.35.1}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -tile command works correctly when given an invalid 
@@ -3141,7 +3141,7 @@ namespace eval stripchart.configure {
 		stripchart .stripchart1
 	} -body {
 		.stripchart1 configure -width 3i
-		expr {[.stripchart1 cget -width] [winfo pixels .stripchart1 3i]}
+		expr {[.stripchart1 cget -width] - [winfo pixels .stripchart1 3i]}
 	} -cleanup {
 		destroy .stripchart1
 	} -result {0}
