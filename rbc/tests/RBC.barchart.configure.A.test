@@ -1270,25 +1270,25 @@ namespace eval barchart.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -halo command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.barchart.configure.A.16.5 {
-		barchart configure: halo - positive imaginary input
+		barchart configure: halo - positive inch input
 	} -setup {
 		barchart .barchart1
 	} -body {
 		.barchart1 configure -halo 3i
-		.barchart1 cget -halo
+		expr {[.barchart1 cget -halo] - [winfo pixels .barchart1 3i]}
 	} -cleanup {
 		destroy .barchart1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -halo command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.barchart.configure.A.16.6 {
-		barchart configure: halo - negative imaginary input
+		barchart configure: halo - negative inch input
 	} -setup {
 		barchart .barchart1
 	} -body {
@@ -1400,25 +1400,25 @@ namespace eval barchart.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -height command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.barchart.configure.A.17.5 {
-		barchart configure: height - positive imaginary input
+		barchart configure: height - positive inch input
 	} -setup {
 		barchart .barchart1
 	} -body {
 		.barchart1 configure -height 3i
-		.barchart1 cget -height
+		expr {[.barchart1 cget -height] - [winfo pixels .barchart1 3i]}
 	} -cleanup {
 		destroy .barchart1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -height command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.barchart.configure.A.17.6 {
-		barchart configure: height - negative imaginary input
+		barchart configure: height - negative inch input
 	} -setup {
 		barchart .barchart1
 	} -body {
@@ -3133,25 +3133,25 @@ namespace eval barchart.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -width command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.barchart.configure.A.39.5 {
-		barchart configure: width - positive imaginary input
+		barchart configure: width - positive inch input
 	} -setup {
 		barchart .barchart1
 	} -body {
 		.barchart1 configure -width 3i
-		.barchart1 cget -width
+		expr {[.barchart1 cget -width] - [winfo pixels .barchart1 3i]}
 	} -cleanup {
 		destroy .barchart1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -width command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.barchart.configure.A.39.6 {
-		barchart configure: width - negative imaginary input
+		barchart configure: width - negative inch input
 	} -setup {
 		barchart .barchart1
 	} -body {

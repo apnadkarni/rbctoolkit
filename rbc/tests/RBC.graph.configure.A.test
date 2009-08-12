@@ -1270,25 +1270,25 @@ namespace eval graph.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -halo command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.graph.configure.A.16.5 {
-		graph configure: halo - positive imaginary input
+		graph configure: halo - positive inch input
 	} -setup {
 		graph .graph1
 	} -body {
 		.graph1 configure -halo 3i
-		.graph1 cget -halo
+		expr {[.graph1 cget -halo] - [winfo pixels .graph1 3i]}
 	} -cleanup {
 		destroy .graph1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -halo command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.graph.configure.A.16.6 {
-		graph configure: halo - negative imaginary input
+		graph configure: halo - negative inch input
 	} -setup {
 		graph .graph1
 	} -body {
@@ -1400,25 +1400,25 @@ namespace eval graph.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -height command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.graph.configure.A.17.5 {
-		graph configure: height - positive imaginary input
+		graph configure: height - positive inch input
 	} -setup {
 		graph .graph1
 	} -body {
 		.graph1 configure -height 3i
-		.graph1 cget -height
+		expr {[.graph1 cget -height] - [winfo pixels .graph1 3i]}
 	} -cleanup {
 		destroy .graph1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -height command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.graph.configure.A.17.6 {
-		graph configure: height - negative imaginary input
+		graph configure: height - negative inch input
 	} -setup {
 		graph .graph1
 	} -body {
@@ -3133,25 +3133,25 @@ namespace eval graph.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -width command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.graph.configure.A.39.5 {
-		graph configure: width - positive imaginary input
+		graph configure: width - positive inch input
 	} -setup {
 		graph .graph1
 	} -body {
 		.graph1 configure -width 3i
-		.graph1 cget -width
+		expr {[.graph1 cget -width] - [winfo pixels .graph1 3i]}
 	} -cleanup {
 		destroy .graph1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -width command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.graph.configure.A.39.6 {
-		graph configure: width - negative imaginary input
+		graph configure: width - negative inch input
 	} -setup {
 		graph .graph1
 	} -body {
