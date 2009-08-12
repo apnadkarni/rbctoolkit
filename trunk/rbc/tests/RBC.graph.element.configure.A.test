@@ -3787,8 +3787,8 @@ namespace eval graph.element {
 		graph .graph1
 		.graph1 element create Element1
 		
-		# the following should set Image1 to 'image1'
-		set Image1 [image create photo -data {
+		# the following should set Image1 to the designated name
+		set Image1 [image create photo image.a.49.1 -data {
 						R0lGODlhEAAQAIYAAPwCBHSi1Iyy5Hym3Hym1GSWxJS65Lza/OT2/Pz+/PT+
 						/KTK5DxmlJS67PT6/Pz6/Lzm/BRGhHSe1MTe/OTy/Oz2/Mzm/NTq/FSKtJS2
 						7PT2/MTi/LTa/AQyVOTu/Lze/LTS/JTC9MTq/Mzi/KzK/KTC/KS+/BQuRJzG
@@ -3813,7 +3813,7 @@ namespace eval graph.element {
 		image delete $Image1
 		.graph1 element delete Element1
 		destroy .graph1
-	} -result {image2}
+	} -result {image.a.49.1}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the element configure -areatile command works correctly when given

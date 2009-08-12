@@ -51,6 +51,8 @@ namespace eval winop.snap {
 	    } else {
 			return 1
 	    }
+	} -cleanup {
+	    image delete $img
 	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
@@ -70,6 +72,7 @@ namespace eval winop.snap {
 			return 0
 	    }
 	} -cleanup {
+		image delete $img
 		destroy .graph1
 	} -result {0}
 	
@@ -90,6 +93,7 @@ namespace eval winop.snap {
 			return 0
 	    }
 	} -cleanup {
+		image delete $img
 		destroy .graph1
 	} -result {0}
 	
@@ -110,6 +114,7 @@ namespace eval winop.snap {
 			return 0
 	    }
 	} -cleanup {
+		image delete $img
 		destroy .graph1
 	} -result {0}
 	
@@ -130,6 +135,7 @@ namespace eval winop.snap {
 			return 0
 	    }
 	} -cleanup {
+		image delete $img
 		destroy .graph1
 	} -result {0}
 	
@@ -150,6 +156,7 @@ namespace eval winop.snap {
 			return 0
 	    }
 	} -cleanup {
+		image delete $img
 		destroy .graph1
 	} -result {0}
 	
@@ -169,6 +176,7 @@ namespace eval winop.snap {
 			return 1
 	    }
 	} -cleanup {
+		image delete $img
 		destroy .graph1
 	} -result {0}
 	
@@ -189,6 +197,7 @@ namespace eval winop.snap {
 			return 1
 	    }
 	} -cleanup {
+		image delete $img
 		destroy .graph1
 	} -result {0}
 	
