@@ -23,16 +23,19 @@ namespace eval stripchart.legend {
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure that cget works for default values.
 	# ------------------------------------------------------------------------------------ 
-	test RBC.stripchart.legend.cget.A.1.1 {
-	    Test legend cget default
-	} -setup {
-	    stripchart .stripchart1
-	    pack .stripchart1
-	} -body {
-	    .stripchart1 legend cget -background
-	} -cleanup {
-	    destroy .stripchart1
-	} -result {}
+	#  The intention is to check for a null string default value, but some
+	#  systems have non-default values.  Not sure how to do this test, exactly.
+	# ------------------------------------------------------------------------------------ 
+	#test RBC.stripchart.legend.cget.A.1.1 {
+	#    Test legend cget default
+	#} -setup {
+	#    stripchart .stripchart1
+	#    pack .stripchart1
+	#} -body {
+	#    .stripchart1 legend cget -background
+	#} -cleanup {
+	#    destroy .stripchart1
+	#} -result {}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure that cget works with an explicitly set option.
