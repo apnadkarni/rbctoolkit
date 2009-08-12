@@ -1270,25 +1270,25 @@ namespace eval stripchart.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -halo command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.stripchart.configure.A.16.5 {
-		stripchart configure: halo - positive imaginary input
+		stripchart configure: halo - positive inch input
 	} -setup {
 		stripchart .stripchart1
 	} -body {
 		.stripchart1 configure -halo 3i
-		.stripchart1 cget -halo
+		expr {[.stripchart1 cget -halo] - [winfo pixels .stripchart1 3i]}
 	} -cleanup {
 		destroy .stripchart1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -halo command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.stripchart.configure.A.16.6 {
-		stripchart configure: halo - negative imaginary input
+		stripchart configure: halo - negative inch input
 	} -setup {
 		stripchart .stripchart1
 	} -body {
@@ -1400,25 +1400,25 @@ namespace eval stripchart.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -height command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.stripchart.configure.A.17.5 {
-		stripchart configure: height - positive imaginary input
+		stripchart configure: height - positive inch input
 	} -setup {
 		stripchart .stripchart1
 	} -body {
 		.stripchart1 configure -height 3i
-		.stripchart1 cget -height
+		expr {[.stripchart1 cget -height] - [winfo pixels .stripchart1 3i]}
 	} -cleanup {
 		destroy .stripchart1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -height command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.stripchart.configure.A.17.6 {
-		stripchart configure: height - negative imaginary input
+		stripchart configure: height - negative inch input
 	} -setup {
 		stripchart .stripchart1
 	} -body {
@@ -3133,25 +3133,25 @@ namespace eval stripchart.configure {
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -width command works correctly when given a positive
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.stripchart.configure.A.39.5 {
-		stripchart configure: width - positive imaginary input
+		stripchart configure: width - positive inch input
 	} -setup {
 		stripchart .stripchart1
 	} -body {
 		.stripchart1 configure -width 3i
-		.stripchart1 cget -width
+		expr {[.stripchart1 cget -width] [winfo pixels .stripchart1 3i]}
 	} -cleanup {
 		destroy .stripchart1
-	} -result {288}
+	} -result {0}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the configure -width command works correctly when given a negative
-	# imaginary value.
+	# inch value.
 	# ------------------------------------------------------------------------------------
 	test RBC.stripchart.configure.A.39.6 {
-		stripchart configure: width - negative imaginary input
+		stripchart configure: width - negative inch  input
 	} -setup {
 		stripchart .stripchart1
 	} -body {
