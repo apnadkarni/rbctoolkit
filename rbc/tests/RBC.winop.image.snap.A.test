@@ -65,6 +65,7 @@ namespace eval winop.image {
 		graph .graph1
 		pack .graph1
 		set img [image create photo]
+		update idletasks
 	} -body {
 	    if {[catch {winop image snap .graph1 $img 10}]} {
 			return 1
@@ -86,6 +87,7 @@ namespace eval winop.image {
 		graph .graph1
 		pack .graph1
 		set img [image create photo]
+		update idletasks
 	} -body {
 	    if {[catch {winop image snap .graph1 $img 10.5}]} {
 			return 1
@@ -107,6 +109,7 @@ namespace eval winop.image {
 		graph .graph1
 		pack .graph1
 		set img [image create photo]
+		update idletasks
 	} -body {
 	    if {[catch {winop image snap .graph1 $img 10 10}]} {
 			return 1
@@ -128,6 +131,7 @@ namespace eval winop.image {
 		graph .graph1
 		pack .graph1
 		set img [image create photo]
+		update idletasks
 	} -body {
 	    if {[catch {winop image snap .graph1 $img 10.5 10.5}]} {
 			return 1
@@ -149,6 +153,7 @@ namespace eval winop.image {
 		graph .graph1
 		pack .graph1
 		set img [image create photo]
+		update idletasks
 	} -body {
 	    if {[catch {winop image snap .graph1 $img 10 10.5}]} {
 			return 1
@@ -169,6 +174,7 @@ namespace eval winop.image {
 		graph .graph1
 		pack .graph1
 		set img [image create photo]
+		update idletasks
 	} -body {
 	    if {[catch {winop image snap .graph1 $img one}]} {
 			return 0
@@ -190,6 +196,7 @@ namespace eval winop.image {
 		graph .graph1
 		pack .graph1
 		set img [image create photo]
+		update idletasks
 	} -body {
 	    if {[catch {winop image snap .graph1 $img -10}]} {
 			return 0

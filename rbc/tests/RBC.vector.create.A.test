@@ -239,7 +239,7 @@ namespace eval vector.create {
         vector destroy Vector1
     } -result {Foo}
     
-	# ------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------
     # Purpose: Ensures that creating a vector with the watchunset switch set to true
     # causes the vector to be destoyed when the variable name (in this case the same as
     # the vector name) is unset
@@ -249,7 +249,7 @@ namespace eval vector.create {
     } -body {
         vector create Vector1 -watchunset true
         unset Vector1
-        expr -1 != [lsearch [vector names] ::Vector1]
+        expr -1 != [lsearch -glob [vector names] *Vector1]
     } -cleanup {
         # vector destroy Vector1
     } -result {0}
@@ -264,7 +264,7 @@ namespace eval vector.create {
     } -body {
         vector create Vector1 -watchunset false
         unset Vector1
-        expr -1 != [lsearch [vector names] ::Vector1]
+        expr -1 != [lsearch -glob [vector names] *Vector1]
     } -cleanup {
         vector destroy Vector1
     } -result {1}

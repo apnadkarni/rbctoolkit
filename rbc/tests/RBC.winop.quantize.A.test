@@ -26,8 +26,8 @@ namespace eval winop.quantize {
 	test RBC.winop.quantize.A.1.1 {
 	    winop quantize: character input
 	} -setup {
-		set src [image create photo -file ./rain.gif]
-		set dest [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
+		set dest [image create photo -file [file join [file dirname [info script]] rain.gif]]
 	} -body {
 	    if {[catch {winop quantize $src $dest one}]} {
 			return 0
@@ -47,7 +47,7 @@ namespace eval winop.quantize {
 	test RBC.winop.quantize.A.2.1 {
 	    winop quantize: non-existent Tk photo source
 	} -setup {
-		set dest [image create photo -file ./rain.gif]
+		set dest [image create photo -file [file join [file dirname [info script]] rain.gif]]
 	} -body {
 	    if {[catch {winop quantize $src $dest 2}]} {
 			return 0
@@ -66,7 +66,7 @@ namespace eval winop.quantize {
 	test RBC.winop.quantize.A.2.2 {
 	    winop quantize: non-existent Tk photo destination
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 	} -body {
 	    if {[catch {winop quantize $src $dest 2}]} {
 			return 0
@@ -85,8 +85,8 @@ namespace eval winop.quantize {
 	test RBC.winop.quantize.A.3.1 {
 	    winop quantize: positive integer
 	} -setup {
-		set src [image create photo -file ./rain.gif]
-		set dest [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
+		set dest [image create photo -file [file join [file dirname [info script]] rain.gif]]
 	} -body {
 	    if {[catch {winop quantize $src $dest 2}]} {
 			return 1
@@ -106,8 +106,8 @@ namespace eval winop.quantize {
 	test RBC.winop.quantize.A.3.2 {
 	    winop quantize: negative integer
 	} -setup {
-		set src [image create photo -file ./rain.gif]
-		set dest [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
+		set dest [image create photo -file [file join [file dirname [info script]] rain.gif]]
 	} -body {
 	    if {[catch {winop quantize $src $dest (-2)}]} {
 			return 0
@@ -127,8 +127,8 @@ namespace eval winop.quantize {
 	test RBC.winop.quantize.A.3.3 {
 	    winop quantize: positive decimal
 	} -setup {
-		set src [image create photo -file ./rain.gif]
-		set dest [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
+		set dest [image create photo -file [file join [file dirname [info script]] rain.gif]]
 	} -body {
 	    if {[catch {winop quantize $src $dest 2.5}]} {
 			return 0

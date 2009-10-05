@@ -20,7 +20,16 @@ namespace import rbc::*
 package require tcltest
 namespace import tcltest::*
 namespace eval vector.arithmetic {
+
+	# ------------------------------------------------------------------------------------
+	#  Test Constraints
+	#  Some machines treat floating point numbers differently, so we set some
+	#  constraints here for various vector related routines
+	# ------------------------------------------------------------------------------------
+	tcltest::testConstraint twoDigitExponent   [expr {[format %1.0e 1e-20] eq "1e-20"}]
+	tcltest::testConstraint threeDigitExponent [expr {[format %1.0e 1e-20] eq "1e-020"}]
 	set tcl_precision 12
+
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the correct functioning of vector addition
 	# ------------------------------------------------------------------------------------ 
