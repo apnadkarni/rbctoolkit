@@ -308,12 +308,13 @@ namespace eval stripchart.marker {
 		stripchart .stripchart1
 		.stripchart1 marker create polygon -name Marker1
 	} -body {
-		.stripchart1 marker configure Marker1 -stipple @greenback.xbm
+		.stripchart1 marker configure Marker1 \
+			-stipple @[file join [file dirname [info script]] greenback.xbm]
 		.stripchart1 marker cget Marker1 -stipple
 	} -cleanup {
 	    .stripchart1 marker delete Marker1
 		destroy .stripchart1
-	} -result {@greenback.xbm}
+	} -match glob -result {@*greenback.xbm}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the marker configure -cap command works correctly when given 'butt'.

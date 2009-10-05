@@ -66,12 +66,13 @@ namespace eval graph.marker {
 		graph .graph1
 		.graph1 marker create bitmap -name marker1
 	} -body {
-		.graph1 marker configure marker1 -bitmap @greenback.xbm
+		.graph1 marker configure marker1 \
+			-bitmap @[file join [file dirname [info script]] greenback.xbm]
 		.graph1 marker cget marker1 -bitmap
 	} -cleanup {
 	    .graph1 marker delete marker1
 		destroy .graph1
-	} -result {@greenback.xbm}
+	} -match glob -result {@*greenback.xbm}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the marker configure -fill command works correctly for bitmap 

@@ -3018,12 +3018,13 @@ namespace eval barchart.element {
 		barchart .barchart1
 		.barchart1 element create Element1
 	} -body {
-		.barchart1 element configure Element1 -stipple @greenback.xbm
+		.barchart1 element configure Element1 \
+			-stipple @[file join [file dirname [info script]] greenback.xbm]
 		.barchart1 element cget Element1 -stipple
 	} -cleanup {
 	    .barchart1 element delete Element1
 		destroy .barchart1
-	} -result {@greenback.xbm}
+	} -match glob -result {@*greenback.xbm}
 	
 	cleanupTests
 }

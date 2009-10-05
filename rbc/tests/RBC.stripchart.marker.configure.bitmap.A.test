@@ -66,12 +66,13 @@ namespace eval stripchart.marker {
 		stripchart .stripchart1
 		.stripchart1 marker create bitmap -name marker1
 	} -body {
-		.stripchart1 marker configure marker1 -bitmap @greenback.xbm
+		.stripchart1 marker configure marker1 \
+			-bitmap @[file join [file dirname [info script]] greenback.xbm]
 		.stripchart1 marker cget marker1 -bitmap
 	} -cleanup {
 	    .stripchart1 marker delete marker1
 		destroy .stripchart1
-	} -result {@greenback.xbm}
+	} -match glob -result {@*greenback.xbm}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the marker configure -fill command works correctly for bitmap 
