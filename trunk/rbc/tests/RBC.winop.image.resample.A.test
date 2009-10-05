@@ -26,7 +26,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.1 {
 	    winop image resample: bell
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest bell}]} {
@@ -45,7 +45,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.2 {
 	    winop image resample: bessel
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest bessel}]} {
@@ -64,7 +64,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.3 {
 	    winop image resample: box
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest box}]} {
@@ -83,7 +83,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.4 {
 	    winop image resample: bspline
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest bspline}]} {
@@ -102,7 +102,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.5 {
 	    winop image resample: catrom
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest catrom}]} {
@@ -121,7 +121,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.6 {
 	    winop image resample: default
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest default}]} {
@@ -140,7 +140,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.7 {
 	    winop image resample: dummy
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest dummy}]} {
@@ -159,7 +159,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.8 {
 	    winop image resample: gauss8
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest gauss8}]} {
@@ -178,7 +178,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.9 {
 	    winop image resample: gaussian
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest gaussian}]} {
@@ -197,7 +197,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.10 {
 	    winop image resample: gi
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest gi}]} {
@@ -216,7 +216,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.11 {
 	    winop image resample: lanczos3
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest lanczos3}]} {
@@ -235,7 +235,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.12 {
 	    winop image resample: mitchell
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest mitchell}]} {
@@ -254,7 +254,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.13 {
 	    winop image resample: bell
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest none}]} {
@@ -273,7 +273,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.14 {
 	    winop image resample: sinc
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest sinc}]} {
@@ -292,7 +292,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.15 {
 	    winop image resample: triangle
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest triangle}]} {
@@ -311,7 +311,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.1.16 {
 	    winop image resample: invalid
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest invalid}]} {
@@ -331,7 +331,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.2.1 {
 	    winop image resample: 2 filters
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 		set dest [image create photo -height 200 -width 200]
 	} -body {
 	    if {[catch {winop image resample $src $dest box triangle}]} {
@@ -351,7 +351,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.3.1 {
 	    winop image resample: non-existent Tk photo source
 	} -setup {
-		set dest [image create photo -file ./rain.gif]
+		set dest [image create photo -file [file join [file dirname [info script]] rain.gif]]
 	} -body {
 	    if {[catch {winop image resample $src $dest sinc}]} {
 			return 0
@@ -369,7 +369,7 @@ namespace eval winop.image {
 	test RBC.winop.image.resample.A.3.2 {
 	    winop image resample: non-existent Tk photo destination
 	} -setup {
-		set src [image create photo -file ./rain.gif]
+		set src [image create photo -file [file join [file dirname [info script]] rain.gif]]
 	} -body {
 	    if {[catch {winop image resample $src $dest sinc}]} {
 			return 0

@@ -11,14 +11,13 @@
 ###Revision String
 # SVN: $Id$
 
-###Package Definition
-package provide winop.warpto
+package require tcltest 2
+namespace import tcltest::*
 
+package require Tk
 package require rbc
 namespace import rbc::*
 
-package require tcltest
-namespace import tcltest::*
 namespace eval winop.warpto {
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the warpto command works properly when given a Tk widget.
@@ -30,10 +29,11 @@ namespace eval winop.warpto {
 	    pack .graph1
 	} -body {
 		winop map .graph1
-		winop warpto .graph1
+		set result [winop warpto .graph1]
+		#  All we really check here is that we get two integers.
+		scan $result "@%d,%d" x y
 	} -cleanup {
 	    destroy .graph1
-	} -result {@0,0}
-	
-	cleanupTests
+	} -result {2}
+	
 }

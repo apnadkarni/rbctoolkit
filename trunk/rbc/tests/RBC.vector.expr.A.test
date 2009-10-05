@@ -20,6 +20,16 @@ namespace import rbc::*
 package require tcltest
 namespace import tcltest::*
 namespace eval vector.expr {
+
+	# ------------------------------------------------------------------------------------
+	#  Test Constraints
+	#  Some machines treat floating point numbers differently, so we set some
+	#  constraints here for various vector related routines
+	# ------------------------------------------------------------------------------------
+	tcltest::testConstraint twoDigitExponent   [expr {[format %1.0e 1e-20] eq "1e-20"}]
+	tcltest::testConstraint threeDigitExponent [expr {[format %1.0e 1e-20] eq "1e-020"}]
+	set tcl_precision 12
+
 	# ------------------------------------------------------------------------------------
 	# Purpose: Tests different conditions when evaluating unary minus
 	# ------------------------------------------------------------------------------------ 
@@ -341,9 +351,20 @@ namespace eval vector.expr {
 	# ------------------------------------------------------------------------------------
 	# Purpose: Tests different conditions when evaluating ceil (ceiling)
 	# ------------------------------------------------------------------------------------ 
-	test RBC.vector.expr.A.1.20 {
+	test RBC.vector.expr.A.1.20- {
 		Test ceil
 	} -setup {
+		vector create Vector1
+		Vector1 set {3.14159 4.5 8.4 .1 -0.1 -0.5 -2.1}
+	} -body {
+		vector expr {ceil(Vector1)}
+	} -cleanup {
+		vector destroy Vector1
+	} -result {4.0 5.0 9.0 1.0 0.0 0.0 -2.0}
+
+	test RBC.vector.expr.A.1.20+ {
+		Test ceil
+	} -constraints threeDigitExponent -setup {
 		vector create Vector1
 		Vector1 set {3.14159 4.5 8.4 .1 -0.1 -0.5 -2.1}
 	} -body {
@@ -453,9 +474,19 @@ namespace eval vector.expr {
 	# ------------------------------------------------------------------------------------
 	# Purpose: Tests different conditions when evaluating sin
 	# ------------------------------------------------------------------------------------ 
-	test RBC.vector.expr.A.1.28 {
+	test RBC.vector.expr.A.1.28-00 {
 		Test sin
-	} -setup {
+	} -constraints twoDigitExponent -setup {
+		vector create Vector1
+		Vector1 set {3.14159 1.570795 0 -3.14159 23 1 -1}
+	} -body {
+		vector expr {sin(Vector1)} 
+	} -cleanup {
+		vector destroy Vector1
+	} -result {2.65358979335e-06 0.999999999999 0.0 -2.65358979335e-06 -0.846220404175 0.841470984808 -0.841470984808}
+	test RBC.vector.expr.A.1.28-000 {
+		Test sin
+	} -constraints threeDigitExponent -setup {
 		vector create Vector1
 		Vector1 set {3.14159 1.570795 0 -3.14159 23 1 -1}
 	} -body {
@@ -495,9 +526,19 @@ namespace eval vector.expr {
 	# ------------------------------------------------------------------------------------
 	# Purpose: Tests different conditions when evaluating tan
 	# ------------------------------------------------------------------------------------ 
-	test RBC.vector.expr.A.1.31 {
+	test RBC.vector.expr.A.1.31-00 {
 		Test tan
-	} -setup {
+	} -constraints twoDigitExponent -setup {
+		vector create Vector1
+		Vector1 set {3.14159 1.570795 0 -3.14159 23 1 -1}
+	} -body {
+		vector expr {tan(Vector1)} 
+	} -cleanup {
+		vector destroy Vector1
+	} -result {-2.65358979336e-06 753695.995141 0.0 2.65358979336e-06 1.58815308339 1.55740772465 -1.55740772465}
+	test RBC.vector.expr.A.1.31-000 {
+		Test tan
+	} -constraints threeDigitExponent -setup {
 		vector create Vector1
 		Vector1 set {3.14159 1.570795 0 -3.14159 23 1 -1}
 	} -body {

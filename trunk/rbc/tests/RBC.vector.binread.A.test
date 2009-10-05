@@ -21,6 +21,14 @@ package require tcltest
 namespace import tcltest::*
 #namespace eval vector.binread {
 
+	# ------------------------------------------------------------------------------------
+	#  Test Constraints
+	#  Some machines treat floating point numbers differently, so we set some
+	#  constraints here for various vector related routines
+	# ------------------------------------------------------------------------------------
+	tcltest::testConstraint twoDigitExponent   [expr {[format %1.0e 1e-20] eq "1e-20"}]
+	tcltest::testConstraint threeDigitExponent [expr {[format %1.0e 1e-20] eq "1e-020"}]
+
 # ------------------------------------------------------------------------------------
 # Purpose: Ensure the vector binread command reads the entire contents of a file when 
 # given no length parameter 
@@ -29,7 +37,7 @@ test RBC.vector.binread.A.1.1 {
     vector binread entire file
 } -setup {
     vector create Vector1
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel
     expr {$Vector1(:)}
@@ -47,7 +55,7 @@ test RBC.vector.binread.A.1.2 {
     vector binread length items
 } -setup {
     vector create Vector1
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel 1
     expr {$Vector1(:)}
@@ -65,7 +73,7 @@ test RBC.vector.binread.A.2.1 {
     vector binread default endianess
 } -setup {
     vector create Vector1
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel
     expr {$Vector1(:)}
@@ -83,7 +91,7 @@ test RBC.vector.binread.A.2.2 {
     vector binread opposite endianess
 } -setup {
     vector create Vector1
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -swap
     expr {$Vector1(:)}
@@ -102,7 +110,7 @@ test RBC.vector.binread.A.3.1 {
 } -setup {
     vector create Vector1
     Vector1 set {1 2}
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -at 1
     expr {$Vector1(1:)}
@@ -121,7 +129,7 @@ test RBC.vector.binread.A.3.2 {
 } -setup {
     vector create Vector1
     Vector1 set {1 2}    
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -at 1
     expr {$Vector1(0)}
@@ -138,7 +146,7 @@ test RBC.vector.binread.A.4.1 {
     vector binread format i1
 } -setup {
     vector create Vector1
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -format i1
     expr {$Vector1(:)}
@@ -155,7 +163,7 @@ test RBC.vector.binread.A.4.2 {
     vector binread format i2
 } -setup {
     vector create Vector1
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -format i2
     expr {$Vector1(:)}
@@ -172,7 +180,7 @@ test RBC.vector.binread.A.4.3 {
     vector binread format i4
 } -setup {
     vector create Vector1
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -format i4
     expr {$Vector1(:)}
@@ -189,7 +197,7 @@ test RBC.vector.binread.A.4.4 {
     vector binread format u1
 } -setup {
     vector create Vector1
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -format u1
     expr {$Vector1(:)}
@@ -206,7 +214,7 @@ test RBC.vector.binread.A.4.5 {
     vector binread format u2
 } -setup {
     vector create Vector1 
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -format u2
     expr {$Vector1(:)}
@@ -223,7 +231,7 @@ test RBC.vector.binread.A.4.6 {
     vector binread format u4
 } -setup {
     vector create Vector1 
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -format u4
     expr {$Vector1(:)}
@@ -236,11 +244,25 @@ test RBC.vector.binread.A.4.6 {
 # ------------------------------------------------------------------------------------
 # Purpose: Ensure the vector binread command can read the r4 format 
 # ------------------------------------------------------------------------------------ 
-test RBC.vector.binread.A.4.7 {
+test RBC.vector.binread.A.4.7-00 {
     vector binread format r4
-} -setup {
+} -constraints twoDigitExponent -setup {
     vector create Vector1   
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
+} -body {
+    Vector1 binread $Channel -format r4
+    expr {$Vector1(:)}
+} -cleanup {
+    vector destroy Vector1
+    close $Channel
+    unset Channel
+} -result {0.0 0.0 0.0 5.39567264156e+20}
+
+test RBC.vector.binread.A.4.7-000 {
+    vector binread format r4
+} -constraints threeDigitExponent -setup {
+    vector create Vector1   
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -format r4
     expr {$Vector1(:)}
@@ -257,7 +279,7 @@ test RBC.vector.binread.A.4.8 {
     vector binread format r8
 } -setup {
     vector create Vector1  
-    set Channel [open binReadTestFile.txt r]
+    set Channel [open [file join [file dirname [info script]] binReadTestFile.txt] r]
 } -body {
     Vector1 binread $Channel -format r8
     expr {$Vector1(:)}

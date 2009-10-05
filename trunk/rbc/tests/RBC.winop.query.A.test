@@ -31,10 +31,12 @@ namespace eval winop.query {
 	} -body {
 		winop map .graph1
 		winop warpto .graph1
-	    winop query
+		set result [winop query]
+		# We're really only checking for two integers here
+		scan $result "@%d,%d" x y
 	} -cleanup {
 	    destroy .graph1
-	} -result {@0,0}
+	} -result {2}
 	
 	cleanupTests
 }
