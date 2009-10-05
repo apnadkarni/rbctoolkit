@@ -2,4 +2,5 @@ package require Tk
 package ifneeded @PACKAGE_NAME@ @PACKAGE_VERSION@ [format {
     load [file join %s @PKG_LIB_FILE@] Rbc 
     source [file join %s graph.tcl]
-} [list $dir] [list $dir]]
+    set ::rbc_library %s
+} [list $dir] [list $dir] [list $dir]]
