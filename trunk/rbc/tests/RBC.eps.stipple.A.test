@@ -29,12 +29,13 @@ namespace eval eps.stipple {
 	    canvas .canvas1
 		.canvas1 create eps 0 0
 	} -body {
-		.canvas1 itemconfigure 1 -stipple @greenback.xbm
+		.canvas1 itemconfigure 1 \
+			-stipple @[file join [file dirname [info script]] greenback.xbm]
 		.canvas1 itemcget 1 -stipple
 	} -cleanup {
 		.canvas1 delete 1
 	    destroy .canvas1
-	} -result {@greenback.xbm}
+	} -match glob -result {@*greenback.xbm}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the stipple command works properly when given an invalid color name.

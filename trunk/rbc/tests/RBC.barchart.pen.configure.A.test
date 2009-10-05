@@ -399,12 +399,13 @@ namespace eval barchart.pen {
 		barchart .barchart1
 		.barchart1 pen create Pen1
 	} -body {
-		.barchart1 pen configure Pen1 -stipple @greenback.xbm
+		.barchart1 pen configure Pen1 \
+			-stipple @[file join [file dirname [info script]] greenback.xbm]
 		.barchart1 pen cget Pen1 -stipple
 	} -cleanup {
 	    .barchart1 pen delete Pen1
 		destroy .barchart1
-	} -result {@greenback.xbm}
+	} -match glob -result {@*greenback.xbm}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure that the default type of a pen is set

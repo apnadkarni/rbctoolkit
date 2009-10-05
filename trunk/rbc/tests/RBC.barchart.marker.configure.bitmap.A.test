@@ -66,12 +66,13 @@ namespace eval barchart.marker {
 		barchart .barchart1
 		.barchart1 marker create bitmap -name marker1
 	} -body {
-		.barchart1 marker configure marker1 -bitmap @greenback.xbm
+		.barchart1 marker configure marker1 \
+			-bitmap @[file join [file dirname [info script]] greenback.xbm]
 		.barchart1 marker cget marker1 -bitmap
 	} -cleanup {
 	    .barchart1 marker delete marker1
 		destroy .barchart1
-	} -result {@greenback.xbm}
+	} -match glob -result {@*greenback.xbm}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the marker configure -fill command works correctly for bitmap 

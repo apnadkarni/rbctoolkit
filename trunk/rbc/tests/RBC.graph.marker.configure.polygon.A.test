@@ -308,12 +308,13 @@ namespace eval graph.marker {
 		graph .graph1
 		.graph1 marker create polygon -name Marker1
 	} -body {
-		.graph1 marker configure Marker1 -stipple @greenback.xbm
+		.graph1 marker configure Marker1 \
+			-stipple @[file join [file dirname [info script]] greenback.xbm]
 		.graph1 marker cget Marker1 -stipple
 	} -cleanup {
 	    .graph1 marker delete Marker1
 		destroy .graph1
-	} -result {@greenback.xbm}
+	} -match glob -result {@*greenback.xbm}
 	
 	# ------------------------------------------------------------------------------------
 	# Purpose: Ensure the marker configure -cap command works correctly when given 'butt'.
