@@ -13,9 +13,9 @@
 #ifndef _RBC
 #define _RBC
 
-#define RBC_VERSION "1.0"
-#define RBC_MAJOR_VERSION 1
-#define RBC_MINOR_VERSION 0
+#define RBC_VERSION "0.1"
+#define RBC_MAJOR_VERSION 0
+#define RBC_MINOR_VERSION 1
 
 #include <tcl.h>
 
