@@ -99,7 +99,7 @@ Rbc_Init (interp)
         return TCL_ERROR;
     }
 
-    if (Tcl_PkgProvide(interp, "rbc", "1.0") == TCL_ERROR) {
+    if (Tcl_PkgProvide(interp, "rbc", "0.1") == TCL_ERROR) {
         return TCL_ERROR;
     }
 
