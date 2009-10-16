@@ -49,6 +49,12 @@ PKG_STUB_OBJECTS = @PKG_STUB_OBJECTS@
 PKG_TCL_SOURCES = @PKG_TCL_SOURCES@
 
 #========================================================================
+# PKG_TCL_DEMOS lists Tcl demo files to be installed, if any.
+#========================================================================
+
+PKG_TCL_DEMOS = @PKG_TCL_DEMOS@
+
+##========================================================================
 # This is a list of public header files to be installed, if any.
 #========================================================================
 
@@ -84,6 +90,7 @@ PKG_DIR		= $(PACKAGE_NAME)$(PACKAGE_VERSION)
 pkgdatadir	= $(datadir)/$(PKG_DIR)
 pkglibdir	= $(libdir)/$(PKG_DIR)
 pkgincludedir	= $(includedir)/$(PKG_DIR)
+pkgdemodir	= $(libdir)/$(PKG_DIR)/demos
 
 top_builddir	= .
 
@@ -179,7 +186,7 @@ COMPILE		= $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(C
 # for the BINARIES that you specified above have already been done.
 #========================================================================
 
-all: binaries libraries doc
+all: binaries libraries demos doc
 
 #========================================================================
 # The binaries target builds executable programs, Windows .dll's, unix
@@ -191,6 +198,8 @@ all: binaries libraries doc
 binaries: $(BINARIES)
 
 libraries:
+
+demos:
 
 #========================================================================
 # Your doc target should differentiate from doc builds (by the developer)
@@ -206,7 +215,7 @@ doc:
 
 #  We don't have any docs to install, yet
 #install: all install-binaries install-libraries install-doc
-install: all install-binaries install-libraries
+install: all install-binaries install-libraries install-demos
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
 
@@ -222,6 +231,20 @@ install-libraries: libraries
 	    echo "Installing $(srcdir)/$$i" ; \
 	    $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir) ; \
 	done;
+
+#========================================================================
+# Install demos in a subdirectory of the library.
+# We need a simple recursive install, which is not provided
+# by the snazzy autoconf / tcl.m4 macros
+#========================================================================
+
+install-demos: demos
+	@mkdir -p $(DESTDIR)$(pkgdemodir)
+	@echo "Installing demos in $(DESTDIR)$(pkgdemodir)"
+	@list='$(PKG_TCL_DEMOS)'; for i in $$list; do \
+	    echo "Installing $$i"; \
+	    cp -r $$i $(DESTDIR)$(pkgdemodir); \
+	done
 
 #========================================================================
 # Install documentation.  Unix manpages should go in the $(mandir)
