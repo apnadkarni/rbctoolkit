@@ -42,13 +42,13 @@ Rbc_Uid rbcTextMarkerUid;
 Rbc_Uid rbcPolygonMarkerUid;
 Rbc_Uid rbcWindowMarkerUid;
 
-Tk_CustomOption rbcLinePenOption;
-Tk_CustomOption rbcBarPenOption;
-Tk_CustomOption rbcDistanceOption;
-Tk_CustomOption rbcBarModeOption;
-Tk_CustomOption rbcPadOption;
-Tk_CustomOption rbcTileOption;
-Tk_CustomOption rbcShadowOption;
+extern Tk_CustomOption rbcLinePenOption;
+extern Tk_CustomOption rbcBarPenOption;
+extern Tk_CustomOption rbcDistanceOption;
+extern Tk_CustomOption rbcBarModeOption;
+extern Tk_CustomOption rbcPadOption;
+extern Tk_CustomOption rbcTileOption;
+extern Tk_CustomOption rbcShadowOption;
 
 #define DEF_GRAPH_ASPECT_RATIO		"0.0"
 #define DEF_GRAPH_BAR_BASELINE		"0.0"

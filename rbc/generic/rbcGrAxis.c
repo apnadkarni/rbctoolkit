@@ -59,10 +59,10 @@ typedef struct {
     int label; /* Distance from axis to tick label.  */
 } AxisInfo;
 
-Tk_CustomOption rbcDistanceOption;
-Tk_CustomOption rbcPositiveDistanceOption;
-Tk_CustomOption rbcShadowOption;
-Tk_CustomOption rbcListOption;
+extern Tk_CustomOption rbcDistanceOption;
+extern Tk_CustomOption rbcPositiveDistanceOption;
+extern Tk_CustomOption rbcShadowOption;
+extern Tk_CustomOption rbcListOption;
 
 static Tk_OptionParseProc StringToLimit;
 static Tk_OptionPrintProc LimitToString;

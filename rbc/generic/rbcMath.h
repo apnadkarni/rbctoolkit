@@ -149,7 +149,7 @@
 #endif /* HAVE_ISFINITE */
 #endif /* HAVE_FINITE */
 
-double rbcNaN;
+extern double rbcNaN;
 
 #define DEFINED(x)	(!isnan(x))
 #define UNDEFINED(x)	(isnan(x))

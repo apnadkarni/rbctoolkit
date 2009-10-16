@@ -160,8 +160,7 @@ typedef struct {
     double support;		/* Width of 1-D filter */
 } ResampleFilter;
 
-ResampleFilter *rbcBoxFilterPtr; /* The ubiquitous box filter */
-
+extern ResampleFilter *rbcBoxFilterPtr; /* The ubiquitous box filter */
 
 /*
  *----------------------------------------------------------------------

@@ -18,8 +18,9 @@
 
 #define CLAMP(c)	((((c) < 0.0) ? 0.0 : ((c) > 255.0) ? 255.0 : (c)))
 
-int redAdjust, greenAdjust, blueAdjust;
-int redMaskShift, greenMaskShift, blueMaskShift;
+/* Defined rbcColor.c */
+extern int redAdjust, greenAdjust, blueAdjust;
+extern int redMaskShift, greenMaskShift, blueMaskShift;
 
 
 /*

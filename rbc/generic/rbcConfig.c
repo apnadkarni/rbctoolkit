@@ -11,11 +11,7 @@
  */
 
 #include "rbcInt.h"
-#if defined(__STDC__)
 #include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 
 #include "rbcTile.h"
 

@@ -96,10 +96,10 @@ static Tk_OptionPrintProc PositionToString;
 static Tk_CustomOption legendPositionOption = {
     StringToPosition, PositionToString, (ClientData)0
 };
-Tk_CustomOption rbcDistanceOption;
-Tk_CustomOption rbcPadOption;
-Tk_CustomOption rbcShadowOption;
-Tk_CustomOption rbcCountOption;
+extern Tk_CustomOption rbcDistanceOption;
+extern Tk_CustomOption rbcPadOption;
+extern Tk_CustomOption rbcShadowOption;
+extern Tk_CustomOption rbcCountOption;
 
 static Tk_ConfigSpec configSpecs[] = {
     {TK_CONFIG_BORDER, "-activebackground", "activeBackground", "ActiveBackground", DEF_LEGEND_ACTIVE_BACKGROUND, Tk_Offset(Legend, activeBorder), TK_CONFIG_COLOR_ONLY},

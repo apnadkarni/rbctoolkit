@@ -91,6 +91,8 @@ int DLLEXPORT
 Rbc_Init (interp)
     Tcl_Interp *interp; /* Base interpreter to return results to. */
 {
+    Tcl_Namespace *nsPtr;
+
     if (Tcl_InitStubs(interp, MIN_VERSION, 0) == NULL) {
         return TCL_ERROR;
     }
@@ -103,7 +105,6 @@ Rbc_Init (interp)
         return TCL_ERROR;
     }
 
-    Tcl_Namespace *nsPtr;
     nsPtr = Tcl_CreateNamespace(interp, "rbc", NULL, NULL);
     if (nsPtr == NULL) {
 	    return TCL_ERROR;

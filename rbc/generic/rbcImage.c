@@ -75,6 +75,8 @@ static void Mark _ANSI_ARGS_((Cube *cubePtr, int label, unsigned int tag[33][33]
 static unsigned int *CreateColorLookupTable _ANSI_ARGS_((ColorImageStatistics *s, Cube *cubes, int nColors));
 static void MapColors _ANSI_ARGS_((Rbc_ColorImage src, Rbc_ColorImage dest, unsigned int lut[33][33][33]));
 
+ResampleFilter *rbcBoxFilterPtr; /* The ubiquitous box filter */
+
 /*
  *----------------------------------------------------------------------
  *
