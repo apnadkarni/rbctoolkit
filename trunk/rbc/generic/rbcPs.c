@@ -14,11 +14,7 @@
 
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
-#if defined(__STDC__)
 #include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 
 #define PS_MAXPATH	1500	/* Maximum number of components in a PostScript
                              * (level 1) path. */

@@ -18,7 +18,7 @@
 #include "rbcPs.h"
 #include "rbcTile.h"
 #include "rbcVector.h"
-//#include "rbcWin.h"
+/*#include "rbcWin.h"*/
 
 typedef struct GraphStruct Graph;
 typedef struct ElementStruct Element;
@@ -649,16 +649,16 @@ int Rbc_GraphType _ANSI_ARGS_((Graph *graphPtr));
 
 /* ---------------------- Global declarations ------------------------ */
 
-Rbc_Uid rbcBarElementUid;
-Rbc_Uid rbcLineElementUid;
-Rbc_Uid rbcStripElementUid;
-Rbc_Uid rbcLineMarkerUid;
-Rbc_Uid rbcBitmapMarkerUid;
-Rbc_Uid rbcImageMarkerUid;
-Rbc_Uid rbcTextMarkerUid;
-Rbc_Uid rbcPolygonMarkerUid;
-Rbc_Uid rbcWindowMarkerUid;
-Rbc_Uid rbcXAxisUid;
-Rbc_Uid rbcYAxisUid;
+extern Rbc_Uid rbcBarElementUid;
+extern Rbc_Uid rbcLineElementUid;
+extern Rbc_Uid rbcStripElementUid;
+extern Rbc_Uid rbcLineMarkerUid;
+extern Rbc_Uid rbcBitmapMarkerUid;
+extern Rbc_Uid rbcImageMarkerUid;
+extern Rbc_Uid rbcTextMarkerUid;
+extern Rbc_Uid rbcPolygonMarkerUid;
+extern Rbc_Uid rbcWindowMarkerUid;
+extern Rbc_Uid rbcXAxisUid;
+extern Rbc_Uid rbcYAxisUid;
 
 #endif /* _RBCGRAPH */

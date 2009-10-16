@@ -12,11 +12,7 @@
 
 #include "rbcGraph.h"
 #include <X11/Xutil.h>
-#if defined(__STDC__)
 #include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 
 #define PS_PREVIEW_EPSI	0
 #define PS_PREVIEW_WMF	1

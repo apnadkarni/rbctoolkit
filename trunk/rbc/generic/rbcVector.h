@@ -88,7 +88,7 @@ typedef struct {
 #define NS_SEARCH_GLOBAL	(1<<1)
 #define NS_SEARCH_BOTH		(NS_SEARCH_GLOBAL | NS_SEARCH_CURRENT)
 
-double rbcNaN;
+extern double rbcNaN;
 #ifdef __BORLANDC__
 static double
 MakeNaN(void)

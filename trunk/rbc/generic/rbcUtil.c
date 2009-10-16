@@ -12,11 +12,7 @@
 
 #include "rbcInt.h"
 #include <ctype.h>
-#if defined(__STDC__)
 #include <stdarg.h>
-#else
-#include <varargs.h>
-#endif
 
 static int BinaryOpSearch _ANSI_ARGS_((Rbc_OpSpec specArr[], int nSpecs, char *string));
 static int LinearOpSearch _ANSI_ARGS_((Rbc_OpSpec specArr[], int nSpecs, char *string));

@@ -29,7 +29,7 @@ Tk_CustomOption rbcDataOption = {
 Tk_CustomOption rbcDataPairsOption = {
     StringToDataPairs, DataPairsToString, (ClientData)0
 };
-Tk_CustomOption rbcDistanceOption;
+extern Tk_CustomOption rbcDistanceOption;
 
 
 static int counter;

@@ -9,6 +9,7 @@
  * See "license.terms" for details.
  */
 
+#include <tclInt.h>
 #include <string.h>
 #include "rbcVector.h"
 
@@ -63,6 +64,8 @@ static VectorObject *     FindVectorInNamespace  _ANSI_ARGS_((VectorInterpData *
 static void               DeleteCommand          _ANSI_ARGS_((VectorObject *vPtr));
 static void 			  UnmapVariable          _ANSI_ARGS_((VectorObject *vPtr));
 
+double rbcNaN;
+
 /*
  * -----------------------------------------------------------------------
  *
@@ -83,8 +86,8 @@ int
 Rbc_VectorInit(interp)
     Tcl_Interp *interp;
 {
-    rbcNaN = MakeNaN();
     VectorInterpData *dataPtr; /* Interpreter-specific data. */
+    rbcNaN = MakeNaN();
 
     dataPtr = Rbc_VectorGetInterpData(interp);
     Tcl_CreateObjCommand(interp, "rbc::vector", VectorObjCmd, dataPtr, NULL);
@@ -116,16 +119,15 @@ VectorObjCmd(dataPtr, interp, objc, objv)
     Tcl_Obj * const objv[];
 {
     int index;
+    CONST84 char *subCmds[] = { "create", "destroy", "expr", "names", NULL};
+    enum RecodeIndex {
+        createIndex, destroyIndex, exprIndex, namesIndex
+    };
 
     if (objc < 2) {
         Tcl_WrongNumArgs(interp, 1, objv, "command ?args?");
         return TCL_ERROR;
     }
-
-    CONST84 char *subCmds[] = { "create", "destroy", "expr", "names", NULL};
-    enum RecodeIndex {
-        createIndex, destroyIndex, exprIndex, namesIndex
-    };
 
     if (Tcl_GetIndexFromObj(interp, objv[1], subCmds, "command", 0, &index) != TCL_OK) {
         return TCL_ERROR;
@@ -1268,7 +1270,7 @@ Rbc_VectorMapVariable(interp, vPtr, name)
 
     if (result != NULL) {
         /* Trace the array on reads, writes, and unsets */
-        //printf("trace on %s with variable %s\n",vPtr->name,name);
+        /*printf("trace on %s with variable %s\n",vPtr->name,name);*/
         Tcl_TraceVar2(interp, name, NULL, (TRACE_ALL | vPtr->varFlags), (Tcl_VarTraceProc *) VectorVarTrace, vPtr);
     }
 
@@ -2126,11 +2128,11 @@ BuildQualifiedName(interp, name, fullName)
     Tcl_DString *fullName; /* string pointer to save the qualified name into
                             * (free or uninitialized DString) */
 {
+    Tcl_Namespace *nsPtr;
+
     if (name == NULL) {
         return NULL;
     }
-
-    Tcl_Namespace *nsPtr;
 
     Tcl_DStringInit(fullName);
     /* FIXME: Doesn't work in Tcl 8.4 */
@@ -2414,7 +2416,7 @@ DeleteCommand(vPtr)
 {
     Tcl_Interp *interp = vPtr->interp;
     Tcl_CmdInfo cmdInfo;
-    char *cmdName;
+    const char *cmdName;
 
     cmdName = Tcl_GetCommandName(interp, vPtr->cmdToken);
 
