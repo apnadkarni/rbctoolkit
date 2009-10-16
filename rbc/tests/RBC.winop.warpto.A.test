@@ -35,5 +35,5 @@ namespace eval winop.warpto {
 	} -cleanup {
 	    destroy .graph1
 	} -result {2}
-	
+	
 }
