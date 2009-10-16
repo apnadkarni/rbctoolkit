@@ -7384,7 +7384,7 @@ $as_echo "$as_me: error: could not find source file '$i'" >&2;}
 
     #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
 
-    vars="-lwinspool -ladvapi32 -lgdi32"
+    vars="user32.lib winspool.lib advapi32.lib gdi32.lib"
     for i in $vars; do
 	if test "${TEA_PLATFORM}" = "windows" -a "$GCC" = "yes" ; then
 	    # Convert foo.lib to -lfoo for GCC.  No-op if not *.lib
