@@ -74,6 +74,38 @@ TEA_ADD_CFLAGS([])
 TEA_ADD_STUB_SOURCES([])
 TEA_ADD_TCL_SOURCES([library/graph.tcl library/rbcCanvEps.pro library/rbcGraph.pro])
 
+
+#------------------------------------------------------------------------
+# RBC_ADD_TCL_DEMOS --
+#
+#	Specify one or more demo script directories, 
+#       to be installed in a subdirectory 
+#
+# Arguments:
+#	one or more directory names
+#
+# Results:
+#
+#	Defines and substs the following vars:
+#		PKG_TCL_DEMOS
+#------------------------------------------------------------------------
+AC_DEFUN([RBC_ADD_TCL_DEMOS], [
+    vars="$@"
+    for i in $vars; do
+	# check for existence, be strict because it is installed
+	if test ! -d "${srcdir}/$i" ; then
+	    AC_MSG_ERROR([could not find tcl demo file '${srcdir}/$i'])
+	fi
+	PKG_TCL_DEMOS="$PKG_TCL_DEMOS $i"
+    done
+    AC_SUBST(PKG_TCL_DEMOS)
+])
+
+RBC_ADD_TCL_DEMOS([library/demos])
+
+
+
+
 #--------------------------------------------------------------------
 # __CHANGE__
 # A few miscellaneous platform-specific items:
