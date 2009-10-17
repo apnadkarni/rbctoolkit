@@ -90,7 +90,6 @@ PKG_DIR		= $(PACKAGE_NAME)$(PACKAGE_VERSION)
 pkgdatadir	= $(datadir)/$(PKG_DIR)
 pkglibdir	= $(libdir)/$(PKG_DIR)
 pkgincludedir	= $(includedir)/$(PKG_DIR)
-pkgdemodir	= $(libdir)/$(PKG_DIR)/demos
 
 top_builddir	= .
 
@@ -235,15 +234,18 @@ install-libraries: libraries
 #========================================================================
 # Install demos in a subdirectory of the library.
 # We need a simple recursive install, which is not provided
-# by the snazzy autoconf / tcl.m4 macros
+# by the snazzy autoconf / tcl.m4 macros, so we create directories
+# as required.  This implementation has the side effect that
+# demos should really be in a src subdirectory 'demos.'
 #========================================================================
 
 install-demos: demos
-	@mkdir -p $(DESTDIR)$(pkgdemodir)
-	@echo "Installing demos in $(DESTDIR)$(pkgdemodir)"
+	@echo "Installing demos in $(DESTDIR)$(pkglibdir)"
 	@list='$(PKG_TCL_DEMOS)'; for i in $$list; do \
 	    echo "Installing $$i"; \
-	    cp -r $$i $(DESTDIR)$(pkgdemodir); \
+	    subdir=`dirname $$i`; \
+	    mkdir -p $(DESTDIR)$(pkglibdir)/$$subdir; \
+	    $(INSTALL_DATA) $$i $(DESTDIR)$(pkglibdir)/$$subdir; \
 	done
 
 #========================================================================
