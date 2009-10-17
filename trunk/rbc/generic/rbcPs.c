@@ -221,10 +221,10 @@ Rbc_FileToPostScript(tokenPtr, fileName)
      * PostScript output stored in the Tcl_DString in tokenPtr.
      */
 
-    libDir = (char *)Tcl_GetVar(interp, "rbc_library", TCL_GLOBAL_ONLY);
+    libDir = (char *)Tcl_GetVar(interp, "rbc::library", TCL_GLOBAL_ONLY);
     if (libDir == NULL) {
         Tcl_AppendResult(interp, "couldn't find rbc script library:",
-                         "global variable \"rbc_library\" doesn't exist", (char *)NULL);
+                         "global variable \"rbc::library\" doesn't exist", (char *)NULL);
         return TCL_ERROR;
     }
     Tcl_DStringInit(&dString);

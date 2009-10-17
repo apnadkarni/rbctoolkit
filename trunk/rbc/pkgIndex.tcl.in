@@ -4,10 +4,10 @@ package ifneeded @PACKAGE_NAME@ @PACKAGE_VERSION@ "
     [list load [file join $dir @PKG_LIB_FILE@] Rbc]
     # Library files are in a subdirectory during builds/tests
     if { ! [file exists [file join $dir graph.tcl]] } {
-	[list set ::rbc_library [file join $dir library]]
+	[list set ::rbc::library [file join $dir library]]
 	[list source [file join $dir library graph.tcl]]
     } else {
-	[list set ::rbc_library $dir]
+	[list set ::rbc::library $dir]
 	[list source [file join $dir graph.tcl]]
     }
 "
