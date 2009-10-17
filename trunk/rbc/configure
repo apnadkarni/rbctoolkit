@@ -7301,10 +7301,10 @@ $as_echo "$as_me: error: could not find tcl source file '${srcdir}/$i'" >&2;}
 
 
 
-    vars="library/demos"
+    vars="library/demos/graph1.tcl library/demos/scripts/graph1.tcl"
     for i in $vars; do
 	# check for existence, be strict because it is installed
-	if test ! -d "${srcdir}/$i" ; then
+	if test ! -f "${srcdir}/$i" ; then
 	    { { $as_echo "$as_me:$LINENO: error: could not find tcl demo file '${srcdir}/$i'" >&5
 $as_echo "$as_me: error: could not find tcl demo file '${srcdir}/$i'" >&2;}
    { (exit 1); exit 1; }; }
