@@ -1,3 +1,6 @@
+namespace eval ::rbc {}
+set ::rbc::library [file normalize [file dirname [info script]]]
+
 
 proc Rbc_ActiveLegend { graph } {
     $graph legend bind all <Enter> [list rbc::ActivateLegend $graph ]
