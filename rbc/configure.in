@@ -101,7 +101,13 @@ AC_DEFUN([RBC_ADD_TCL_DEMOS], [
     AC_SUBST(PKG_TCL_DEMOS)
 ])
 
-RBC_ADD_TCL_DEMOS([demos/graph1.tcl demos/scripts/graph1.tcl])
+RBC_ADD_TCL_DEMOS([
+demos/graph1.tcl
+demos/bitmaps/sharky.xbm
+demos/images/blt98.gif
+demos/images/rain.gif
+demos/scripts/graph1.tcl
+])
 
 
 
