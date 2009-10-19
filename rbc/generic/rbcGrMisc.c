@@ -13,17 +13,6 @@
 #include "rbcGraph.h"
 #include <X11/Xutil.h>
 
-/*
- * See definition of EPSILON after Rbc_LineRectClip for the place
- * influenced by this platform specific setup.
- */
-
-#if defined(__sun) || defined(__hpux) || defined (_AIX) || defined (__ia64) || defined (WIN32)
-#include <float.h>
-#undef  __FLT_EPSILON__
-#define __FLT_EPSILON__ FLT_EPSILON
-#endif
-
 #include <stdarg.h>
 
 typedef struct {
@@ -693,7 +682,7 @@ Rbc_LineRectClip(extsPtr, p, q)
     return FALSE;
 }
 
-#define EPSILON  __FLT_EPSILON__
+#define EPSILON  FLT_EPSILON
 #define AddVertex(vx, vy)	    r->x=(vx), r->y=(vy), r++, count++
 #define LastVertex(vx, vy)	    r->x=(vx), r->y=(vy), count++
 
