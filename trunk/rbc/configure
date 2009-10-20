@@ -635,6 +635,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='LTLIBOBJS
+PLATFORM
 WISH_PROG
 TCLSH_PROG
 RANLIB_STUB
@@ -11716,13 +11717,21 @@ $as_echo "${WISH_PROG}" >&6; }
 
 
 
+
+#------------------------------------------------------------------------
+# Define the PLATFORM variable in a very tcl-ish way for teapot.txt
+#------------------------------------------------------------------------
+PLATFORM=`echo "package require platform ; puts [platform::identify]" | ${TCLSH_PROG}`
+
+
+
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.
 # You may alternatively have a special pkgIndex.tcl.in or other files
 # which require substituting th AC variables in.  Include these here.
 #--------------------------------------------------------------------
 
-ac_config_files="$ac_config_files Makefile pkgIndex.tcl"
+ac_config_files="$ac_config_files Makefile pkgIndex.tcl teapot.txt"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -12337,6 +12346,7 @@ do
   case $ac_config_target in
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "pkgIndex.tcl") CONFIG_FILES="$CONFIG_FILES pkgIndex.tcl" ;;
+    "teapot.txt") CONFIG_FILES="$CONFIG_FILES teapot.txt" ;;
 
   *) { { $as_echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 $as_echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -12842,4 +12852,5 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:$LINENO: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
+
 

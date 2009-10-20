@@ -217,10 +217,19 @@ TEA_MAKE_LIB
 TEA_PROG_TCLSH
 TEA_PROG_WISH
 
+
+#------------------------------------------------------------------------
+# Define the PLATFORM variable in a very tcl-ish way for teapot.txt
+#------------------------------------------------------------------------
+PLATFORM=`echo "package require platform ; puts [[platform::identify]]" | ${TCLSH_PROG}`
+AC_SUBST(PLATFORM)
+
+
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.
 # You may alternatively have a special pkgIndex.tcl.in or other files
 # which require substituting th AC variables in.  Include these here.
 #--------------------------------------------------------------------
 
-AC_OUTPUT([Makefile pkgIndex.tcl])
+AC_OUTPUT([Makefile pkgIndex.tcl teapot.txt])
+
