@@ -11721,7 +11721,7 @@ $as_echo "${WISH_PROG}" >&6; }
 #------------------------------------------------------------------------
 # Define the PLATFORM variable in a very tcl-ish way for teapot.txt
 #------------------------------------------------------------------------
-PLATFORM=`echo "package require platform ; puts [platform::identify]" | ${TCLSH_PROG}`
+PLATFORM=`echo "package require platform ; puts [platform::identify]; exit" | ${TCLSH_PROG}`
 
 
 
