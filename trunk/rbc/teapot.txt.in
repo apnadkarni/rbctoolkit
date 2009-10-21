@@ -12,7 +12,7 @@ Meta description     Graphing widgets for X-Y plots, barcharts and
 Meta description     stripcharts, and double precision data vectors
 Meta entrykeep       .
 Meta excluded        *.a *.tap *.lib
-Meta included        @PKG_LIB_FILE@ rbc*.pro *.tcl *.jpg *.gif *.xbm
+Meta included        @PKG_LIB_FILE@ rbc*.pro *.tcl
 Meta license         BSD
 Meta require         {Tcl @TCL_VERSION@}
 Meta require         {Tk  @TK_VERSION@}

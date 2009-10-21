@@ -245,7 +245,7 @@ install-demos: demos
 	    echo "Installing $$i"; \
 	    subdir=`dirname $$i`; \
 	    mkdir -p $(DESTDIR)$(pkglibdir)/$$subdir; \
-	    $(INSTALL_DATA) $$i $(DESTDIR)$(pkglibdir)/$$subdir; \
+	    $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(pkglibdir)/$$subdir; \
 	done
 
 #========================================================================
@@ -419,6 +419,8 @@ install-lib-binaries: binaries
 	@if test "x$(SHARED_BUILD)" = "x1"; then \
 	    echo " Install pkgIndex.tcl $(DESTDIR)$(pkglibdir)"; \
 	    $(INSTALL_DATA) pkgIndex.tcl $(DESTDIR)$(pkglibdir); \
+	    echo " Install teapot.txt $(DESTDIR)$(pkglibdir)"; \
+	    $(INSTALL_DATA) teapot.txt $(DESTDIR)$(pkglibdir); \
 	fi
 
 #========================================================================

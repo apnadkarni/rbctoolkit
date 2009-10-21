@@ -131,7 +131,7 @@ demos/scripts/graph1.tcl
 #CLEANFILES="pkgIndex.tcl"
 if test "${TEA_PLATFORM}" = "windows" ; then
     AC_DEFINE(BUILD_RBC, 1, [Build windows export dll])
-	AC_DEFINE(WIN32, 1, [Tell rbc to use windows])
+    AC_DEFINE(WIN32, 1, [Tell rbc to use windows])
     CLEANFILES="$CLEANFILES *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     TEA_ADD_SOURCES([rbcWinDraw.c rbcWinImage.c rbcWinUtil.c])
     #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
@@ -221,7 +221,7 @@ TEA_PROG_WISH
 #------------------------------------------------------------------------
 # Define the PLATFORM variable in a very tcl-ish way for teapot.txt
 #------------------------------------------------------------------------
-PLATFORM=`echo "package require platform ; puts [[platform::identify]]" | ${TCLSH_PROG}`
+PLATFORM=`echo "package require platform ; puts [[platform::identify]]; exit" | ${TCLSH_PROG}`
 AC_SUBST(PLATFORM)
 
 
