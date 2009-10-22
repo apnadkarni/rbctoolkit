@@ -223,7 +223,8 @@ proc rbc::PopZoom { graph } {
 	eval $cmd
 	rbc::ZoomTitleLast $graph
 	#busy hold $graph
-	update
+	event generate $graph <Configure>
+	update idletasks
 	#busy release $graph
 	after 2000 "rbc::DestroyZoomTitle $graph"
     } else {
@@ -283,7 +284,8 @@ proc rbc::PushZoom { graph } {
 	}
     }
     #busy hold $graph 
-    update;				# This "update" redraws the graph
+    event generate $graph <Configure>
+    update idletasks
     #busy release $graph
 }
 
@@ -345,7 +347,6 @@ proc rbc::ZoomTitleLast { graph } {
 
 
 proc rbc::SetZoomPoint { graph x y } {
-puts "rbc::SetZoomPoint graph=$graph x=$x y=$y"
     global zoomInfo zoomMod
     if { ![info exists zoomInfo($graph,corner)] } {
 	rbc::InitStack $graph
