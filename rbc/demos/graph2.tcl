@@ -1,6 +1,9 @@
-#!../src/bltwish
+#!/bin/sh
+# restart using tclsh \
+exec tclsh "$0" "$@"
 
-package require BLT
+package require rbc
+
 # --------------------------------------------------------------------------
 # Starting with Tcl 8.x, the BLT commands are stored in their own 
 # namespace called "blt".  The idea is to prevent name clashes with
@@ -20,14 +23,10 @@ package require BLT
 #    table . .g -resize both
 #
 # --------------------------------------------------------------------------
-if { $tcl_version >= 8.0 } {
-    namespace import blt::*
-    namespace import -force blt::tile::*
-}
 
-source scripts/demo.tcl
+namespace import rbc::*
 
-source scripts/stipples.tcl
+#source scripts/stipples.tcl
 
 if { ![string match "*gray*" [winfo screenvisual .]] } {
     option add *Button.Background	red
@@ -56,8 +55,8 @@ set data {
 set image [image create photo -format gif -data $data]
 
 set graph [graph .g]
-table . \
-    0,0 $graph -fill both 
+pack .g -expand y -fill both
+
 
 source scripts/graph2.tcl
 
@@ -96,14 +95,14 @@ if { [file exists $fileName] } {
 } 
 
 
-bind $graph <Control-ButtonPress-3> { MakeSnapshot }
+bind $graph <Control-ButtonPress-3> [list MakeSnapshot $graph]
 bind $graph <Shift-ButtonPress-3> { 
     %W postscript output demo2.ps 
     %W snap -format emf demo2.emf
 }
 
 set unique 0
-proc MakeSnapshot {} {
+proc MakeSnapshot {graph} {
     update idletasks
     global unique
     set top ".snapshot[incr unique]"
@@ -114,8 +113,8 @@ proc MakeSnapshot {} {
     wm title $top "Snapshot \#$unique of \"[$graph cget -title]\""
     label $top.lab -image $im 
     button $top.but -text "Dismiss" -command "DestroySnapshot $top"
-    table $top $top.lab
-    table $top $top.but -pady 4 
+    pack $top $top.lab -side top
+    pack $top $top.but -side top -pady 4 
     focus $top.but
 }
 
@@ -127,28 +126,4 @@ proc DestroySnapshot { win } {
     exit
 }
 
-if { $tcl_platform(platform) == "windows" } {
-    if 0 {
-        set name [lindex [blt::printer names] 0]
-        set printer {Lexmark Optra E310}
-	blt::printer open $printer
-	blt::printer getattrs $printer attrs
-	puts $attrs(Orientation)
-	set attrs(Orientation) Landscape
-	set attrs(DocumentName) "This is my print job"
-	blt::printer setattrs $printer attrs
-	blt::printer getattrs $printer attrs
-	puts $attrs(Orientation)
-	after 5000 {
-	    $graph print2 $printer
-	    blt::printer close $printer
-	}
-    } else {
-	after 5000 {
-	    $graph print2 
-	}
-    }	
-    if 1 {
-	after 2000 {$graph snap -format emf CLIPBOARD}
-    }
-}
+

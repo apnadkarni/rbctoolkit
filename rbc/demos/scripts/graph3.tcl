@@ -58,11 +58,10 @@ $graph element create line2 \
     -x x \
     -y cosX 
 
-Blt_ZoomStack $graph
-Blt_Crosshairs $graph
-Blt_ActiveLegend $graph
-Blt_ClosestPoint $graph
-#Blt_PrintKey $graph
+Rbc_ZoomStack $graph
+Rbc_Crosshairs $graph
+Rbc_ActiveLegend $graph
+Rbc_ClosestPoint $graph
 
 $graph marker create bitmap \
     -name bg \
