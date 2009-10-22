@@ -1,31 +1,15 @@
-#!../src/bltwish
+#!/bin/sh
+
+# --------------------------------------------------------------------------
+#  RBC Demo graph1.tcl
+#
+#  This demo displays a graph with active legends and zoom.
+# --------------------------------------------------------------------------
+# restart using tclsh \
+exec tclsh "$0" "$@"
 
 package require rbc
-
-# --------------------------------------------------------------------------
-# Starting with Tcl 8.x, the RBC commands are stored in their own 
-# namespace called "rbc".  The idea is to prevent name clashes with
-# Tcl commands and variables from other packages, such as a "table"
-# command in two different packages.  
-#
-# You can access the RBC commands in a couple of ways.  You can prefix
-# all the RBC commands with the namespace qualifier "rbc::"
-#  
-#    rbc::graph .g
-#    rbc::table . .g -resize both
-# 
-# or you can import all the command into the global namespace.
-#
-#    namespace import rbc::*
-#    graph .g
-#    table . .g -resize both
-#
-# --------------------------------------------------------------------------
-
-    namespace import rbc::*
-
-
-#source scripts/demo.tcl
+namespace import rbc::*
 
 if { [winfo screenvisual .] != "staticgray" } {
     option add *print.background yellow
@@ -40,7 +24,7 @@ if { [winfo screenvisual .] != "staticgray" } {
 
 set graph [graph .g]
 
-text .header -height 5
+text .header -wrap word -width 0 -height 5
 .header insert end {
 This is an example of the graph widget.  It displays two-variable data 
 with assorted line attributes and symbols.  To create a postscript file 
@@ -58,15 +42,17 @@ with assorted line attributes and symbols.  To create a postscript file
     } 
 }
 .header insert end { button.}
+.header configure -state disabled
 
 source scripts/graph1.tcl
 
-text .footer -height 5
+text .footer -wrap word -width 0 -height 5
 .footer insert end {Hit the }
 .footer window create end -create {
     button .footer.quit -text quit -command { exit } 
 }
 .footer insert end { button when you've seen enough.  }
+.footer configure -state disabled
 
 # this was in original demo, but needs BLT bitmap
 #.footer window create end -create {

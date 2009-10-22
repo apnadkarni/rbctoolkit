@@ -7304,10 +7304,16 @@ $as_echo "$as_me: error: could not find tcl source file '${srcdir}/$i'" >&2;}
 
     vars="
 demos/graph1.tcl
+demos/graph3.tcl
+demos/bitmaps/greenback.xbm
 demos/bitmaps/sharky.xbm
 demos/images/blt98.gif
+demos/images/chalk.gif
 demos/images/rain.gif
+demos/images/stopsign.gif
 demos/scripts/graph1.tcl
+demos/scripts/graph3.tcl
+demos/scripts/ps.tcl
 "
     for i in $vars; do
 	# check for existence, be strict because it is installed

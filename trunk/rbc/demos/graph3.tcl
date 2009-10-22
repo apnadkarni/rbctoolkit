@@ -1,31 +1,15 @@
-#!../src/bltwish
+#!/bin/sh
 
-package require BLT
 # --------------------------------------------------------------------------
-# Starting with Tcl 8.x, the BLT commands are stored in their own 
-# namespace called "blt".  The idea is to prevent name clashes with
-# Tcl commands and variables from other packages, such as a "table"
-# command in two different packages.  
+#  RBC Demo graph3.tcl
 #
-# You can access the BLT commands in a couple of ways.  You can prefix
-# all the BLT commands with the namespace qualifier "blt::"
-#  
-#    blt::graph .g
-#    blt::table . .g -resize both
-# 
-# or you can import all the command into the global namespace.
-#
-#    namespace import blt::*
-#    graph .g
-#    table . .g -resize both
-#
+#  This demo displays a graph with a bitmap marker.
 # --------------------------------------------------------------------------
-if { $tcl_version >= 8.0 } {
-    namespace import blt::*
-    namespace import -force blt::tile::*
-}
-source scripts/demo.tcl
-source scripts/stipples.tcl
+# restart using tclsh \
+exec tclsh "$0" "$@"
+
+package require rbc
+namespace import rbc::*
 
 set visual [winfo screenvisual .]
 if { $visual != "staticgray" && $visual != "grayscale" } {
@@ -57,10 +41,7 @@ source scripts/graph3.tcl
 
 
 
-text .header \
-    -wrap word \
-    -width 0 \
-    -height 3
+text .header -wrap word -width 0 -height 3
 
 set text {
 This is an example of a bitmap marker.  Try zooming in on 
@@ -72,21 +53,22 @@ regsub -all "\n" $text "" text
 .header insert end "$text\n"
 .header configure -state disabled
 
-htext .footer -text {Hit the %%
-    set im [image create photo -file ./images/stopsign.gif]
-    button $htext(widget).quit -image $im -command { exit }
-    $htext(widget) append $htext(widget).quit 
-%% button when you've seen enough. %%
-    label $htext(widget).logo -bitmap BLT
-    $htext(widget) append $htext(widget).logo 
-%%}
+text .footer -wrap word -width 0 -height 3
+.footer insert end {Hit the }
+set im [image create photo -file ./images/stopsign.gif]
+.footer window create end -create {
+    button .footer.quit -image $im -command { exit }
+}
+.footer insert end { button when you've seen enough.}
+.footer configure -state disabled
 
-table . \
-    .header 0,0 -fill x -padx 4 -pady 4\
-    $graph 1,0 -fill both  \
-    .footer 2,0 -fill x -padx 4 -pady 4
 
-table configure . r0 r2 -resize none
+grid .header -sticky ew -padx 4 -pady 4
+grid $graph -sticky news
+grid .footer -sticky ew -padx 4 -pady 4
+grid columnconfigure . 0 -weight 1
+grid    rowconfigure . 1 -weight 1
+
 
 source scripts/ps.tcl
 
@@ -94,12 +76,5 @@ bind $graph <Shift-ButtonPress-1> {
     MakePsLayout $graph
 }
 
-if 0 {
-set printer [printer open [lindex [printer names] 0]]
-after 2000 {
-	$graph print2 $printer
-}
-}
-#after 2000 {
-#    PsDialog $graph
-#}
+
+

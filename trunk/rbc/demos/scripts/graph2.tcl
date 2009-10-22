@@ -66,9 +66,9 @@ for { set level 30 } { $level <= 100 } { incr level 10 } {
     set color [format "#dd0d%0.2x" [expr round($level*2.55)]]
     set pen "pen$count"
     set symbol "symbol$count"
-    bitmap compose $symbol [lindex $letters $count] \
+    #bitmap compose $symbol [lindex $letters $count] \
     	-font -*-helvetica-medium-r-*-*-34-*-*-*-*-*-*-*
-    $graph pen create $pen \
+    #$graph pen create $pen \
 	-color $color \
 	-symbol $symbol \
 	-fill "" \
