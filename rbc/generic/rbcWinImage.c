@@ -485,7 +485,7 @@ Rbc_RotateBitmap(tkwin, srcBitmap, srcWidth, srcHeight, theta, destWidthPtr, des
     srcBits = Rbc_GetBitmapData(display, srcBitmap, srcWidth, srcHeight,
                                 &srcBytesPerRow);
     if (srcBits == NULL) {
-        OutputDebugString("Rbc_GetBitmapData failed");
+        OutputDebugStringA("Rbc_GetBitmapData failed");
         return None;
     }
     destBytesPerRow = ((destWidth + 31) & ~31) / 8;
@@ -761,7 +761,7 @@ Rbc_ScaleRotateBitmapRegion(tkwin, srcBitmap, srcWidth, srcHeight, regionX, regi
     srcBits = Rbc_GetBitmapData(display, srcBitmap, srcWidth, srcHeight,
                                 &srcBytesPerRow);
     if (srcBits == NULL) {
-        OutputDebugString("Rbc_GetBitmapData failed");
+        OutputDebugStringA("Rbc_GetBitmapData failed");
         return None;
     }
     destBytesPerRow = ((regionWidth + 31) & ~31) / 8;

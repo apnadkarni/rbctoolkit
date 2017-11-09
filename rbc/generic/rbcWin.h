@@ -12,13 +12,10 @@
 #ifndef _RBCWIN
 #define _RBCWIN
 
-#define STRICT
-#define WIN32_LEAN_AND_MEAN
+#ifdef WIN32
 #include <windows.h>
-#undef STRICT
-#undef WIN32_LEAN_AND_MEAN
 #include <windowsx.h>
-
+#endif /* WIN32 */
 
 #undef STD_NORMAL_BACKGROUND
 #undef STD_NORMAL_FOREGROUND
@@ -74,7 +71,6 @@ typedef struct {
 } APMHEADER;
 #pragma pack()
 
-extern double hypot(double x, double y);
 extern int Rbc_AsyncRead(int fd, char *buffer, unsigned int size);
 extern int Rbc_AsyncWrite(int fd, char *buffer, unsigned int size);
 extern void Rbc_CreateFileHandler(int fd, int flags, Tcl_FileProc * proc, ClientData clientData);
@@ -92,9 +88,7 @@ extern int Rbc_EndPrintJob(Tcl_Interp *interp, Drawable drawable);
 #undef EXPORT
 #define EXPORT __declspec(dllexport)
 
-#ifdef _MSC_VER
-#define strncasecmp(s1,s2,n)	_strnicmp(s1,s2,n)
-#define strcasecmp(s1,s2)	_stricmp(s1,s2)
+#if defined(_MSC_VER) && _MSC_VER <= 1400
 #define isnan(x)		_isnan(x)
 #endif /* _MSC_VER */
 
@@ -124,18 +118,24 @@ extern int Rbc_EndPrintJob(Tcl_Interp *interp, Drawable drawable);
 #define XCopyArea		Rbc_EmulateXCopyArea
 #define XCopyPlane		Rbc_EmulateXCopyPlane
 */
+#undef XDrawArcs
 #define XDrawArcs		Rbc_EmulateXDrawArcs
 /*
 #define XDrawLine		Rbc_EmulateXDrawLine
 #define XDrawLines		Rbc_EmulateXDrawLines
 */
+#undef XDrawPoints
 #define XDrawPoints		Rbc_EmulateXDrawPoints
 /*
 #define XDrawRectangle		Rbc_EmulateXDrawRectangle
 */
+#undef XDrawRectangles
 #define XDrawRectangles		Rbc_EmulateXDrawRectangles
+#undef XDrawSegments
 #define XDrawSegments		Rbc_EmulateXDrawSegments
+#undef XDrawString
 #define XDrawString		Rbc_EmulateXDrawString
+#undef XFillArcs
 #define XFillArcs		Rbc_EmulateXFillArcs
 /*
 #define XFillPolygon		Rbc_EmulateXFillPolygon
@@ -144,11 +144,13 @@ extern int Rbc_EndPrintJob(Tcl_Interp *interp, Drawable drawable);
 #define XFree			Rbc_EmulateXFree
 #define XGetWindowAttributes	Rbc_EmulateXGetWindowAttributes
 */
+#undef XLowerWindow
 #define XLowerWindow		Rbc_EmulateXLowerWindow
 #define XMaxRequestSize		Rbc_EmulateXMaxRequestSize
 /*
 #define XRaiseWindow		Rbc_EmulateXRaiseWindow
 */
+#undef XReparentWindow
 #define XReparentWindow		Rbc_EmulateXReparentWindow
 /*
 #define XSetDashes		Rbc_EmulateXSetDashes

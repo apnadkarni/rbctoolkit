@@ -50,7 +50,7 @@ typedef struct {
     char dashValues[12];
 } XGCValuesEx;
 
-static int tkpWinRopModes[] = {
+const int tkpWinRopModes[] = {
     R2_BLACK,			/* GXclear */
     R2_MASKPEN,			/* GXand */
     R2_MASKPENNOT,		/* GXandReverse */
@@ -337,7 +337,7 @@ Rbc_GetBitmapData(display, bitmap, width, height, pitchPtr)
     TkWinReleaseDrawableDC(bitmap, dc, &state);
     bits = NULL;
     if (!result) {
-        OutputDebugString("GetDIBits failed\n");
+        OutputDebugStringA("GetDIBits failed\n");
     } else {
         bits = (char *)ckalloc(imageSize);
         if (bits != NULL) {
@@ -1310,10 +1310,11 @@ Rbc_EmulateXFillArcs(display, drawable, gc, arcArr, nArcs)
  *----------------------------------------------------------------------
  */
 static void CALLBACK
-DrawDot(x, y, clientData)
-    int x; /* y-coordinates of point */
-    int y; /* y-coordinates of point */
-    LPARAM clientData;
+DrawDot(
+    int x, /* y-coordinates of point */
+    int y, /* y-coordinates of point */
+    LPARAM clientData
+    )
 {				/* Line information */
     DashInfo *infoPtr = (DashInfo *) clientData;
     int count;

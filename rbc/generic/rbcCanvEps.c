@@ -331,8 +331,7 @@ ReadPsLine(piPtr)
  *----------------------------------------------------------------------
  */
 static unsigned char
-ReverseBits(byte)
-    register unsigned char byte;
+ReverseBits(unsigned char byte)
 {
     byte = ((byte >> 1) & 0x55) | ((byte << 1) & 0xaa);
     byte = ((byte >> 2) & 0x33) | ((byte << 2) & 0xcc);

@@ -386,8 +386,7 @@ Rbc_ForegroundToPostScript(tokenPtr, colorPtr)
  *----------------------------------------------------------------------
  */
 INLINE static unsigned char
-ReverseBits(byte)
-    register unsigned char byte;
+ReverseBits(unsigned char byte)
 {
     byte = ((byte >> 1) & 0x55) | ((byte << 1) & 0xaa);
     byte = ((byte >> 2) & 0x33) | ((byte << 2) & 0xcc);
@@ -411,9 +410,7 @@ ReverseBits(byte)
  *----------------------------------------------------------------------
  */
 INLINE static void
-ByteToHex(byte, string)
-    register unsigned char byte;
-    char *string;
+ByteToHex(unsigned char byte, char *string)
 {
     static char hexDigits[] = "0123456789ABCDEF";
 
@@ -457,7 +454,7 @@ Rbc_BitmapDataToPostScript(
 
     srcBits = Rbc_GetBitmapData(display, bitmap, width, height, &bytesPerRow);
     if (srcBits == NULL) {
-        OutputDebugString("Can't get bitmap data");
+        OutputDebugStringA("Can't get bitmap data");
         return;
     }
     Rbc_AppendToPostScript(tokenPtr, "\t<", (char *)NULL);

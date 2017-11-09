@@ -718,8 +718,8 @@ Rbc_MakeTransparentWindowExist(tkwin, parent, isBusy)
     hParent = (HWND) parent;
     style = (WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
     exStyle = (WS_EX_TRANSPARENT | WS_EX_TOPMOST);
-#define TK_WIN_CHILD_CLASS_NAME "TkChild"
-    hWnd = CreateWindowEx(exStyle, TK_WIN_CHILD_CLASS_NAME, NULL, style,
+#define TK_WIN_CHILD_CLASS_NAME_A "TkChild"
+    hWnd = CreateWindowExA(exStyle, TK_WIN_CHILD_CLASS_NAME_A, NULL, style,
                           Tk_X(tkwin), Tk_Y(tkwin), Tk_Width(tkwin), Tk_Height(tkwin),
                           hParent, NULL, (HINSTANCE) Tk_GetHINSTANCE(), NULL);
     winPtr->window = Tk_AttachHWND(tkwin, hWnd);

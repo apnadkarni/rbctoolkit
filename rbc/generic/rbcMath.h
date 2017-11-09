@@ -14,7 +14,7 @@
 
 #include <math.h>
 
-#ifdef HAVE_FLOAT_H
+#if defined(HAVE_FLOAT_H) || defined(_MSC_VER)
 #include <float.h>
 #endif
 
@@ -135,6 +135,10 @@
 #undef ROUND
 #define ROUND(x) 	((int)((x) + (((x)<0.0) ? -0.5 : 0.5)))
 
+#ifndef FINITE /* Also defined in rbcVector.h ! */
+#ifdef _MSC_VER
+#define FINITE(x) _finite(x)
+#else
 #ifdef HAVE_FINITE
 #define FINITE(x)	finite(x)
 #else
@@ -148,6 +152,8 @@
 #endif /* HAVE_ISNAN */
 #endif /* HAVE_ISFINITE */
 #endif /* HAVE_FINITE */
+#endif /* _MSC_VER */
+#endif /* FINITE */
 
 extern double rbcNaN;
 

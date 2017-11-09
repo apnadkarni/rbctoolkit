@@ -1647,20 +1647,20 @@ MathError(interp, value)
     if ((errno== EDOM) || (value != value)) {
         Tcl_AppendResult(interp, "domain error: argument not in valid range",
                          (char *) NULL);
-        Tcl_SetErrorCode(interp, "ARITH", "DOMAIN", interp->result,
+        Tcl_SetErrorCode(interp, "ARITH", "DOMAIN", Tcl_GetStringResult(interp),
                          (char *) NULL);
     } else if ((errno== ERANGE) || IS_INF(value)) {
         if (value == 0.0) {
             Tcl_AppendResult(interp,
                              "floating-point value too small to represent",
                              (char *) NULL);
-            Tcl_SetErrorCode(interp, "ARITH", "UNDERFLOW", interp->result,
+            Tcl_SetErrorCode(interp, "ARITH", "UNDERFLOW", Tcl_GetStringResult(interp),
                              (char *) NULL);
         } else {
             Tcl_AppendResult(interp,
                              "floating-point value too large to represent",
                              (char *) NULL);
-            Tcl_SetErrorCode(interp, "ARITH", "OVERFLOW", interp->result,
+            Tcl_SetErrorCode(interp, "ARITH", "OVERFLOW", Tcl_GetStringResult(interp),
                              (char *) NULL);
         }
     } else {
@@ -1669,7 +1669,7 @@ MathError(interp, value)
         sprintf(buf, "%d", errno);
         Tcl_AppendResult(interp, "unknown floating-point error, ", "errno = ",
                          buf, (char *) NULL);
-        Tcl_SetErrorCode(interp, "ARITH", "UNKNOWN", interp->result,
+        Tcl_SetErrorCode(interp, "ARITH", "UNKNOWN", Tcl_GetStringResult(interp),
                          (char *) NULL);
     }
 }

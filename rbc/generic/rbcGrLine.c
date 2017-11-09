@@ -881,26 +881,7 @@ static void TracesToPostScript _ANSI_ARGS_((PsToken psToken, Line *linePtr, Line
 static void ValuesToPostScript _ANSI_ARGS_((PsToken psToken, Line *linePtr, LinePen *penPtr, int nSymbolPts, Point2D *symbolPts, int *pointToData));
 
 #ifdef WIN32
-
-static int tkpWinRopModes[] = {
-    R2_BLACK,			/* GXclear */
-    R2_MASKPEN,			/* GXand */
-    R2_MASKPENNOT,		/* GXandReverse */
-    R2_COPYPEN,			/* GXcopy */
-    R2_MASKNOTPEN,		/* GXandInverted */
-    R2_NOT,			/* GXnoop */
-    R2_XORPEN,			/* GXxor */
-    R2_MERGEPEN,		/* GXor */
-    R2_NOTMERGEPEN,		/* GXnor */
-    R2_NOTXORPEN,		/* GXequiv */
-    R2_NOT,			/* GXinvert */
-    R2_MERGEPENNOT,		/* GXorReverse */
-    R2_NOTCOPYPEN,		/* GXcopyInverted */
-    R2_MERGENOTPEN,		/* GXorInverted */
-    R2_NOTMASKPEN,		/* GXnand */
-    R2_WHITE			/* GXset */
-};
-
+MODULE_SCOPE const int tkpWinRopModes[];
 #endif
 
 /*

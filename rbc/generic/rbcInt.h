@@ -14,11 +14,7 @@
 #define _RBCINT
 
 #ifdef WIN32
-#define STRICT
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#undef STRICT
-#undef WIN32_LEAN_AND_MEAN
 #include <windowsx.h>
 #endif /* WIN32 */
 

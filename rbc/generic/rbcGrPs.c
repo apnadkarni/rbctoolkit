@@ -1059,7 +1059,7 @@ CreateWindowsEPS(graphPtr, psToken, f)
     Tcl_DStringAppend(&dString, Tk_PathName(graphPtr->tkwin), -1);
     Tcl_DStringAppend(&dString, "\0", -1);
 
-    hDC = CreateEnhMetaFile(hRefDC, NULL, NULL, Tcl_DStringValue(&dString));
+    hDC = CreateEnhMetaFileA(hRefDC, NULL, NULL, Tcl_DStringValue(&dString));
     Tcl_DStringFree(&dString);
 
     if (hDC == NULL) {

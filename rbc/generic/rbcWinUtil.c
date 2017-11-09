@@ -64,7 +64,7 @@ Rbc_LastError()
     static char buffer[1024];
     int length;
 
-    FormatMessage(
+    FormatMessageA(
         FORMAT_MESSAGE_FROM_SYSTEM,
         NULL,
         GetLastError(),

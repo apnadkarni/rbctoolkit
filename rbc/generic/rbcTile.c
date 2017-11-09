@@ -47,7 +47,7 @@ typedef struct {
 * will be changed and the clients of the
 * tile will be notified (if they supplied
 * a TileChangedProc routine. */
-#define NOTIFY_PENDING	1
+#define TILE_NOTIFY_PENDING	1
 
 typedef struct Rbc_TileClientStruct {
     unsigned int magic;
@@ -188,7 +188,7 @@ UpdateTile(clientData)
     TileClient *clientPtr;
     Rbc_ChainLink *linkPtr;
 
-    tilePtr->flags &= ~NOTIFY_PENDING;
+    tilePtr->flags &= ~TILE_NOTIFY_PENDING;
     if (Tk_ImageIsDeleted(tilePtr->tkImage)) {
         if (tilePtr->pixmap != None) {
             Tk_FreePixmap(tilePtr->display, tilePtr->pixmap);
@@ -242,9 +242,9 @@ ImageChangedProc(clientData, x, y, width, height, imageWidth, imageHeight)
 {
     Tile *tilePtr = (Tile *) clientData;
 
-    if (!(tilePtr->flags & NOTIFY_PENDING)) {
+    if (!(tilePtr->flags & TILE_NOTIFY_PENDING)) {
         Tcl_DoWhenIdle(UpdateTile, tilePtr);
-        tilePtr->flags |= NOTIFY_PENDING;
+        tilePtr->flags |= TILE_NOTIFY_PENDING;
     }
 }
 
@@ -271,7 +271,7 @@ DestroyTile(tilePtr)
     Rbc_ChainLink *linkPtr;
     TileClient *clientPtr;
 
-    if (tilePtr->flags & NOTIFY_PENDING) {
+    if (tilePtr->flags & TILE_NOTIFY_PENDING) {
         Tcl_CancelIdleCall(UpdateTile, tilePtr);
     }
     for (linkPtr = Rbc_ChainFirstLink(tilePtr->clients); linkPtr != NULL;
@@ -766,24 +766,7 @@ Rbc_SetTSOrigin(tkwin, clientPtr, x, y)
 }
 
 #ifdef WIN32
-static int tkpWinRopModes[] = {
-    R2_BLACK,			/* GXclear */
-    R2_MASKPEN,			/* GXand */
-    R2_MASKPENNOT,		/* GXandReverse */
-    R2_COPYPEN,			/* GXcopy */
-    R2_MASKNOTPEN,		/* GXandInverted */
-    R2_NOT,			/* GXnoop */
-    R2_XORPEN,			/* GXxor */
-    R2_MERGEPEN,		/* GXor */
-    R2_NOTMERGEPEN,		/* GXnor */
-    R2_NOTXORPEN,		/* GXequiv */
-    R2_NOT,			/* GXinvert */
-    R2_MERGEPENNOT,		/* GXorReverse */
-    R2_NOTCOPYPEN,		/* GXcopyInverted */
-    R2_MERGENOTPEN,		/* GXorInverted */
-    R2_NOTMASKPEN,		/* GXnand */
-    R2_WHITE			/* GXset */
-};
+MODULE_SCOPE const int tkpWinRopModes[];
 #define MASKPAT		0x00E20746 /* dest = (src & pat) | (!src & dst) */
 #define COPYFG		0x00CA0749 /* dest = (pat & src) | (!pat & dst) */
 #define COPYBG		0x00AC0744 /* dest = (!pat & src) | (pat & dst) */

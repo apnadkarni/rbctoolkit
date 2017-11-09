@@ -1527,7 +1527,7 @@ CreateAPMetaFile(
 
     result = TCL_ERROR;
     hMem = NULL;
-    hFile = CreateFile(
+    hFile = CreateFileA(
                 fileName,	/* File path */
                 GENERIC_WRITE,	/* Access mode */
                 0,		/* No sharing. */
@@ -1667,7 +1667,7 @@ SnapOp(graphPtr, interp, argc, argv)
         Tcl_DStringAppend(&dString, Tk_PathName(graphPtr->tkwin), -1);
         Tcl_DStringAppend(&dString, "\0", -1);
         title = Tcl_DStringValue(&dString);
-        hDC = CreateEnhMetaFile(hRefDC, NULL, NULL, title);
+        hDC = CreateEnhMetaFileA(hRefDC, NULL, NULL, title);
         Tcl_DStringFree(&dString);
 
         if (hDC == NULL) {
@@ -1706,7 +1706,7 @@ SnapOp(graphPtr, interp, argc, argv)
             } else {
                 HENHMETAFILE hMetaFile2;
 
-                hMetaFile2 = CopyEnhMetaFile(hMetaFile, data.name);
+                hMetaFile2 = CopyEnhMetaFileA(hMetaFile, data.name);
                 if (hMetaFile2 != NULL) {
                     result = TCL_OK;
                     DeleteEnhMetaFile(hMetaFile2);
