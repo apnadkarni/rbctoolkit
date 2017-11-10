@@ -1,7 +1,3 @@
-proc Rbc_Crosshairs { g } {
-    $g crosshairs configure -color red -hide no -position @100,100
-}
-
 proc uniqkey { } {
 	set key   [ expr { pow(2,31) + [ clock clicks ] } ]
     set key   [ string range $key end-8 end-3 ]
