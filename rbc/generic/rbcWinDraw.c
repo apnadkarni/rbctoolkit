@@ -163,16 +163,14 @@ Rbc_GetSystemPalette()
  *--------------------------------------------------------------
  */
 HFONT
-CreateRotatedFont(fontId, theta)
-    unsigned long fontId; /* Font identifier (actually a Tk_Font) */
+CreateRotatedFont(fontPtr, theta)
+    TkFont *fontPtr; /* Font identifier (actually a Tk_Font) */
     double theta; /* Number of degrees to rotate font */
 {
     RbcFontAttributes *faPtr;	/* Set of attributes to match. */
-    TkFont *fontPtr;
     HFONT hFont;
     LOGFONTW lf;
 
-    fontPtr = (TkFont *) fontId;
     faPtr = &fontPtr->fa;
     ZeroMemory(&lf, sizeof(LOGFONT));
     lf.lfHeight = -faPtr->pointsize;
