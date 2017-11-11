@@ -69,6 +69,9 @@ PRJ_DEFINES	=  -D_CRT_SECURE_NO_WARNINGS -DWIN32=1 -wd4244 -wd4267
 !include "$(_RULESDIR)\targets.vc"
 
 install: default-install-docs-html install-demos
+default-install-libraries: install-prologues
+install-prologues:
+	@$(CPY) $(LIBDIR)\*.pro "$(SCRIPT_INSTALL_DIR)"
 pkgindex: default-pkgindex-tea
 install-demos: default-install-demos
 
