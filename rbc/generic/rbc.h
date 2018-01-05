@@ -41,4 +41,14 @@ EXTERN Rbc_Uid Rbc_FindUid _ANSI_ARGS_((char *string));
 
 EXTERN int Rbc_Init _ANSI_ARGS_ ((Tcl_Interp *interp));
 
+/*
+ * Function prototypes for stub initialization. Note this is 
+ * statically linked into the calling dll/exe.
+ */
+
+const char *
+Rbc_InitStubs(Tcl_Interp *interp, const char *version, int exact);
+
+
+#include "rbcDecls.h"
 #endif /* _RBC */

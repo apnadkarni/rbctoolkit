@@ -62,9 +62,13 @@ PRJ_OBJS = \
      $(TMP_DIR)\rbcWinImage.obj \
      $(TMP_DIR)\rbcWindow.obj \
      $(TMP_DIR)\rbcWinop.obj \
-     $(TMP_DIR)\rbcWinUtil.obj
+     $(TMP_DIR)\rbcWinUtil.obj \
+     $(TMP_DIR)\rbcStubInit.obj \
+     $(TMP_DIR)\rbcStubLib.obj
 
-PRJ_DEFINES	=  -D_CRT_SECURE_NO_WARNINGS -DWIN32=1 -wd4244 -wd4267
+PRJ_STUBOBJS = $(TMP_DIR)\rbcStubLib.obj
+
+PRJ_DEFINES = -DRBCAPI=MODULE_SCOPE  -D_CRT_SECURE_NO_WARNINGS -DWIN32=1 -wd4244 -wd4267
 
 !include "$(_RULESDIR)\targets.vc"
 

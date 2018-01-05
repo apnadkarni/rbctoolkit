@@ -16,7 +16,7 @@
 #include "rbcInt.h"
 #include "rbcChain.h"
 
-typedef struct {
+typedef struct Rbc_Vector_s {
     double *valueArr; /* Array of values (possibly malloc-ed) */
     int numValues; /* Number of values in the array */
     int arraySize; /* Size of the allocated space */
