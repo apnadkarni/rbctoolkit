@@ -12,6 +12,8 @@
 
 #include "rbcInt.h"
 
+extern RbcStubs rbcStubs;
+
 #ifndef RBC_LIBRARY
 #ifdef WIN32
 #define RBC_LIBRARY  "c:/Program Files/Tcl/lib/rbc"
@@ -134,12 +136,14 @@ Rbc_Init (interp)
         return TCL_ERROR;
     }
 
-
     Rbc_VectorInit(interp);
     Rbc_GraphInit(interp);
     Rbc_WinopInit(interp);
     Rbc_BusyInit(interp);
     Rbc_InitEpsCanvasItem(interp);
+
+    Tcl_PkgProvideEx(interp, PACKAGE_NAME, PACKAGE_VERSION,
+                     (ClientData) &rbcStubs); 
 
     return TCL_OK;
 }
