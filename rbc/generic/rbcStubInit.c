@@ -15,6 +15,10 @@ const RbcStubs rbcStubs = {
     Rbc_ResizeVector, /* 2 */
     Rbc_NameOfVector, /* 3 */
     Rbc_ResetVector, /* 4 */
+    Rbc_VecData, /* 5 */
+    Rbc_VecLength, /* 6 */
+    Rbc_VecSize, /* 7 */
+    Rbc_VecDirty, /* 8 */
 };
 
 /* !END!: Do not edit above this line. */

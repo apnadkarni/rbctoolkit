@@ -51,6 +51,14 @@ RBCAPI char *		Rbc_NameOfVector(Rbc_Vector *vecPtr);
 RBCAPI int		Rbc_ResetVector(Rbc_Vector *vecPtr, double *dataArr,
 				int nValues, int arraySize,
 				Tcl_FreeProc *freeProc);
+/* 5 */
+RBCAPI double *		Rbc_VecData(Rbc_Vector *v);
+/* 6 */
+RBCAPI int		Rbc_VecLength(Rbc_Vector *v);
+/* 7 */
+RBCAPI int		Rbc_VecSize(Rbc_Vector *v);
+/* 8 */
+RBCAPI int		Rbc_VecDirty(Rbc_Vector *v);
 
 typedef struct RbcStubs {
     int magic;
@@ -61,6 +69,10 @@ typedef struct RbcStubs {
     int (*rbc_ResizeVector) (Rbc_Vector *vecPtr, int nValues); /* 2 */
     char * (*rbc_NameOfVector) (Rbc_Vector *vecPtr); /* 3 */
     int (*rbc_ResetVector) (Rbc_Vector *vecPtr, double *dataArr, int nValues, int arraySize, Tcl_FreeProc *freeProc); /* 4 */
+    double * (*rbc_VecData) (Rbc_Vector *v); /* 5 */
+    int (*rbc_VecLength) (Rbc_Vector *v); /* 6 */
+    int (*rbc_VecSize) (Rbc_Vector *v); /* 7 */
+    int (*rbc_VecDirty) (Rbc_Vector *v); /* 8 */
 } RbcStubs;
 
 extern const RbcStubs *rbcStubsPtr;
@@ -85,6 +97,14 @@ extern const RbcStubs *rbcStubsPtr;
 	(rbcStubsPtr->rbc_NameOfVector) /* 3 */
 #define Rbc_ResetVector \
 	(rbcStubsPtr->rbc_ResetVector) /* 4 */
+#define Rbc_VecData \
+	(rbcStubsPtr->rbc_VecData) /* 5 */
+#define Rbc_VecLength \
+	(rbcStubsPtr->rbc_VecLength) /* 6 */
+#define Rbc_VecSize \
+	(rbcStubsPtr->rbc_VecSize) /* 7 */
+#define Rbc_VecDirty \
+	(rbcStubsPtr->rbc_VecDirty) /* 8 */
 
 #endif /* defined(USE_RBC_STUBS) */
 

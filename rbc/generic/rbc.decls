@@ -38,4 +38,18 @@ declare 4 {
     int Rbc_ResetVector (Rbc_Vector *vecPtr, double *dataArr, int nValues, int arraySize, Tcl_FreeProc *freeProc)
 }
 
+declare 5 {
+    double *Rbc_VecData (Rbc_Vector *v)
+}
 
+declare 6 {
+    int Rbc_VecLength (Rbc_Vector *v)
+}
+
+declare 7 {
+    int Rbc_VecSize (Rbc_Vector *v)
+}
+
+declare 8 {
+    int Rbc_VecDirty (Rbc_Vector *v)
+}

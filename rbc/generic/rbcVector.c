@@ -2956,3 +2956,23 @@ Rbc_ResetVector(vecPtr, valueArr, length, size, freeProc)
     }
     return Rbc_VectorReset(vPtr, valueArr, length, size, freeProc);
 }
+
+double *Rbc_VecData(Rbc_Vector *v)
+{
+    return RbcVecData(v);
+}
+
+int Rbc_VecLength(Rbc_Vector *v)
+{
+    return RbcVecLength(v);
+}
+
+int Rbc_VecSize(Rbc_Vector *v)
+{
+    return RbcVecSize(v);
+}
+
+int Rbc_VecDirty(Rbc_Vector *v)
+{
+    return RbcVecDirty(v);
+}

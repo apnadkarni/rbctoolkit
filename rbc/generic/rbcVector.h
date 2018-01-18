@@ -25,10 +25,10 @@ typedef struct Rbc_Vector_s {
     int reserved; /* Reserved for future use */
 } Rbc_Vector;
 
-#define Rbc_VecData(v)		((v)->valueArr)
-#define Rbc_VecLength(v)	((v)->numValues)
-#define Rbc_VecSize(v)		((v)->arraySize)
-#define Rbc_VecDirty(v)		((v)->dirty)
+#define RbcVecData(v)		((v)->valueArr)
+#define RbcVecLength(v)	((v)->numValues)
+#define RbcVecSize(v)		((v)->arraySize)
+#define RbcVecDirty(v)		((v)->dirty)
 
 #ifdef _MSC_VER
 #define FINITE(x)       _finite(x)

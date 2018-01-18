@@ -73,9 +73,11 @@ PRJ_DEFINES = -DRBCAPI=MODULE_SCOPE  -D_CRT_SECURE_NO_WARNINGS -DWIN32=1 -wd4244
 !include "$(_RULESDIR)\targets.vc"
 
 install: default-install-docs-html install-demos
-default-install-libraries: install-prologues
+pkgindex: default-pkgindex-tea
+default-install-libraries: install-prologues install-headers
 install-prologues:
 	@$(CPY) $(LIBDIR)\*.pro "$(SCRIPT_INSTALL_DIR)"
-pkgindex: default-pkgindex-tea
+install-headers:
+	@$(CPY) $(GENERICDIR)\rbcDecls.h "$(SCRIPT_INSTALL_DIR)"
 install-demos: default-install-demos
 
