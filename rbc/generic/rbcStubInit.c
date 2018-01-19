@@ -20,6 +20,7 @@ const RbcStubs rbcStubs = {
     Rbc_VectorSize, /* 7 */
     Rbc_VectorDirty, /* 8 */
     Rbc_VectorExists2, /* 9 */
+    Rbc_FreeVector, /* 10 */
 };
 
 /* !END!: Do not edit above this line. */

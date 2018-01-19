@@ -61,6 +61,8 @@ RBCAPI int		Rbc_VectorSize(Rbc_Vector *v);
 RBCAPI int		Rbc_VectorDirty(Rbc_Vector *v);
 /* 9 */
 RBCAPI int		Rbc_VectorExists2(Tcl_Interp *ip, char *name);
+/* 10 */
+RBCAPI void		Rbc_FreeVector(Rbc_Vector *v);
 
 typedef struct RbcStubs {
     int magic;
@@ -76,6 +78,7 @@ typedef struct RbcStubs {
     int (*rbc_VectorSize) (Rbc_Vector *v); /* 7 */
     int (*rbc_VectorDirty) (Rbc_Vector *v); /* 8 */
     int (*rbc_VectorExists2) (Tcl_Interp *ip, char *name); /* 9 */
+    void (*rbc_FreeVector) (Rbc_Vector *v); /* 10 */
 } RbcStubs;
 
 extern const RbcStubs *rbcStubsPtr;
@@ -110,6 +113,8 @@ extern const RbcStubs *rbcStubsPtr;
 	(rbcStubsPtr->rbc_VectorDirty) /* 8 */
 #define Rbc_VectorExists2 \
 	(rbcStubsPtr->rbc_VectorExists2) /* 9 */
+#define Rbc_FreeVector \
+	(rbcStubsPtr->rbc_FreeVector) /* 10 */
 
 #endif /* defined(USE_RBC_STUBS) */
 

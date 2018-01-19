@@ -1340,7 +1340,7 @@ Rbc_VectorReset(vPtr, valueArr, length, size, freeProc)
             if (vPtr->freeProc == TCL_DYNAMIC) {
                 ckfree((char *) vPtr->valueArr);
             } else {
-                (*freeProc)((char *) vPtr->valueArr);
+                vPtr->freeProc((char *) vPtr->valueArr);
             }
         }
         vPtr->freeProc = freeProc;
@@ -2957,6 +2957,11 @@ Rbc_ResetVector(vecPtr, valueArr, length, size, freeProc)
     return Rbc_VectorReset(vPtr, valueArr, length, size, freeProc);
 }
 
+void Rbc_FreeVector(Rbc_Vector *v)
+{
+    Rbc_VectorFree((VectorObject *)v);
+}
+
 double *Rbc_VectorData(Rbc_Vector *v)
 {
     return Rbc_VecData(v);
@@ -2976,3 +2981,4 @@ int Rbc_VectorDirty(Rbc_Vector *v)
 {
     return Rbc_VecDirty(v);
 }
+

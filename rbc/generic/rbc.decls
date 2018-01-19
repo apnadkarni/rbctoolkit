@@ -57,3 +57,7 @@ declare 8 {
 declare 9 {
     int Rbc_VectorExists2 (Tcl_Interp *ip, char *name)
 }
+
+declare 10 {
+    void Rbc_FreeVector (Rbc_Vector *v)
+}
