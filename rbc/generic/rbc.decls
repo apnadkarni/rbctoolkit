@@ -39,17 +39,21 @@ declare 4 {
 }
 
 declare 5 {
-    double *Rbc_VecData (Rbc_Vector *v)
+    double *Rbc_VectorData (Rbc_Vector *v)
 }
 
 declare 6 {
-    int Rbc_VecLength (Rbc_Vector *v)
+    int Rbc_VectorLength (Rbc_Vector *v)
 }
 
 declare 7 {
-    int Rbc_VecSize (Rbc_Vector *v)
+    int Rbc_VectorSize (Rbc_Vector *v)
 }
 
 declare 8 {
-    int Rbc_VecDirty (Rbc_Vector *v)
+    int Rbc_VectorDirty (Rbc_Vector *v)
+}
+
+declare 9 {
+    int Rbc_VectorExists2 (Tcl_Interp *ip, char *name)
 }
