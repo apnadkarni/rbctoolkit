@@ -9,8 +9,7 @@
  * See "license.terms" for details.
  */
 
-#include <tclInt.h>
-#include <string.h>
+#include "tcl.h"
 #include "rbcVector.h"
 
 static CONST84 char *subCmds[] = { "*", "+", "-", "/", "append", "binread", "clear", "delete", "dup",
