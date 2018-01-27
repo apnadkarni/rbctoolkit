@@ -5,3 +5,4 @@ Changes:
 
 - Nmake/VC++ build system
 - Added stubs-based C interface for vectors
+- Fix couple of crashes
