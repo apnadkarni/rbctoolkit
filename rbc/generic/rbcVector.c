@@ -9,8 +9,7 @@
  * See "license.terms" for details.
  */
 
-#include <tclInt.h>
-#include <string.h>
+#include "tcl.h"
 #include "rbcVector.h"
 
 static CONST84 char *subCmds[] = { "*", "+", "-", "/", "append", "binread", "clear", "delete", "dup",
@@ -1340,7 +1339,7 @@ Rbc_VectorReset(vPtr, valueArr, length, size, freeProc)
             if (vPtr->freeProc == TCL_DYNAMIC) {
                 ckfree((char *) vPtr->valueArr);
             } else {
-                (*freeProc)((char *) vPtr->valueArr);
+                vPtr->freeProc((char *) vPtr->valueArr);
             }
         }
         vPtr->freeProc = freeProc;
@@ -2957,22 +2956,28 @@ Rbc_ResetVector(vecPtr, valueArr, length, size, freeProc)
     return Rbc_VectorReset(vPtr, valueArr, length, size, freeProc);
 }
 
-double *Rbc_VecData(Rbc_Vector *v)
+void Rbc_FreeVector(Rbc_Vector *v)
 {
-    return RbcVecData(v);
+    Rbc_VectorFree((VectorObject *)v);
 }
 
-int Rbc_VecLength(Rbc_Vector *v)
+double *Rbc_VectorData(Rbc_Vector *v)
 {
-    return RbcVecLength(v);
+    return Rbc_VecData(v);
 }
 
-int Rbc_VecSize(Rbc_Vector *v)
+int Rbc_VectorLength(Rbc_Vector *v)
 {
-    return RbcVecSize(v);
+    return Rbc_VecLength(v);
 }
 
-int Rbc_VecDirty(Rbc_Vector *v)
+int Rbc_VectorSize(Rbc_Vector *v)
 {
-    return RbcVecDirty(v);
+    return Rbc_VecSize(v);
 }
+
+int Rbc_VectorDirty(Rbc_Vector *v)
+{
+    return Rbc_VecDirty(v);
+}
+

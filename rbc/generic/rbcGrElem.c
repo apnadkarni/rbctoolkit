@@ -143,8 +143,8 @@ static void
 SyncElemVector(vPtr)
     ElemVector *vPtr;
 {
-    vPtr->nValues = RbcVecLength(vPtr->vecPtr);
-    vPtr->valueArr = RbcVecData(vPtr->vecPtr);
+    vPtr->nValues = Rbc_VecLength(vPtr->vecPtr);
+    vPtr->valueArr = Rbc_VecData(vPtr->vecPtr);
     vPtr->min = Rbc_VecMin(vPtr->vecPtr);
     vPtr->max = Rbc_VecMax(vPtr->vecPtr);
 }

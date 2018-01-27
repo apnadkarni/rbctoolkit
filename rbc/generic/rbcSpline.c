@@ -1042,31 +1042,31 @@ SplineCmd(clientData, interp, argc, argv)
             (Rbc_GetVector(interp, argv[4], &splX) != TCL_OK)) {
         return TCL_ERROR;
     }
-    nOrigPts = RbcVecLength(x);
+    nOrigPts = Rbc_VecLength(x);
     if (nOrigPts < 3) {
         Tcl_AppendResult(interp, "length of vector \"", argv[2], "\" is < 3",
                          (char *)NULL);
         return TCL_ERROR;
     }
     for (i = 1; i < nOrigPts; i++) {
-        if (RbcVecData(x)[i] < RbcVecData(x)[i - 1]) {
+        if (Rbc_VecData(x)[i] < Rbc_VecData(x)[i - 1]) {
             Tcl_AppendResult(interp, "x vector \"", argv[2],
                              "\" must be monotonically increasing", (char *)NULL);
             return TCL_ERROR;
         }
     }
     /* Check that all the data points aren't the same. */
-    if (RbcVecData(x)[i - 1] <= RbcVecData(x)[0]) {
+    if (Rbc_VecData(x)[i - 1] <= Rbc_VecData(x)[0]) {
         Tcl_AppendResult(interp, "x vector \"", argv[2],
                          "\" must be monotonically increasing", (char *)NULL);
         return TCL_ERROR;
     }
-    if (nOrigPts != RbcVecLength(y)) {
+    if (nOrigPts != Rbc_VecLength(y)) {
         Tcl_AppendResult(interp, "vectors \"", argv[2], "\" and \"", argv[3],
                          " have different lengths", (char *)NULL);
         return TCL_ERROR;
     }
-    nIntpPts = RbcVecLength(splX);
+    nIntpPts = Rbc_VecLength(splX);
     if (Rbc_GetVector(interp, argv[5], &splY) != TCL_OK) {
         /*
          * If the named vector to hold the ordinates of the spline
@@ -1076,7 +1076,7 @@ SplineCmd(clientData, interp, argc, argv)
         if (Rbc_CreateVector(interp, argv[5], nIntpPts, &splY) != TCL_OK) {
             return TCL_ERROR;
         }
-    } else if (nIntpPts != RbcVecLength(splY)) {
+    } else if (nIntpPts != Rbc_VecLength(splY)) {
         /*
          * The x and y vectors differ in size. Make the number of ordinates
          * the same as the number of abscissas.
@@ -1098,14 +1098,14 @@ SplineCmd(clientData, interp, argc, argv)
         ckfree((char *)origPts);
         return TCL_ERROR;
     }
-    xArr = RbcVecData(x);
-    yArr = RbcVecData(y);
+    xArr = Rbc_VecData(x);
+    yArr = Rbc_VecData(y);
     for (i = 0; i < nOrigPts; i++) {
         origPts[i].x = xArr[i];
         origPts[i].y = yArr[i];
     }
-    xArr = RbcVecData(splX);
-    yArr = RbcVecData(splY);
+    xArr = Rbc_VecData(splX);
+    yArr = Rbc_VecData(splY);
     for (i = 0; i < nIntpPts; i++) {
         intpPts[i].x = xArr[i];
         intpPts[i].y = yArr[i];
@@ -1116,7 +1116,7 @@ SplineCmd(clientData, interp, argc, argv)
         ckfree((char *)intpPts);
         return TCL_ERROR;
     }
-    yArr = RbcVecData(splY);
+    yArr = Rbc_VecData(splY);
     for (i = 0; i < nIntpPts; i++) {
         yArr[i] = intpPts[i].y;
     }
@@ -1126,7 +1126,7 @@ SplineCmd(clientData, interp, argc, argv)
     /* Finally update the vector. The size of the vector hasn't
      * changed, just the data. Reset the vector using TCL_STATIC to
      * indicate this. */
-    if (Rbc_ResetVector(splY, RbcVecData(splY), RbcVecLength(splY), RbcVecSize(splY), TCL_STATIC) != TCL_OK) {
+    if (Rbc_ResetVector(splY, Rbc_VecData(splY), Rbc_VecLength(splY), Rbc_VecSize(splY), TCL_STATIC) != TCL_OK) {
         return TCL_ERROR;
     }
     return TCL_OK;
