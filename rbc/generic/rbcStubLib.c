@@ -39,7 +39,7 @@ const RbcStubs *rbcStubsPtr;
  *----------------------------------------------------------------------
  */
 
-MODULE_SCOPE const char *
+const char *
 Rbc_InitStubs(
 	Tcl_Interp *interp,
 	const char *version,
