@@ -16,7 +16,8 @@
 #   define USE_TCL_STUBS
 #endif
 
-#include "rbc.h"
+#include "tcl.h"
+#include "rbcDecls.h"
 
 const RbcStubs *rbcStubsPtr;
 
@@ -47,7 +48,7 @@ Rbc_InitStubs(
     const char *result;
     void *data;
 
-    result = Tcl_PkgRequireEx(interp, PACKAGE_NAME, (CONST84 char *) version, exact, &data);
+    result = Tcl_PkgRequireEx(interp, "rbc", (CONST84 char *) version, exact, &data);
     if (!result || !data) {
         return NULL;
     }

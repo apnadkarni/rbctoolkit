@@ -221,12 +221,21 @@ install-binaries: binaries install-lib-binaries install-bin-binaries
 #========================================================================
 # This rule installs platform-independent files, such as header files.
 # The list=...; for p in $$list handles the empty list case x-platform.
+# APN - Unlike other extensions, this also installs the stubs lib interface
+# source which can then be included by another extension that calls the
+# rbc stubs interface. I prefer this to having to link against installed
+# stubs library as that runs into issues with library formats used by
+# different tool chains.
 #========================================================================
 
 install-libraries: libraries
 	@mkdir -p $(DESTDIR)$(includedir)
 	@echo "Installing header files in $(DESTDIR)$(includedir)"
 	@list='$(PKG_HEADERS)'; for i in $$list; do \
+	    echo "Installing $(srcdir)/$$i" ; \
+	    $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir) ; \
+	done;
+	@list='$(PKG_STUB_SOURCES)'; for i in $$list; do \
 	    echo "Installing $(srcdir)/$$i" ; \
 	    $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir) ; \
 	done;

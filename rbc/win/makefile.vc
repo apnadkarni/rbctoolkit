@@ -78,6 +78,8 @@ default-install-libraries: install-prologues install-headers
 install-prologues:
 	@$(CPY) $(LIBDIR)\*.pro "$(SCRIPT_INSTALL_DIR)"
 install-headers:
-	@$(CPY) $(GENERICDIR)\rbcDecls.h "$(SCRIPT_INSTALL_DIR)"
+	echo "Installing headers to $(INCLUDE_INSTALL_DIR)"
+	@$(CPY) $(GENERICDIR)\rbcDecls.h "$(INCLUDE_INSTALL_DIR)"
+	@$(CPY) $(GENERICDIR)\rbcStubLib.c "$(INCLUDE_INSTALL_DIR)"
 install-demos: default-install-demos
 
