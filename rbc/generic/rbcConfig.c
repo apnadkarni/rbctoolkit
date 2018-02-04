@@ -1226,7 +1226,7 @@ Rbc_ConfigModified TCL_VARARGS_DEF(Tk_ConfigSpec *, arg1)
         }
     }
     va_end(argList);
-    return 1;
+    return 0;
 }
 
 /*
