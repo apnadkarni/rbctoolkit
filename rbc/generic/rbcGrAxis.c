@@ -3306,11 +3306,8 @@ ConfigureAxis(graphPtr, axisPtr)
      * options have changed.
      */
     graphPtr->flags |= REDRAW_WORLD;
-    if (!Rbc_ConfigModified(configSpecs, "-*color", "-background", "-bg",
-                            (char *)NULL)) {
-        graphPtr->flags |= (MAP_WORLD | RESET_AXES);
-        axisPtr->flags |= AXIS_DIRTY;
-    }
+    graphPtr->flags |= (MAP_WORLD | RESET_AXES);
+    axisPtr->flags |= AXIS_DIRTY;
     Rbc_EventuallyRedrawGraph(graphPtr);
 
     return TCL_OK;
