@@ -675,7 +675,7 @@ ConfigureGraph(graphPtr)
 
     Rbc_ResetTextStyle(graphPtr->tkwin, &graphPtr->titleTextStyle);
 
-    if (Rbc_ConfigModified(configSpecs, "-invertxy", (char *)NULL)) {
+    if (Rbc_ConfigModified(graphPtr->interp, configSpecs, "-invertxy", (char *)NULL)) {
 
         /*
          * If the -inverted option changed, we need to readjust the pointers
@@ -714,11 +714,11 @@ ConfigureGraph(graphPtr)
      *	    -bottommargin, -leftmargin, -rightmargin, -topmargin,
      *	    -barmode, -barwidth
      */
-    if (Rbc_ConfigModified(configSpecs, "-invertxy", "-title", "-font",
+    if (Rbc_ConfigModified(graphPtr->interp, configSpecs, "-invertxy", "-title", "-font",
             "-*margin", "-*width", "-height", "-barmode", "-*pad*", "-aspect", (char *)NULL)) {
         graphPtr->flags |= RESET_WORLD;
     }
-    if (Rbc_ConfigModified(configSpecs, "-plotbackground", (char *)NULL)) {
+    if (Rbc_ConfigModified(graphPtr->interp, configSpecs, "-plotbackground", (char *)NULL)) {
         graphPtr->flags |= REDRAW_BACKING_STORE;
     }
     graphPtr->flags |= REDRAW_WORLD;

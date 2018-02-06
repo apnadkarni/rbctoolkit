@@ -2047,8 +2047,8 @@ ConfigureImageMarker(markerPtr)
     ImageMarker *imPtr = (ImageMarker *)markerPtr;
     Graph *graphPtr = markerPtr->graphPtr;
 
-    if (Rbc_ConfigModified(markerPtr->classPtr->configSpecs, "-image",
-                           (char *)NULL)) {
+    if (Rbc_ConfigModified(graphPtr->interp, markerPtr->classPtr->configSpecs,
+                           "-image", (char *)NULL)) {
         Tcl_Interp *interp = graphPtr->interp;
 
         if (imPtr->tkImage != NULL) {
@@ -2518,8 +2518,8 @@ ConfigureTextMarker(markerPtr)
     tmPtr->fillGC = newGC;
     Rbc_ResetTextStyle(graphPtr->tkwin, &tmPtr->style);
 
-    if (Rbc_ConfigModified(tmPtr->classPtr->configSpecs, "-text",
-                           (char *)NULL)) {
+    if (Rbc_ConfigModified(graphPtr->interp, tmPtr->classPtr->configSpecs,
+                           "-text", (char *)NULL)) {
         if (tmPtr->textPtr != NULL) {
             ckfree((char *)tmPtr->textPtr);
             tmPtr->textPtr = NULL;

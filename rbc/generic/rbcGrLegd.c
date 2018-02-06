@@ -1088,7 +1088,7 @@ ConfigureLegend(graphPtr, legendPtr)
          *  position, also indicate that a new layout is needed.
          *
          */
-        if (Rbc_ConfigModified(configSpecs, "-*border*", "-*pad?",
+        if (Rbc_ConfigModified(graphPtr->interp, configSpecs, "-*border*", "-*pad?",
                                "-position", "-hide", "-font", "-rows", (char *)NULL)) {
             graphPtr->flags |= MAP_WORLD;
         }

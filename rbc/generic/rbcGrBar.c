@@ -797,7 +797,7 @@ ConfigureBar(graphPtr, elemPtr)
         stylePtr = Rbc_ChainGetValue(linkPtr);
         stylePtr->penPtr = barPtr->normalPenPtr;
     }
-    if (Rbc_ConfigModified(barPtr->specsPtr, "-barwidth", "-*data",
+    if (Rbc_ConfigModified(graphPtr->interp, barPtr->specsPtr, "-barwidth", "-*data",
                            "-map*", "-label", "-hide", "-x", "-y", (char *)NULL)) {
         barPtr->flags |= MAP_ITEM;
     }

@@ -2035,7 +2035,7 @@ ConfigureOp(graphPtr, interp, argc, argv)
         if ((*elemPtr->procsPtr->configProc) (graphPtr, elemPtr) != TCL_OK) {
             return TCL_ERROR;	/* Failed to configure element */
         }
-        if (Rbc_ConfigModified(elemPtr->specsPtr, "-hide", (char *)NULL)) {
+        if (Rbc_ConfigModified(interp, elemPtr->specsPtr, "-hide", (char *)NULL)) {
             Rbc_ChainLink *linkPtr;
 
             for (linkPtr = Rbc_ChainFirstLink(graphPtr->elements.displayList);

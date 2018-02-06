@@ -1063,7 +1063,7 @@ ConfigureEps(interp, canvas, itemPtr, argc, argv, flags)
      * Check for a "-image" option specifying an image to be displayed
      * representing the EPS canvas item.
      */
-    if (Rbc_ConfigModified(configSpecs, "-image", (char *)NULL)) {
+    if (Rbc_ConfigModified(interp, configSpecs, "-image", (char *)NULL)) {
         if (epsPtr->preview != NULL) {
             Tk_FreeImage(epsPtr->preview);	/* Release old Tk image */
             Rbc_FreeColorImage(epsPtr->colorImage);
@@ -1096,7 +1096,7 @@ ConfigureEps(interp, canvas, itemPtr, argc, argv, flags)
             height = Rbc_ColorImageHeight(epsPtr->colorImage);
         }
     }
-    if (Rbc_ConfigModified(configSpecs, "-file", (char *)NULL)) {
+    if (Rbc_ConfigModified(interp, configSpecs, "-file", (char *)NULL)) {
         CloseEpsFile(epsPtr);
         if (epsPtr->pixmap != None) {
 #ifdef notyet
@@ -1141,7 +1141,7 @@ ConfigureEps(interp, canvas, itemPtr, argc, argv, flags)
     }
     Rbc_ResetTextStyle(tkwin, &(epsPtr->titleStyle));
 
-    if (Rbc_ConfigModified(configSpecs, "-quick", (char *)NULL)) {
+    if (Rbc_ConfigModified(interp, configSpecs, "-quick", (char *)NULL)) {
         epsPtr->lastWidth = epsPtr->lastHeight = 0;
     }
     /* Fill color GC */

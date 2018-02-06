@@ -550,7 +550,7 @@ void Rbc_DrawArrow _ANSI_ARGS_((Display *display, Drawable drawable,
 Tk_OptionParseProc Rbc_StringToEnum;
 Tk_OptionPrintProc Rbc_EnumToString;
 
-int Rbc_ConfigModified _ANSI_ARGS_(TCL_VARARGS(Tk_ConfigSpec *, specs));
+int Rbc_ConfigModified _ANSI_ARGS_((Tcl_Interp *, Tk_ConfigSpec *, ...));
 
 void Rbc_DStringAppendElements _ANSI_ARGS_(TCL_VARARGS(Tcl_DString *, args));
 

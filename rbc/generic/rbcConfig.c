@@ -99,6 +99,8 @@ Tk_CustomOption rbcTileOption = {
 
 static int GetInt _ANSI_ARGS_((Tcl_Interp *interp, char *string, int check, int *valuePtr));
 
+static Tk_ConfigSpec *	Rbc_GetCachedSpecs(Tcl_Interp *interp,
+			    const Tk_ConfigSpec *staticSpecs);
 /*
  *----------------------------------------------------------------------
  *
@@ -1208,14 +1210,14 @@ TileToString(clientData, tkwin, widgRec, offset, freeProcPtr)
  *----------------------------------------------------------------------
  */
 int
-Rbc_ConfigModified TCL_VARARGS_DEF(Tk_ConfigSpec *, arg1)
+Rbc_ConfigModified (Tcl_Interp *interp, Tk_ConfigSpec *specs, ...)
 {
     va_list argList;
-    Tk_ConfigSpec *specs;
     register Tk_ConfigSpec *specPtr;
     register char *option;
 
-    specs = TCL_VARARGS_START(Tk_ConfigSpec *, arg1, argList);
+    va_start(argList, specs);
+    specs = Rbc_GetCachedSpecs(interp, specs);
     while ((option = va_arg(argList, char *)) != NULL) {
         for (specPtr = specs; specPtr->type != TK_CONFIG_END; specPtr++) {
             if ((Tcl_StringMatch(specPtr->argvName, option))
@@ -1396,4 +1398,80 @@ Rbc_EnumToString(clientData, tkwin, widgRec, offset, freeProcPtr)
     }
     p = (char **)clientData;
     return p[value];
+}
+
+/*
+ * RBC routines makes use of Tk_ConfigureWidget to parse options for
+ * widgets, passing in an array of Tk_ConfigSpec structures. They then
+ * check the TK_CONFIG_OPTION_SPECIFIED flag in those structures to
+ * figure out which options have been modified. This worked in older
+ * (pre-8.6) Tk versions.
+ *
+ * In 8.6, Tk_ConfigureWidget does not modify the passed in
+ * Tk_ConfigSpec structures. Rather it maintains an internal
+ * per-interp cache that mirrors the passed in Tk_ConfigSpec array and
+ * modifies the elements of the cached structure instead. Based on the
+ * comments, this is intended to make the option processing
+ * thread-safe (or perhaps interp-specific).
+ *
+ * Obviously, this breaks Tk extensions, including RBC, which expect
+ * the flags field in the passed-in structure to have been
+ * modified. They should be checking for changes in the *cached* array
+ * and not the array they passed-in. However, I cannot figure out how
+ * an extension can get a pointer to this cached array. Tk itself uses
+ * GetCachedSpecs() for this purpose but this does not seem to be exported.
+ *
+ * We therefore have to resort to poking into Tk internals to emulate
+ * the functionality of GetCachedSpecs in Rbc_GetCachedSpecs. The difference
+ * from the original is that if the cached specs is not found, we do not
+ * create it. Rather we assume we are running against an older Tk which
+ * does not cache the specs. This works because this routine is always
+ * called after Tk_ConfigureWidget which will create the cached specs
+ * if it did not exist.
+ *
+ * Below comment from the Tk GetCachedSpecs sources
+ *--------------------------------------------------------------
+ *
+ * GetCachedSpecs --
+ *
+ *	Returns a writable per-interpreter (and hence thread-local) copy of
+ *	the given spec-table with (some of) the char* fields converted into
+ *	Tk_Uid fields; this copy will be released when the interpreter
+ *	terminates (during AssocData cleanup).
+ *
+ * Results:
+ *	A pointer to the copied table.
+ *
+ * Notes:
+ *	The conversion to Tk_Uid is only done the first time, when the table
+ *	copy is taken. After that, the table is assumed to have Tk_Uids where
+ *	they are needed. The time of deletion of the caches isn't very
+ *	important unless you've got a lot of code that uses Tk_ConfigureWidget
+ *	(or *Info or *Value} when the interpreter is being deleted.
+ */
+static Tk_ConfigSpec *
+Rbc_GetCachedSpecs(
+    Tcl_Interp *interp,		/* Interpreter in which to store the cache. */
+    const Tk_ConfigSpec *staticSpecs)
+				/* Value to cache a copy of; it is also used
+				 * as a key into the cache. */
+{
+    Tk_ConfigSpec *cachedSpecs = NULL;
+    Tcl_HashTable *specCacheTablePtr;
+    Tcl_HashEntry *entryPtr;
+
+    specCacheTablePtr =
+	    Tcl_GetAssocData(interp, "tkConfigSpec.threadTable", NULL);
+    if (specCacheTablePtr != NULL) {
+        /*
+         * Look up the hash entry that the constant specs are mapped to,
+         * which will have the writable specs as its associated value.
+         */
+        entryPtr = Tcl_FindHashEntry(specCacheTablePtr, (char *) staticSpecs);
+        if (entryPtr)
+            cachedSpecs = Tcl_GetHashValue(entryPtr);
+    }
+
+    /* Return the cached specs if they exist else the original specs */
+    return cachedSpecs ? cachedSpecs : staticSpecs;
 }

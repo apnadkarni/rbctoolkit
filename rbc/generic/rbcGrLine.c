@@ -3644,11 +3644,11 @@ ConfigureLine(graphPtr, elemPtr)
     }
     linePtr->fillGC = newGC;
 
-    if (Rbc_ConfigModified(linePtr->configSpecs, "-scalesymbols",
+    if (Rbc_ConfigModified(graphPtr->interp, linePtr->configSpecs, "-scalesymbols",
                            (char *)NULL)) {
         linePtr->flags |= (MAP_ITEM | SCALE_SYMBOL);
     }
-    if (Rbc_ConfigModified(linePtr->configSpecs, "-pixels", "-trace", "-*data",
+    if (Rbc_ConfigModified(graphPtr->interp, linePtr->configSpecs, "-pixels", "-trace", "-*data",
                            "-smooth", "-map*", "-label", "-hide", "-x", "-y", "-areapattern",
                            (char *)NULL)) {
         linePtr->flags |= MAP_ITEM;

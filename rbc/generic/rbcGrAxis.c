@@ -3689,7 +3689,7 @@ ConfigureOp(graphPtr, axisPtr, argc, argv)
         return TCL_ERROR;
     }
     if (axisPtr->flags & AXIS_ONSCREEN) {
-        if (!Rbc_ConfigModified(configSpecs, "-*color", "-background", "-bg",
+        if (!Rbc_ConfigModified(graphPtr->interp, configSpecs, "-*color", "-background", "-bg",
                                 (char *)NULL)) {
             graphPtr->flags |= REDRAW_BACKING_STORE;
         }
