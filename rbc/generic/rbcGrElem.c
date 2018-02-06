@@ -2067,13 +2067,13 @@ ConfigureOp(graphPtr, interp, argc, argv)
          * affect autoscaling) and recalculate the screen points of
          * the element. */
 
-        if (Rbc_ConfigModified(elemPtr->specsPtr, "-*data", "-map*", "-x",
+        if (Rbc_ConfigModified(interp, elemPtr->specsPtr, "-*data", "-map*", "-x",
                                "-y", (char *)NULL)) {
             graphPtr->flags |= RESET_WORLD;
             elemPtr->flags |= MAP_ITEM;
         }
         /* The new label may change the size of the legend */
-        if (Rbc_ConfigModified(elemPtr->specsPtr, "-label", (char *)NULL)) {
+        if (Rbc_ConfigModified(interp, elemPtr->specsPtr, "-label", (char *)NULL)) {
             graphPtr->flags |= (MAP_WORLD | REDRAW_WORLD);
         }
     }
