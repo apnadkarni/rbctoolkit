@@ -1212,6 +1212,31 @@ TileToString(clientData, tkwin, widgRec, offset, freeProcPtr)
 int
 Rbc_ConfigModified (Tcl_Interp *interp, Tk_ConfigSpec *specs, ...)
 {
+#if 1
+
+    /*
+     * The way RBC checks whether options have been modified is 
+     * broken for Tk 8.6 (and maybe 8.5 as well). Part of the issue is 
+     * described in the comments for Rbc_GetCachedSpecs. Unfortunately,
+     * that fix also does not suffice because Tk_ConfigureWidget has
+     * another problem - it does not set the TK_CONFIG_OPTION_SPECIFIED
+     * flag if the TK_CONFIG_ARGV_ONLY flag was passed to it 
+     * (which is needed when configuring an existing widget.) Thus
+     * the check in the loop below would fail and consequently the
+     * caller would think no options were re-configured and fail to
+     * update the display. Fixing this is not simple, as it requires
+     * either moving to the new Tk option API or cargo culting Tk internal
+     * code. So we just pretend  configuration is always modified. This will
+     * result in potentially unnecessary redraws but hopefully not too bad.
+     * 
+     * BTW, the original RBC code did exactly this by always returning 
+     * 1 at the end. We are just cutting out the unnecessary loop if we
+     * always return the constant value!
+     */
+    return 1;
+
+#else
+    
     va_list argList;
     register Tk_ConfigSpec *specPtr;
     register char *option;
@@ -1229,6 +1254,8 @@ Rbc_ConfigModified (Tcl_Interp *interp, Tk_ConfigSpec *specs, ...)
     }
     va_end(argList);
     return 0;
+
+    #endif
 }
 
 /*
