@@ -1,30 +1,27 @@
-#!../src/bltwish
+#!/bin/sh
 
-package require BLT
-# --------------------------------------------------------------------------
-# Starting with Tcl 8.x, the BLT commands are stored in their own 
-# namespace called "blt".  The idea is to prevent name clashes with
-# Tcl commands and variables from other packages, such as a "table"
-# command in two different packages.  
+# ------------------------------------------------------------------------------
+#  RBC Demo graph5.tcl
 #
-# You can access the BLT commands in a couple of ways.  You can prefix
-# all the BLT commands with the namespace qualifier "blt::"
-#  
-#    blt::graph .g
-#    blt::table . .g -resize both
-# 
-# or you can import all the command into the global namespace.
-#
-#    namespace import blt::*
-#    graph .g
-#    table . .g -resize both
-#
-# --------------------------------------------------------------------------
-if { $tcl_version >= 8.0 } {
-    namespace import blt::*
-    #namespace import -force blt::tile::*
-}
-source scripts/demo.tcl
+#  This demo displays the available symbol types.
+# ------------------------------------------------------------------------------
+# restart using wish \
+exec wish "$0" "$@"
+
+package require rbc
+namespace import rbc::*
+
+
+### The script can be run from any location.
+### It loads the files it needs from the demo directory.
+set DemoDir [file normalize [file dirname [info script]]]
+
+
+### Load common commands and create non-rbc GUI elements.
+source $DemoDir/scripts/common.tcl
+CommonFooter .footer $DemoDir IMG
+
+### Set option defaults for $graph
 
 option add *Element.ScaleSymbols	true
 option add *Axis.loose			true
@@ -41,22 +38,28 @@ option add *Graph.height		6i
 option add *Graph.plotPadY		.25i
 option add *Graph.plotPadX		.25i
 
-set graph .graph
 
-graph $graph
+### Define vectors x and y0 to y10; then create data.
 
-vector x -variable ""
+vector create x -variable ""
 x set { 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 }
 
 for { set i 0 } { $i < 11 } { incr i } {
     set vecName "y${i}"
-    vector ${vecName}
+    vector create ${vecName}
     $vecName length 11
     $vecName variable y
     set y(:) [expr $i*100.0]
 }
 
-set attributes {
+
+### Define graph and its elements:
+
+set graph .graph
+graph $graph
+
+set Dem [file join $DemoDir bitmaps hobbes]
+set attributes [string map [list @ "@$Dem"] {
     none	"None"		red	red4		y0
     arrow	"Arrow"		brown	brown4		y10
     circle	"Circle"	yellow	yellow4		y2
@@ -67,9 +70,9 @@ set attributes {
     scross	"Scross"	red	red4		y8
     square	"Square"	orange	orange4		y1
     triangle	"Triangle"	blue	blue4		y4
-    "@bitmaps/hobbes.xbm @bitmaps/hobbes_mask.xbm"
+    {{@.xbm} {@_mask.xbm}}
 		"Bitmap"	yellow	black		y5
-}
+}]
 
 set count 0
 foreach {symbol label fill color yVec} $attributes {
@@ -78,12 +81,19 @@ foreach {symbol label fill color yVec} $attributes {
     incr count
 }
 $graph element configure line0 -dashes  { 2 4 2 } -linewidth 2
-button .quit -text Quit -command exit
-table . \
-  $graph 0,0 -fill both \
-  .quit  1,0 -fill x
-Blt_ZoomStack $graph
-Blt_Crosshairs $graph
-Blt_ActiveLegend $graph
-Blt_ClosestPoint $graph
-Blt_PrintKey $graph
+
+
+### Map everything, add Rbc_* commands.
+
+grid $graph  -sticky nsew
+grid .footer -sticky ew -padx 40
+
+grid columnconfigure . 0 -weight 1
+grid    rowconfigure . 0 -weight 1
+
+
+Rbc_ZoomStack $graph
+Rbc_Crosshairs $graph
+Rbc_ActiveLegend $graph
+Rbc_ClosestPoint $graph
+Rbc_PrintKey $graph

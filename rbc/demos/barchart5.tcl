@@ -1,87 +1,119 @@
-#!../src/bltwish
+#!/bin/sh
 
-package require BLT
-# --------------------------------------------------------------------------
-# Starting with Tcl 8.x, the BLT commands are stored in their own 
-# namespace called "blt".  The idea is to prevent name clashes with
-# Tcl commands and variables from other packages, such as a "table"
-# command in two different packages.  
+# ------------------------------------------------------------------------------
+#  RBC Demo barchart5.tcl
 #
-# You can access the BLT commands in a couple of ways.  You can prefix
-# all the BLT commands with the namespace qualifier "blt::"
-#  
-#    blt::graph .g
-#    blt::table . .g -resize both
-# 
-# or you can import all the command into the global namespace.
-#
-#    namespace import blt::*
-#    graph .g
-#    table . .g -resize both
-#
-# --------------------------------------------------------------------------
+#  A sine wave plotted as a barchart.
+# ------------------------------------------------------------------------------
+# restart using wish \
+exec wish "$0" "$@"
 
-if { $tcl_version >= 8.0 } {
-    namespace import blt::*
-    namespace import -force blt::tile::*
-}
-
-source scripts/demo.tcl
+package require rbc
+namespace import rbc::*
 
 
-source scripts/stipples.tcl
+### The script can be run from any location.
+### It loads the files it needs from the demo directory.
+set DemoDir [file normalize [file dirname [info script]]]
 
+
+### Load common commands and create non-rbc GUI elements.
+source $DemoDir/scripts/common.tcl
+
+### To use the demo's "PostScript Options" dialog, source the file
+### scripts/ps.tcl. If this is not done, the "Print" button will print to a
+### file without offering an options dialog.  See command CommonPrint in
+### scripts/common.tcl for choices, including the stock dialog
+### Rbc_PostScriptDialog which is not used in these demos.
+source $DemoDir/scripts/ps.tcl
+
+set graph .graph
+set HeaderText [MakeLine {
+    |This is an example of the barchart widget.
+    |The barchart has many components; x and y axis, legend, crosshairs,
+    |elements, etc.
+}]
+
+CommonHeader .header $HeaderText 6 $DemoDir $graph barchart5.ps
+CommonFooter .footer $DemoDir
+
+
+### Set option defaults for the graph.
+option add *graph.title "A Simple Barchart"
+option add *graph.x.Font { Times 10 }
 option add *graph.x.Title "X Axis Label"
 option add *graph.y.Title "Y Axis Label"
-option add *graph.title "A Simple Barchart"
-option add *graph.x.Font { Times 10 } 
 option add *graph.Element.Relief raised
 
 set visual [winfo screenvisual .] 
-if { $visual != "staticgray" && $visual != "grayscale" } {
-    option add *graph.LineMarker.color yellow
+if { ($visual != "staticgray") && ($visual != "grayscale") } {
     option add *graph.Element.Background white
     option add *graph.Legend.activeForeground pink
-    option add *print.background yellow
-    option add *quit.background red
     option add *graph.background palegreen
     option add *graph.plotBackground lightblue
 }
 
-htext .htext -text \
-{   This is an example of the barchart widget.  The barchart has 
-    many components; x and y axis, legend, crosshairs, elements, etc.  
-    To create a postscript file "bar.ps", press the %%
-    set w $htext(widget)
-    button $w.print -text {Print} -command {
-	$graph postscript output bar.ps
-    } 
-    $w append $w.print
 
-%% button.  
-%%
+### Create and configure barchart.
+barchart $graph
 
-    set graph [barchart .htext.graph]
-    $graph configure \
-	-relief raised \
-	-bd 2
-    $graph xaxis configure \
-	-rotate 90 \
-	-stepsize 0 
-    $w append $graph -fill both -padx 4
+$graph configure \
+    -relief raised \
+    -bd 2
+$graph xaxis configure \
+    -rotate 90 \
+    -stepsize 0 
 
-%%
-    Hit the %%
 
-    button $w.quit -text quit -command exit
-    $w append $w.quit 
+### Define and compute vectors.
 
-%% button when you've seen enough.%%
+set tcl_precision 15
+vector create x
+vector create y
+x seq -5.0 5.0 0.2 
+y expr sin(x)
+set barWidth 0.19
 
-    label $w.logo -bitmap BLT
-    $w append $w.logo -padx 20
 
-%% }
+### Add barchart element.
+$graph element create sin -relief raised -bd 1 -x x -y y  -barwidth $barWidth
+
+
+### Map everything, add Rbc_* commands.
+
+grid .header -sticky ew
+grid $graph  -sticky nsew -padx 4
+grid .footer -sticky ew
+
+grid columnconfigure . 0 -weight 1
+grid    rowconfigure . 1 -weight 1
+
+wm min . 0 0
+
+Rbc_ZoomStack $graph
+Rbc_Crosshairs $graph
+Rbc_ActiveLegend $graph
+Rbc_ClosestPoint $graph
+
+
+### FIXME rbc - On X11 the legend is not correctly sized for its
+### text, possibly because it has an unexpected font.
+### On X11 this code doesn't change the font, but it does
+### size the legend correctly.
+###
+### Do this also for win32 (for which it does resize the font)
+### because on win32 the legend font is too small.
+if {[tk windowingsystem] in {x11 win32}} {
+    $graph legend configure -font TkDefaultFont
+}
+
+
+
+
+### The code below is not executed and is not part of the demo.
+### It remains available for experimentation.
+
+if 0 {
 
 set names { One Two Three Four Five Six Seven Eight }
 if { $visual == "staticgray" || $visual == "grayscale" } {
@@ -94,19 +126,4 @@ if { $visual == "staticgray" || $visual == "grayscale" } {
 
 set numColors [llength $names]
 
-set tcl_precision 15
-vector create x
-vector create y
-x seq -5.0 5.0 0.2 
-y expr sin(x)
-set barWidth 0.19
-
-$graph element create sin -relief raised -bd 1 -x x -y y  -barwidth $barWidth
-table . .htext -fill both
-	
-wm min . 0 0
-
-Blt_ZoomStack $graph
-Blt_Crosshairs $graph
-Blt_ActiveLegend $graph
-Blt_ClosestPoint $graph
+}

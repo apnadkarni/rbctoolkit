@@ -1,0 +1,5 @@
+#define checker2_width 8
+#define checker2_height 8
+static unsigned char checker2_bits[] = {
+   0x33, 0x33, 0xcc, 0xcc, 0x33, 0x33, 0xcc, 0xcc};
+

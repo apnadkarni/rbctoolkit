@@ -1,0 +1,5 @@
+#define lbottom_width 8
+#define lbottom_height 8
+static unsigned char lbottom_bits[] = {
+   0x00, 0x11, 0x11, 0x77, 0x00, 0x11, 0x11, 0x77};
+

@@ -1,0 +1,5 @@
+#define pattern9_width 4
+#define pattern9_height 4
+static unsigned char vline1_bits = {
+    0x03, 0x03, 0x0c, 0x0c};
+

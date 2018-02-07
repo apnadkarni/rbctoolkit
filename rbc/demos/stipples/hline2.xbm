@@ -1,0 +1,5 @@
+#define hline2_width 8
+#define hline2_height 8
+static unsigned char hline2_bits[] = {
+   0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00};
+

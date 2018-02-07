@@ -1,0 +1,5 @@
+#define checker3_width 8
+#define checker3_height 8
+static unsigned char checker3_bits[] = {
+   0x0f, 0x0f, 0x0f, 0x0f, 0xf0, 0xf0, 0xf0, 0xf0};
+

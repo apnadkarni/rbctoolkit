@@ -1,0 +1,5 @@
+#define pattern8_width 8
+#define pattern8_height 8
+static unsigned char vline1_bits = {
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00};
+

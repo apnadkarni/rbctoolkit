@@ -1,0 +1,5 @@
+#define crossdiag_width 8
+#define crossdiag_height 8
+static unsigned char crossdiag2_bits[] = {
+   0x18, 0x24, 0x42, 0x81, 0x81, 0x42, 0x24, 0x18};
+

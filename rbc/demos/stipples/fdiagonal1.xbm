@@ -1,0 +1,5 @@
+#define fdiagonal1_width 8
+#define fdiagonal1_height 8
+static unsigned char fdiagonal1_bits[] = {
+   0x11, 0x22, 0x44, 0x88, 0x11, 0x22, 0x44, 0x88};
+

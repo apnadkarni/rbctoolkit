@@ -1,0 +1,5 @@
+#define rbottom_width 8
+#define rbottom_height 8
+static unsigned char rbottom_bits[] = {
+   0x00, 0x88, 0x88, 0xee, 0x00, 0x88, 0x88, 0xee};
+

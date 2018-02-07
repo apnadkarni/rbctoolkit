@@ -1,0 +1,5 @@
+#define bdiagonal1_width 8
+#define bdiagonal1_height 8
+static unsigned char bdiagonal1_bits[] = {
+   0x88, 0x44, 0x22, 0x11, 0x88, 0x44, 0x22, 0x11};
+

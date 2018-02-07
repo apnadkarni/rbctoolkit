@@ -1,62 +1,51 @@
-#!../src/bltwish
+#!/bin/sh
 
-set blt_library ../library
-package require BLT
-set blt_library ../library
-set auto_path [linsert $auto_path 0 ../library]
-
-# --------------------------------------------------------------------------
-# Starting with Tcl 8.x, the BLT commands are stored in their own 
-# namespace called "blt".  The idea is to prevent name clashes with
-# Tcl commands and variables from other packages, such as a "table"
-# command in two different packages.  
+# ------------------------------------------------------------------------------
+#  RBC Demo graph7.tcl
 #
-# You can access the BLT commands in a couple of ways.  You can prefix
-# all the BLT commands with the namespace qualifier "blt::"
-#  
-#    blt::graph .g
-#    blt::table . .g -resize both
-# 
-# or you can import all the command into the global namespace.
-#
-#    namespace import blt::*
-#    graph .g
-#    table . .g -resize both
-#
-# --------------------------------------------------------------------------
+#  This demo graph displays a scatter plot with a large number of points.
+# ------------------------------------------------------------------------------
+# restart using wish \
+exec wish "$0" "$@"
 
-if { $tcl_version >= 8.0 } {
-    namespace import blt::*
-    namespace import -force blt::tile::*
-}
+package require rbc
+namespace import rbc::*
 
-source scripts/demo.tcl
 
-image create photo bgTexture -file ./images/buckskin.gif
+### The script can be run from any location.
+### It loads the files it needs from the demo directory.
+set DemoDir [file normalize [file dirname [info script]]]
+
+
+### Load common commands and create non-rbc GUI elements.
+source $DemoDir/scripts/common.tcl
+
+set HeaderText [MakeLine {
+    |At this scale the 250,000 plotted points overlap.
+    |
+    |To zoom in on a region of the graph, simply click once on the left
+    |mouse button to pick one corner of the area to be zoomed.  Move the
+    |mouse to the other corner and click again.  To zoom back out, click
+    |the right mouse button.
+}]
+
+CommonHeader .header $HeaderText 7 $DemoDir .graph
+CommonFooter .footer $DemoDir
+
+
+### Colors and other options for the graph:
+
+image create photo bgTexture -file $DemoDir/images/buckskin.gif
 
 option add *Graph.Tile			bgTexture
-option add *Label.Tile			bgTexture
-option add *Frame.Tile			bgTexture
-option add *Htext.Tile			bgTexture
-option add *TileOffset			0
 option add *HighlightThickness		0
 option add *Element.ScaleSymbols	no
-option add *Element.Smooth		linear
 option add *activeLine.Color		yellow4
 option add *activeLine.Fill		yellow
 option add *activeLine.LineWidth	0
-option add *Element.Pixels		3
-option add *Graph.halo			7i
 
-set visual [winfo screenvisual .] 
-if { $visual != "staticgray" } {
-    option add *print.background yellow
-    option add *quit.background red
-}
 
-proc FormatLabel { w value } {
-    return $value
-}
+### Define graph and its elements:
 
 set graph .graph
 
@@ -73,23 +62,62 @@ $graph legend configure \
 
 $graph element create line3 -symbol square -color green4 -fill green2 \
     -linewidth 0 -outlinewidth 1 -pixels 4
-table . .graph 0,0  -fill both
+
+
+### Map everything
+
+grid .header -sticky ew
+grid .graph  -sticky nsew
+grid .footer -sticky ew
+
+grid columnconfigure . 0 -weight 1
+grid    rowconfigure . 1 -weight 1
+
+wm min . 0 0
+
+
+### FIXME rbc - On X11 the legend is not correctly sized for its
+### text, possibly because it has an unexpected font.
+### On X11 this code doesn't change the font, but it does
+### size the legend correctly.
+###
+### Do this also for win32 (for which it does resize the font)
+### because on win32 the legend font is too small.
+if {[tk windowingsystem] in {x11 win32}} {
+    .graph legend configure -font TkDefaultFont
+}
+
+### Warn of delay calculating and drawing points:
+label .lab7 -text "Calculating ..." -bg yellow -fg red
+place .lab7 -relx 0.5 -rely 0.0 -anchor n
 update
 
-vector x($length) y($length)
+
+### Now add the data points.
+vector create x($length) y($length)
 x expr random(x)
 y expr random(y)
 x sort y
 $graph element configure line3 -x x -y y
 
-wm min . 0 0
+### Disable the GUI while the points are being drawn.
 
-Blt_ZoomStack $graph
-Blt_Crosshairs $graph
-Blt_ActiveLegend $graph
-Blt_ClosestPoint $graph
+### FIXME rbc - rbc::busy segfaults ...
+#::rbc::busy hold $graph
+#update
+#::rbc::busy release $graph
 
-busy hold $graph
-update
-busy release $graph
+### ... so instead use a grab.
+### Catch so the grab is always released.
+grab .lab7
+catch update
+grab release .lab7
+destroy .lab7
 
+
+### Add Rbc_* commands
+
+Rbc_ZoomStack $graph
+Rbc_Crosshairs $graph
+Rbc_ActiveLegend $graph
+Rbc_ClosestPoint $graph

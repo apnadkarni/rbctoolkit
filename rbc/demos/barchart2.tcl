@@ -1,32 +1,129 @@
-#!../src/bltwish
+#!/bin/sh
 
-package require BLT
-# --------------------------------------------------------------------------
-# Starting with Tcl 8.x, the BLT commands are stored in their own 
-# namespace called "blt".  The idea is to prevent name clashes with
-# Tcl commands and variables from other packages, such as a "table"
-# command in two different packages.  
+# ------------------------------------------------------------------------------
+#  RBC Demo barchart2.tcl
 #
-# You can access the BLT commands in a couple of ways.  You can prefix
-# all the BLT commands with the namespace qualifier "blt::"
-#  
-#    blt::graph .g
-#    blt::table . .g -resize both
-# 
-# or you can import all the command into the global namespace.
-#
-#    namespace import blt::*
-#    graph .g
-#    table . .g -resize both
-#
-# --------------------------------------------------------------------------
+#  A barchart showing different ways to plot multiple data sets.
+# ------------------------------------------------------------------------------
+# restart using wish \
+exec wish "$0" "$@"
 
-if { $tcl_version >= 8.0 } {
-    namespace import blt::*
-    namespace import -force blt::tile::*
+package require rbc
+namespace import rbc::*
+
+### The script can be run from any location.
+### It loads the files it needs from the demo directory.
+set DemoDir [file normalize [file dirname [info script]]]
+
+
+### Load common commands and create non-rbc GUI elements.
+source $DemoDir/scripts/common.tcl
+
+proc CustomHeader {w graph} {
+    frame $w
+
+    text $w.title -wrap word -width 0 -height 4 -relief flat -highlightthickness 0 -padx 15 -pady 5
+    $w.title insert end [MakeLine {
+        |Data points with like x-coordinates, can have their bar segments
+        |displayed in one of the following modes (using the -barmode option):
+    }]
+    $w.title configure -state disabled
+    bind $w.title <Configure> {AdjustHeight %W 20}
+
+    radiobutton $w.stacked -text stacked -variable barMode \
+        -anchor w -value "stacked" -command {
+        $graph configure -barmode $barMode
+    } 
+
+    label $w.stackedlabel -justify left -text [MakeLine {
+        |Bars are stacked on top of each other.
+        |The overall height is the sum of the y-coordinates.
+    }]
+
+    radiobutton $w.aligned -text aligned -variable barMode \
+        -anchor w -value "aligned" -command {
+            $graph configure -barmode $barMode
+    }
+
+    label $w.alignedlabel -justify left -text [MakeLine {
+        |Bars are drawn side-by-side at a fraction of their normal width.
+    }]
+
+    radiobutton $w.overlap -text "overlap" -variable barMode \
+        -anchor w -value "overlap" -command {
+        $graph configure -barmode $barMode
+    } 
+
+    label $w.overlaplabel -justify left -text {Bars overlap slightly.}
+
+
+    radiobutton $w.normal -text "normal" -variable barMode \
+        -anchor w -value "normal" -command {
+        $graph configure -barmode $barMode
+    } 
+
+    label $w.normallabel -justify left \
+            -text {Bars are overlayed one on top of the next.}
+
+    grid $w.title -columnspan 2     -sticky ew
+    grid $w.stacked $w.stackedlabel -sticky w
+    grid $w.aligned $w.alignedlabel -sticky w
+    grid $w.overlap $w.overlaplabel -sticky w
+    grid $w.normal  $w.normallabel  -sticky w -pady {0 20}
+
+    grid configure $w.stackedlabel $w.alignedlabel $w.overlaplabel \
+            $w.normallabel -padx {20 0}
+    return $w
+}
+set barMode stacked
+
+set graph .graph
+CustomHeader .header $graph
+CommonFooter .footer $DemoDir IMG
+
+
+### Set options for barchart.
+### Both kinds of font description work on win32 and both fail on x11.
+### The X11-legacy font descriptions are left intact where they are used in the other demos.
+if 1 {
+    option add *Barchart.font		-*-helvetica-bold-r-*-*-14-*-*
+    option add *Axis.tickFont		-*-helvetica-medium-r-*-*-12-*-*
+    option add *Axis.titleFont		-*-helvetica-bold-r-*-*-12-*-*
+    option add *Legend.Font		-*-helvetica*-bold-r-*-*-12-*-*
+} else {
+    option add *Barchart.font		{ Helvetica -14 bold }
+    option add *Axis.tickFont		{ Helvetica -12 }
+    option add *Axis.titleFont		{ Helvetica -12 bold }
+    option add *Legend.Font		{ Helvetica -12 bold }
 }
 
-source scripts/demo.tcl
+# image create photo bgTexture -file $DemoDir/images/chalk.gif
+image create photo bgTexture -file $DemoDir/images/rain.gif
+
+option add *tile			bgTexture
+
+option add *Barchart.title		"Comparison of Simulators"
+
+option add *x.Command			FormatXTicks
+option add *x.Title			"Simulator"
+
+option add *y.Title			"Time (hrs)"
+
+option add *activeBar.Foreground	pink
+option add *activeBar.stipple		@$DemoDir/stipples/dot3.xbm
+option add *Element.Background		red
+option add *Element.Relief		solid
+
+option add *Grid.dashes			{ 2 4 }
+option add *Grid.hide			no
+option add *Grid.mapX			""
+
+option add *Legend.activeBorderWidth	2 
+option add *Legend.activeRelief		raised 
+option add *Legend.anchor		ne 
+option add *Legend.borderWidth		0 
+option add *Legend.position		right
+option add *Legend.background		white
 
 proc FormatXTicks { w value } {
 
@@ -42,105 +139,15 @@ proc FormatXTicks { w value } {
     return $name
 }
 
-source scripts/stipples.tcl
 
-#image create photo bgTexture -file ./images/chalk.gif
-image create photo bgTexture -file ./images/rain.gif
+### Create the barchart.
 
-option add *Button.padX			5
+barchart $graph -tile bgTexture 
 
-option add *tile			bgTexture
 
-option add *Radiobutton.font		-*-courier*-medium-r-*-*-14-*-*
-option add *Radiobutton.relief		flat
-option add *Radiobutton.borderWidth     2
-option add *Radiobutton.highlightThickness 0
+### Define vectors and their contents.
 
-option add *Htext.font			-*-times*-bold-r-*-*-14-*-*
-option add *Htext.tileOffset		no
-option add *header.font			-*-times*-medium-r-*-*-14-*-*
-
-option add *Barchart.font		 -*-helvetica-bold-r-*-*-14-*-*
-option add *Barchart.title		"Comparison of Simulators"
-option add *Axis.tickFont		-*-helvetica-medium-r-*-*-12-*-*
-option add *Axis.titleFont		-*-helvetica-bold-r-*-*-12-*-*
-option add *x.Command			FormatXTicks
-option add *x.Title			"Simulator"
-option add *y.Title			"Time (hrs)"
-
-option add *activeBar.Foreground	pink
-option add *activeBar.stipple		dot3
-option add *Element.Background		red
-option add *Element.Relief		solid
-
-option add *Grid.dashes			{ 2 4 }
-option add *Grid.hide			no
-option add *Grid.mapX			""
-
-option add *Legend.Font			"-*-helvetica*-bold-r-*-*-12-*-*"
-option add *Legend.activeBorderWidth	2 
-option add *Legend.activeRelief		raised 
-option add *Legend.anchor		ne 
-option add *Legend.borderWidth		0 
-option add *Legend.position		right
-
-option add *TextMarker.Font		*Helvetica-Bold-R*14*
-
-set visual [winfo screenvisual .] 
-if { $visual != "staticgray" && $visual != "grayscale" } {
-    option add *print.background	yellow
-    option add *quit.background		red
-    option add *quit.activeBackground	red2
-}
-
-htext .title -text {
-    Data points with like x-coordinates, can have their bar segments displayed     
-    in one of the following modes (using the -barmode option):
-}
-htext .header -text {
-    %%
-        radiobutton .header.stacked -text stacked -variable barMode \
-            -anchor w -value "stacked" -selectcolor red -command {
-            .graph configure -barmode $barMode
-        } 
-        .header append .header.stacked -width 1.5i -anchor w
-    %%      Bars are stacked on top of each other. The overall height is the     
-                                                   sum of the y-coordinates. 
-    %% 
-        radiobutton .header.aligned -text aligned -variable barMode \
-          -anchor w -value "aligned" -selectcolor yellow -command {
-            .graph configure -barmode $barMode
-        }
-        .header append .header.aligned -width 1.5i -fill x
-    %%      Bars are drawn side-by-side at a fraction of their normal width. 
-    %%
-        radiobutton .header.overlap -text "overlap" -variable barMode \
-            -anchor w -value "overlap" -selectcolor green -command {
-            .graph configure -barmode $barMode
-        } 
-        .header append .header.overlap -width 1.5i -fill x
-    %%      Bars overlap slightly. 
-    %%
-        radiobutton .header.normal -text "normal" -variable barMode \
-            -anchor w -value "normal" -selectcolor blue -command {
-            .graph configure -barmode $barMode
-        } 
-        .header append .header.normal -width 1.5i -fill x
-    %%      Bars are overlayed one on top of the next. 
-}
-
-htext .footer -text {    Hit the %%
-    set im [image create photo -file ./images/stopsign.gif]
-    button $htext(widget).quit -image $im -command { exit }
-    $htext(widget) append $htext(widget).quit -pady 2
-%% button when you've seen enough. %%
-    label $htext(widget).logo -bitmap BLT
-    $htext(widget) append $htext(widget).logo 
-%%}
-
-barchart .graph -tile bgTexture 
-
-vector X Y0 Y1 Y2 Y3 Y4
+vector create X Y0 Y1 Y2 Y3 Y4
 
 X set { 1 2 3 4 5 6 7 8 9 }
 Y0 set { 
@@ -165,53 +172,63 @@ Y4 set {
 }
 
 
+### Add elements to the barchart.
 #
 # Element attributes:  
 #
 #    Label     yData	Foreground	Background	Stipple	    Borderwidth
 set attributes { 
-    "Setup"	Y1	lightyellow3	lightyellow1	fdiagonal1	1
+    "Setup"	Y1	green3		green1		fdiagonal1	1
     "Read In"	Y0	lightgoldenrod3	lightgoldenrod1	bdiagonal1	1
     "Other"	Y4	lightpink3	lightpink1	fdiagonal1	1
     "Solve"	Y3	cyan3		cyan1		bdiagonal1	1
-    "Load"	Y2	lightblue3	""		fdiagonal1	1
+    "Load"	Y2	lightblue3	lightblue1	fdiagonal1	1
 }
 
 foreach {label yData fg bg stipple bd} $attributes {
-    .graph element create $yData -label $label -bd $bd \
-	-y $yData -x X -fg "" -bg $bg -stipple $stipple
+    $graph element create $yData -label $label -bd $bd \
+	-y $yData -x X -fg "" -bg $bg -stipple @$DemoDir/stipples/${stipple}.xbm
 }
-.header.stacked invoke
 
-table . \
-    0,0 .title -fill x \
-    1,0 .header -fill x  \
-    2,0 .graph -fill both \
-    3,0 .footer -fill x
 
-table configure . r0 r1 r3 -resize none
+### Initial configuration.
 
-Blt_ZoomStack .graph
-Blt_Crosshairs .graph
-Blt_ActiveLegend .graph
-Blt_ClosestPoint .graph
+$graph configure -barmode $barMode
 
-.graph marker bind all <B2-Motion> {
+
+### Map everything, add Rbc_* commands and bindings.
+
+grid .header -sticky ew
+grid $graph  -sticky nsew
+grid .footer -sticky ew
+
+grid columnconfigure . 0 -weight 1
+grid    rowconfigure . 1 -weight 1
+
+
+Rbc_ZoomStack $graph
+Rbc_Crosshairs $graph
+Rbc_ActiveLegend $graph
+Rbc_ClosestPoint $graph
+
+
+$graph marker bind all <B2-Motion> {
     set coords [%W invtransform %x %y]
     catch { %W marker configure [%W marker get current] -coords $coords }
 }
 
-.graph marker bind all <Enter> {
+$graph marker bind all <Enter> {
     set marker [%W marker get current]
     catch { %W marker configure $marker -bg green}
 }
 
-.graph marker bind all <Leave> {
+$graph marker bind all <Leave> {
     set marker [%W marker get current]
     catch { %W marker configure $marker -bg ""}
 }
 
-.graph element bind all <Enter> {
-    .graph element closest %x %y info
-    puts stderr "$info(x) $info(y)"
+$graph element bind all <Enter> {
+    $graph element closest %x %y info
+    ## catch {puts stderr "$info(x) $info(y)"}
 }
+

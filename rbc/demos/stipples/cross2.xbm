@@ -1,0 +1,5 @@
+#define cross2_width 8
+#define cross2_height 8
+static unsigned char cross2_bits[] = {
+   0xff, 0x88, 0x88, 0x88, 0xff, 0x88, 0x88, 0x88};
+

@@ -1,135 +1,41 @@
-#!../src/bltwish
+#!/bin/sh
 
-package require BLT
-# --------------------------------------------------------------------------
-# Starting with Tcl 8.x, the BLT commands are stored in their own 
-# namespace called "blt".  The idea is to prevent name clashes with
-# Tcl commands and variables from other packages, such as a "table"
-# command in two different packages.  
+# ------------------------------------------------------------------------------
+#  RBC Demo barchart3.tcl
 #
-# You can access the BLT commands in a couple of ways.  You can prefix
-# all the BLT commands with the namespace qualifier "blt::"
-#  
-#    blt::graph .g
-#    blt::table . .g -resize both
-# 
-# or you can import all the command into the global namespace.
-#
-#    namespace import blt::*
-#    graph .g
-#    table . .g -resize both
-#
-# --------------------------------------------------------------------------
+#  A conventional barchart with colors and stipple patterns; plotted against y.
+# ------------------------------------------------------------------------------
+# restart using wish \
+exec wish "$0" "$@"
 
-if { $tcl_version >= 8.0 } {
-    namespace import blt::*
-    namespace import -force blt::tile::*
-}
-
-source scripts/demo.tcl
-
-source scripts/stipples.tcl
-source scripts/patterns.tcl
+package require rbc
+namespace import rbc::*
 
 
-option add *graph.xTitle "X Axis Label"
-option add *graph.yTitle "Y Axis Label"
-option add *graph.title "A Simple Barchart"
-option add *graph.xFont *Times-Medium-R*12*
-option add *graph.elemBackground white
-option add *graph.elemRelief raised
+### The script can be run from any location.
+### It loads the files it needs from the demo directory.
+set DemoDir [file normalize [file dirname [info script]]]
 
-set visual [winfo screenvisual .] 
-if { $visual != "staticgray" && $visual != "grayscale" } {
-    option add *print.background yellow
-    option add *quit.background red
-}
 
-htext .header -text {
-This is an example of the barchart widget.  To create a postscript 
-file "bar.ps", press the %% 
-button $htext(widget).print -text {Print} -command {
-  $graph postscript output bar.ps  -maxpect 1
-} 
-$htext(widget) append $htext(widget).print
-%% button.}
+### Load common commands and create non-rbc GUI elements.
+source $DemoDir/scripts/common.tcl
 
-set graph [barchart .b]
-$graph configure \
-    -invert true \
-    -baseline 1.2
-$graph xaxis configure \
-    -command FormatLabel \
-    -descending true
-$graph legend configure \
-    -hide yes
+### To use the demo's "PostScript Options" dialog, source the file
+### scripts/ps.tcl. If this is not done, the "Print" button will print to a
+### file without offering an options dialog.  See command CommonPrint in
+### scripts/common.tcl for choices, including the stock dialog
+### Rbc_PostScriptDialog which is not used in these demos.
+source $DemoDir/scripts/ps.tcl
 
-htext .footer -text {Hit the %%
-button $htext(widget).quit -text quit -command exit
-$htext(widget) append $htext(widget).quit 
-%% button when you've seen enough.%%
-label $htext(widget).logo -bitmap BLT
-$htext(widget) append $htext(widget).logo -padx 20
-%%}
 
-set names { One Two Three Four Five Six Seven Eight }
-if { $visual == "staticgray" || $visual == "grayscale" } {
-    set fgcolors { white white white white white white white white }
-    set bgcolors { black black black black black black black black }
-} else {
-    set fgcolors { red green blue purple orange brown cyan navy }
-    set bgcolors { green blue purple orange brown cyan navy red }
-}
-set bitmaps { 
-    bdiagonal1 bdiagonal2 checker2 checker3 cross1 cross2 cross3 crossdiag
-    dot1 dot2 dot3 dot4 fdiagonal1 fdiagonal2 hline1 hline2 lbottom ltop
-    rbottom rtop vline1 vline2
-}
-set numColors [llength $names]
+set HeaderText {This is an example of the barchart widget.}
+CommonHeader .header $HeaderText 5 $DemoDir .b barchart3.ps
+CommonFooter .footer $DemoDir
 
-for { set i 0} { $i < $numColors } { incr i } {
-    $graph element create [lindex $names $i] \
-	-data { $i+1 $i+1 } \
-	-fg [lindex $fgcolors $i] \
-	-bg [lindex $bgcolors $i] \
-	-stipple [lindex $bitmaps $i]  \
-	-relief raised \
-	-bd 2 
-}
 
-$graph element create Nine \
-    -data { 9 -1.0 } \
-    -fg red  \
-    -relief sunken 
-$graph element create Ten \
-    -data { 10 2 } \
-    -fg seagreen \
-    -stipple hobbes \
-    -background palegreen 
-$graph element create Eleven \
-    -data { 11 3.3 } \
-    -fg blue  
-
-#    -coords { -Inf Inf  } 
-
-$graph marker create bitmap \
-    -coords { 11 3.3 } -anchor center \
-    -bitmap @bitmaps/sharky.xbm \
-    -name bitmap \
-    -fill "" 
-
-$graph marker create polygon \
-    -coords { 5 0 7 2  10 10  10 2 } \
-    -name poly -linewidth 0 -fill ""
-
-table . \
-    .header 0,0 -padx .25i \
-    $graph 1,0 -fill both \
-    .footer 2,0 -padx .25i  
-
-table configure . r0 r2 -resize none
-
-wm min . 0 0
+### Create and configure barchart.
+### Note that the plot is inverted (One to Eleven), and the bars are drawn
+### from a baseline at 1.2, not zero.
 
 proc FormatLabel { w value } {
     # Determine the element name from the value
@@ -144,11 +50,107 @@ proc FormatLabel { w value } {
     return [lindex $info 4]
 }
 
-Blt_ZoomStack $graph
-Blt_Crosshairs $graph
-Blt_ActiveLegend $graph
-Blt_ClosestPoint $graph
+set graph [barchart .b]
+$graph configure \
+    -invert true \
+    -baseline 1.2
+$graph xaxis configure \
+    -command FormatLabel \
+    -descending true
+$graph legend configure \
+    -hide yes
 
+
+### Define names, fgcolors, bgcolors, bitmaps - used to configure elements.
+
+set visual [winfo screenvisual .]
+set names { One Two Three Four Five Six Seven Eight }
+if { $visual == "staticgray" || $visual == "grayscale" } {
+    set fgcolors { white white white white white white white white }
+    set bgcolors { black black black black black black black black }
+} else {
+    set fgcolors { red green blue purple orange brown cyan navy }
+    set bgcolors { green blue purple orange brown cyan navy red }
+}
+set bitmaps { 
+    bdiagonal1 bdiagonal2 checker2 checker3 cross1 cross2 cross3 crossdiag
+}
+
+### Add elements to barchart.
+### Use names, fgcolors, bgcolors, bitmaps to configure each element.
+
+set numColors [llength $names]
+for { set i 0} { $i < $numColors } { incr i } {
+    $graph element create [lindex $names $i] \
+	-data { $i+1 $i+1 } \
+	-fg [lindex $fgcolors $i] \
+	-bg [lindex $bgcolors $i] \
+	-stipple @$DemoDir/stipples/[lindex $bitmaps $i].xbm  \
+	-relief raised \
+	-bd 2 
+}
+
+$graph element create Nine \
+    -data { 9 -1.0 } \
+    -fg red  \
+    -relief sunken 
+
+$graph element create Ten \
+    -data { 10 2 } \
+    -fg seagreen \
+    -stipple @$DemoDir/stipples/hobbes.xbm \
+    -background palegreen 
+
+$graph element create Eleven \
+    -data { 11 3.3 } \
+    -fg blue
+
+
+### Map everything, add Rbc_* commands.
+
+grid .header -sticky ew -padx 15
+grid $graph  -sticky news
+grid .footer -sticky ew -padx 15
+
+grid columnconfigure . 0 -weight 1
+grid    rowconfigure . 1 -weight 1
+
+
+wm min . 0 0
+
+Rbc_ZoomStack $graph
+Rbc_Crosshairs $graph
+Rbc_ActiveLegend $graph
+Rbc_ClosestPoint $graph
+
+
+
+
+
+
+
+### The code below is not executed and is not part of the demo.
+### It remains available for experimentation.
+
+if 0 {
+### These bitmaps are unused.
+
+set unusedBitmaps { 
+    dot1 dot2 dot3 dot4 fdiagonal1 fdiagonal2 hline1 hline2 lbottom ltop
+    rbottom rtop vline1 vline2
+}
+
+### These markers from the original BLT demo serve no useful purpose.
+
+$graph marker create bitmap \
+    -coords { 11 3.3 } -anchor center \
+    -bitmap @$DemoDir/bitmaps/sharky.xbm \
+    -name bitmap \
+    -fill "" 
+
+$graph marker create polygon \
+    -coords { 5 0 7 2  10 10  10 2 } \
+    -name poly -linewidth 0 -fill ""
 
 $graph marker bind all <B3-Motion> {
     set coords [%W invtransform %x %y]
@@ -168,3 +170,5 @@ $graph marker bind all <Leave> {
     }
 }
 
+
+}

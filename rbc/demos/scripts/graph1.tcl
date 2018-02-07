@@ -1,3 +1,16 @@
+# ------------------------------------------------------------------------------
+#  RBC Demos - file demos/scripts/graph1.tcl
+# ------------------------------------------------------------------------------
+#  This file is a script fragment that is sourced by the demo
+#  demos/graph1.tcl
+#
+# (1) Define lists of data to be plotted
+# (2) Set option defaults for graph elements
+# (3) Add elements to the graph
+# ------------------------------------------------------------------------------
+
+### (1) Define lists of data to be plotted
+### Data are not defined as vectors or arrays in this example.
 
 set X { 
     2.00000e-01 4.00000e-01 6.00000e-01 8.00000e-01 1.00000e+00 
@@ -31,42 +44,37 @@ set Y3 {
     1.93231e+02 1.93595e+02 1.93958e+02 1.94322e+02 1.94686e+02 
 }
 
+
+### (2) Set option defaults for graph elements
+### The "Fill" images for elements "line2" and "line3" are
+### added in the main file demos/graph1.tcl.
+
 set configOptions {
-    Axis.TitleFont		{Times 18 bold}
     Element.Pixels		6
     Element.Smooth		catrom
-    Legend.ActiveBackground	khaki2
-    Legend.ActiveRelief		sunken
-    Legend.Background		""
-    Title			"A Simple X-Y Graph"
-    activeLine.Color		yellow4
-    activeLine.Fill		yellow
-    background			khaki3
+
     line1.Color			red4
     line1.Fill			red1
     line1.Symbol		circle
+
     line2.Color			purple4
     line2.Fill			purple1
     line2.Symbol		arrow
+
     line3.Color			green4
     line3.Fill			green1
     line3.Symbol		triangle
-    x.Descending		no
-    x.Loose			no
-    x.Title			"X Axis Label"
-    y.Rotate			90
-    y.Title			"Y Axis Label" 
 }
 
 set resource [string trimleft $graph .]
 foreach { option value } $configOptions {
     option add *$resource.$option $value
 }
+
+
+### (3) Add elements to the graph
+
 $graph element create line1 -x $X -y $Y2 
 $graph element create line2 -x $X -y $Y3 
 $graph element create line3 -x $X -y $Y1 
 
-Rbc_ZoomStack $graph
-Rbc_Crosshairs $graph
-Rbc_ActiveLegend $graph
-Rbc_ClosestPoint $graph
