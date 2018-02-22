@@ -103,10 +103,6 @@ Rbc_Init (interp)
         return TCL_ERROR;
     }
 
-    if (Tcl_PkgProvide(interp, "rbc", "0.1") == TCL_ERROR) {
-        return TCL_ERROR;
-    }
-
     nsPtr = Tcl_CreateNamespace(interp, "rbc", NULL, NULL);
     if (nsPtr == NULL) {
 	    return TCL_ERROR;
