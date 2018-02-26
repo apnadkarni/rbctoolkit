@@ -2300,7 +2300,7 @@ in a binding script terminates that script, and a break command
 terminates that script and skips any remaining scripts for the event, 
 just as for the bind command.
 .sp
-The \fB\-bindtags\R option for these components controls addition
+The \fB\-bindtags\fR option for these components controls addition
 tag names which can be matched.  Implicitly elements and markers
 always have tags matching their names.  Setting the value of
 the \fB\-bindtags\fR option doesn't change this.
