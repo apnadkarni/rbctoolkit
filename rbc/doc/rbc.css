@@ -6,17 +6,22 @@
  * See mdoc(7) and man(7) for macro explanations.
  */
 
-div.mandoc			{ min-width: 102ex; 
-				  width: 102ex; 
-				  font-family: monospace; } /* This is the outer node of all mandoc -T[x]html documents. */
-div.mandoc h1			{ margin-bottom: 0ex; font-size: inherit; margin-left: -4ex; } /* Section header (Sh, SH). */
-div.mandoc h2			{ margin-bottom: 0ex; font-size: inherit; margin-left: -2ex; } /* Sub-section header (Ss, SS). */
+div.mandoc			{ max-width: 102ex; 
+				  margin-left: 2ex;
+				  font-family: serif; } /* This is the outer node of all mandoc -T[x]html documents. */
+/* Note font-size not set to inherit because Windows CHM does not understand it */
+div.mandoc h1			{ margin-bottom: 0ex; font-size: 120%; margin-left: -2ex; } /* Section header (Sh, SH). */
+div.mandoc h2			{ margin-bottom: 0ex; font-size: 110%; } /* Sub-section header (Ss, SS). */
 div.mandoc table		{ width: 100%; margin-top: 0ex; margin-bottom: 0ex; } /* All tables. */
 div.mandoc td			{ vertical-align: top; } /* All table cells. */
 div.mandoc p			{ } /* Paragraph: Pp, Lp. */
 div.mandoc blockquote		{ margin-left: 5ex; margin-top: 0ex; margin-bottom: 0ex; } /* D1, Dl. */
 div.mandoc div.section		{ margin-bottom: 2ex; margin-left: 5ex; } /* Sections (Sh, SH). */
 div.mandoc div.subsection	{ } /* Sub-sections (Ss, SS). */
+div.mandoc div.section div  {font-family: monospace;} /* Code blocks */
+div.mandoc div.section div p {font-family: serif;} /* Code blocks */
+div.mandoc div.section div.subsection  {font-family: serif;} /* Override above for subsections */
+div.mandoc div.section div dd {font-family: serif;} /* Definition list description */
 div.mandoc table.synopsis	{ } /* SYNOPSIS section table. */
 div.mandoc table.foot		{ } /* Document footer. */
 div.mandoc td.foot-date		{ width: 50%; } /* Document footer: date. */
