@@ -1343,27 +1343,27 @@ NiceNum(x, round)
                 * of value. */
 {
     double expt;		/* Exponent of x */
-    double frac;		/* Fractional part of x */
     double nice;		/* Nice, rounded fraction */
+    int    frac;		/* Fractional part of x */
 
     expt = floor(log10(x));
-    frac = x / EXP10(expt);	/* between 1 and 10 */
+    frac = (int)((x / EXP10(expt))*100.0 + 0.5);	/* between 1 and 100 */
     if (round) {
-        if (frac < 1.5) {
+        if (frac < 150) {
             nice = 1.0;
-        } else if (frac < 3.0) {
+        } else if (frac < 300) {
             nice = 2.0;
-        } else if (frac < 7.0) {
+        } else if (frac < 700) {
             nice = 5.0;
         } else {
             nice = 10.0;
         }
     } else {
-        if (frac <= 1.0) {
+        if (frac <= 100) {
             nice = 1.0;
-        } else if (frac <= 2.0) {
+        } else if (frac <= 200) {
             nice = 2.0;
-        } else if (frac <= 5.0) {
+        } else if (frac <= 500) {
             nice = 5.0;
         } else {
             nice = 10.0;
