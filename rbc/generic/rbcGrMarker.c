@@ -2893,6 +2893,12 @@ ConfigureWindowMarker(markerPtr)
     Tk_Window tkwin;
 
     if (wmPtr->pathName == NULL) {
+        if (wmPtr->tkwin != NULL) {
+            Tk_DeleteEventHandler(wmPtr->tkwin, StructureNotifyMask,
+                                  ChildEventProc, wmPtr);
+            Tk_ManageGeometry(wmPtr->tkwin, (Tk_GeomMgr *) 0, (ClientData)0);
+            Tk_UnmapWindow(wmPtr->tkwin);
+        }
         return TCL_OK;
     }
     tkwin = Tk_NameToWindow(graphPtr->interp, wmPtr->pathName,
@@ -2918,7 +2924,15 @@ ConfigureWindowMarker(markerPtr)
         Tk_ManageGeometry(tkwin, &winMarkerMgrInfo, wmPtr);
     }
     wmPtr->tkwin = tkwin;
-
+    if (wmPtr->hidden || wmPtr->nWorldPts < 1) {
+        if (Tk_IsMapped(wmPtr->tkwin)) {
+            Tk_UnmapWindow(wmPtr->tkwin);
+        }
+    } else {
+        if (!Tk_IsMapped(wmPtr->tkwin)) {
+            Tk_MapWindow(wmPtr->tkwin);
+        }
+    }
     wmPtr->flags |= MAP_ITEM;
     if (wmPtr->drawUnder) {
         graphPtr->flags |= REDRAW_BACKING_STORE;
@@ -2981,6 +2995,9 @@ MapWindowMarker(markerPtr)
     exts.right = wmPtr->anchorPos.x + wmPtr->width - 1;
     exts.bottom = wmPtr->anchorPos.y + wmPtr->height - 1;
     wmPtr->clipped = BoxesDontOverlap(graphPtr, &exts);
+    if (wmPtr->clipped && Tk_IsMapped(wmPtr->tkwin)) {
+        Tk_UnmapWindow(wmPtr->tkwin);
+    }
 }
 
 /*
