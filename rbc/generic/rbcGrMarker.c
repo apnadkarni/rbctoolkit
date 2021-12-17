@@ -2166,12 +2166,14 @@ MapImageMarker(markerPtr)
         if (corner1.y > corner2.y) {
             hold = corner1.y, corner1.y = corner2.y, corner2.y = hold;
         }
+        scaledWidth = (int)(corner2.x - corner1.x) + 1;
+        scaledHeight = (int)(corner2.y - corner1.y) + 1;
     } else {
         corner2.x = corner1.x + srcWidth - 1;
         corner2.y = corner1.y + srcHeight - 1;
+        scaledWidth = srcWidth;
+        scaledHeight = srcHeight;
     }
-    scaledWidth = (int)(corner2.x - corner1.x) + 1;
-    scaledHeight = (int)(corner2.y - corner1.y) + 1;
 
     if (imPtr->nWorldPts == 1) {
         anchorPos = Rbc_TranslatePoint(&corner1, scaledWidth, scaledHeight,
