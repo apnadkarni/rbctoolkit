@@ -2192,6 +2192,7 @@ MapImageMarker(markerPtr)
 
     imPtr->clipped = BoxesDontOverlap(graphPtr, &exts);
     if (imPtr->clipped) {
+        imPtr->anchorPos = anchorPos;
         return;			/* Image is offscreen. Don't generate
 				 * rotated or scaled images. */
     }
@@ -5154,7 +5155,7 @@ Rbc_NearestMarker(graphPtr, x, y, under)
             linkPtr != NULL; linkPtr = Rbc_ChainPrevLink(linkPtr)) {
         markerPtr = Rbc_ChainGetValue(linkPtr);
         if ((markerPtr->drawUnder == under) && (markerPtr->nWorldPts > 0) &&
-                (!markerPtr->hidden) && (markerPtr->state == STATE_NORMAL)) {
+                (!markerPtr->hidden) && (!markerPtr->clipped) && (markerPtr->state == STATE_NORMAL)) {
             if ((*markerPtr->classPtr->pointProc) (markerPtr, &point)) {
                 return markerPtr;
             }
