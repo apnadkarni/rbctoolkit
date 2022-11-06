@@ -88,7 +88,7 @@ extern int Rbc_EndPrintJob(Tcl_Interp *interp, Drawable drawable);
 #undef EXPORT
 #define EXPORT __declspec(dllexport)
 
-#if defined(_MSC_VER) && _MSC_VER <= 1400
+#if defined(_MSC_VER) && _MSC_VER <= 1600
 #define isnan(x)		_isnan(x)
 #endif /* _MSC_VER */
 

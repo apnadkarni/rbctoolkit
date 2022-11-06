@@ -2166,12 +2166,14 @@ MapImageMarker(markerPtr)
         if (corner1.y > corner2.y) {
             hold = corner1.y, corner1.y = corner2.y, corner2.y = hold;
         }
+        scaledWidth = (int)(corner2.x - corner1.x) + 1;
+        scaledHeight = (int)(corner2.y - corner1.y) + 1;
     } else {
         corner2.x = corner1.x + srcWidth - 1;
         corner2.y = corner1.y + srcHeight - 1;
+        scaledWidth = srcWidth;
+        scaledHeight = srcHeight;
     }
-    scaledWidth = (int)(corner2.x - corner1.x) + 1;
-    scaledHeight = (int)(corner2.y - corner1.y) + 1;
 
     if (imPtr->nWorldPts == 1) {
         anchorPos = Rbc_TranslatePoint(&corner1, scaledWidth, scaledHeight,
@@ -2190,6 +2192,7 @@ MapImageMarker(markerPtr)
 
     imPtr->clipped = BoxesDontOverlap(graphPtr, &exts);
     if (imPtr->clipped) {
+        imPtr->anchorPos = anchorPos;
         return;			/* Image is offscreen. Don't generate
 				 * rotated or scaled images. */
     }
@@ -2891,6 +2894,12 @@ ConfigureWindowMarker(markerPtr)
     Tk_Window tkwin;
 
     if (wmPtr->pathName == NULL) {
+        if (wmPtr->tkwin != NULL) {
+            Tk_DeleteEventHandler(wmPtr->tkwin, StructureNotifyMask,
+                                  ChildEventProc, wmPtr);
+            Tk_ManageGeometry(wmPtr->tkwin, (Tk_GeomMgr *) 0, (ClientData)0);
+            Tk_UnmapWindow(wmPtr->tkwin);
+        }
         return TCL_OK;
     }
     tkwin = Tk_NameToWindow(graphPtr->interp, wmPtr->pathName,
@@ -2916,7 +2925,15 @@ ConfigureWindowMarker(markerPtr)
         Tk_ManageGeometry(tkwin, &winMarkerMgrInfo, wmPtr);
     }
     wmPtr->tkwin = tkwin;
-
+    if (wmPtr->hidden || wmPtr->nWorldPts < 1) {
+        if (Tk_IsMapped(wmPtr->tkwin)) {
+            Tk_UnmapWindow(wmPtr->tkwin);
+        }
+    } else {
+        if (!Tk_IsMapped(wmPtr->tkwin)) {
+            Tk_MapWindow(wmPtr->tkwin);
+        }
+    }
     wmPtr->flags |= MAP_ITEM;
     if (wmPtr->drawUnder) {
         graphPtr->flags |= REDRAW_BACKING_STORE;
@@ -2979,6 +2996,9 @@ MapWindowMarker(markerPtr)
     exts.right = wmPtr->anchorPos.x + wmPtr->width - 1;
     exts.bottom = wmPtr->anchorPos.y + wmPtr->height - 1;
     wmPtr->clipped = BoxesDontOverlap(graphPtr, &exts);
+    if (wmPtr->clipped && Tk_IsMapped(wmPtr->tkwin)) {
+        Tk_UnmapWindow(wmPtr->tkwin);
+    }
 }
 
 /*
@@ -5135,7 +5155,7 @@ Rbc_NearestMarker(graphPtr, x, y, under)
             linkPtr != NULL; linkPtr = Rbc_ChainPrevLink(linkPtr)) {
         markerPtr = Rbc_ChainGetValue(linkPtr);
         if ((markerPtr->drawUnder == under) && (markerPtr->nWorldPts > 0) &&
-                (!markerPtr->hidden) && (markerPtr->state == STATE_NORMAL)) {
+                (!markerPtr->hidden) && (!markerPtr->clipped) && (markerPtr->state == STATE_NORMAL)) {
             if ((*markerPtr->classPtr->pointProc) (markerPtr, &point)) {
                 return markerPtr;
             }
